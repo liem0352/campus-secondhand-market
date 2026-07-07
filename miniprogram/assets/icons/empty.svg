@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 空状态插画：盒中无物 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="20" y="40" width="80" height="60" rx="6"/>
+  <path d="M20 60h80"/>
+  <path d="M50 30l10 10 10-10"/>
+  <circle cx="60" cy="80" r="6"/>
+</svg>

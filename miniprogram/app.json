@@ -1,0 +1,62 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/index/index",
+    "pages/category/category",
+    "pages/publish/publish",
+    "pages/detail/detail",
+    "pages/chat/chat",
+    "pages/chat-room/chat-room",
+    "pages/orders/orders",
+    "pages/messages/messages",
+    "pages/mine/mine",
+    "pages/mine/settings",
+    "pages/mine/favorites",
+    "pages/mine/wallet",
+    "pages/mine/my-products",
+    "pages/mine/address",
+    "pages/stats/stats",
+    "pages/ai/ai",
+    "pages/search/search"
+  ],
+  "window": {
+    "navigationBarTitleText": "校园易物",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F5F5F7",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#FF6B35",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/category/category",
+        "text": "分类"
+      },
+      {
+        "pagePath": "pages/publish/publish",
+        "text": "发布"
+      },
+      {
+        "pagePath": "pages/chat/chat",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

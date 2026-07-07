@@ -1,0 +1,1108 @@
+/* =============================================================
+ *  校园易物 · 多主题设计系统(支持 8 套主题 + 深浅模式)
+ *  -------------------------------------------------------------
+ *  同步自 frontend-web/src/style.css
+ *  管理后台与卖家工作台共用同一套设计系统
+ *  - 主题切换通过 <html data-theme="X" data-mode="light|dark"> 控制
+ *  - 浅色模式:写在 :root,所有主题可覆盖 [data-theme="X"] 选择器
+ *  - 深色模式:写在 [data-mode="dark"] 选择器
+ *  - 自定义主题色由 useThemeStore 动态注入到 #theme-injection <style>
+ *  ============================================================= */
+
+/* ============================================================
+ * # 0 基础变量(仅排版、间距、圆角、阴影、动效、z-index)
+ *    与主题/明暗无关的"原子"层
+ * ============================================================ */
+:root {
+  /* 字号 */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-md: 17px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 32px;
+  --font-size-4xl: 48px;
+
+  /* 字重 */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* 行高 */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-loose: 1.75;
+
+  /* 字体族 */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Inter',
+    'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+
+  /* 间距 */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-base: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  /* 动效 */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 布局 */
+  --page-padding-x: var(--space-4);
+  --page-padding-y: var(--space-3);
+  --card-gap: var(--space-3);
+  --section-gap: var(--space-6);
+  /* 管理后台侧边栏比卖家台宽 20px */
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 64px;
+  --header-height: 60px;
+
+  /* 断点 */
+  --bp-mobile: 375px;
+  --bp-tablet: 768px;
+  --bp-desktop: 1024px;
+  --bp-wide: 1440px;
+
+  /* z-index */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
+
+  /* 玻璃表面(深浅共用,只调透明度) */
+  --glass-0: transparent;
+  --glass-light-1: rgba(255, 255, 255, 0.45);
+  --glass-light-2: rgba(255, 255, 255, 0.60);
+  --glass-light-3: rgba(255, 255, 255, 0.78);
+  --glass-light-4: rgba(255, 255, 255, 0.92);
+  --glass-dark-1: rgba(28, 28, 30, 0.42);
+  --glass-dark-2: rgba(28, 28, 30, 0.58);
+  --glass-dark-3: rgba(28, 28, 30, 0.72);
+
+  /* 玻璃模糊 */
+  --glass-blur-1: saturate(160%) blur(12px);
+  --glass-blur-2: saturate(180%) blur(20px);
+  --glass-blur-3: saturate(200%) blur(32px);
+  --glass-blur-4: saturate(220%) blur(48px);
+
+  /* 玻璃高光 */
+  --glass-hl-1: inset 0 1px 0 0 rgba(255, 255, 255, 0.28);
+  --glass-hl-2: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  --glass-hl-3: inset 0 2px 0 0 rgba(255, 255, 255, 0.7);
+  --glass-hl-dark: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+  /* 玻璃圆角 */
+  --glass-r-xs: 8px;
+  --glass-r-sm: 12px;
+  --glass-r-md: 16px;
+  --glass-r-lg: 20px;
+  --glass-r-xl: 24px;
+  --glass-r-2xl: 32px;
+  --glass-r-pill: 999px;
+
+  /* 品牌主渐变(由主色 + 暗化色动态生成,见 theme 注入) */
+  --brand-gradient-warm:  linear-gradient(135deg, var(--color-primary-300) 0%, var(--color-primary-500) 50%, var(--color-primary-600) 100%);
+  --brand-gradient-amber: linear-gradient(135deg, #FFB84D 0%, #E88A1B 100%);
+  --brand-gradient-cream: linear-gradient(180deg, var(--color-bg-card) 0%, var(--color-bg-section) 100%);
+  --brand-gradient-soft:  linear-gradient(180deg, var(--color-primary-50) 0%, var(--color-primary-100) 100%);
+  --brand-bg-page-soft:   linear-gradient(180deg, var(--color-bg-card) 0%, var(--color-primary-50) 100%);
+
+  /* 向后兼容旧 token */
+  --primary-color: var(--color-primary);
+  --bg-color: var(--color-bg-page);
+}
+
+/* ============================================================
+ * # 1 默认浅色主题(warm-orange)
+ *    不写明 data-theme 时回退到这套
+ * ============================================================ */
+:root,
+:root[data-theme='warm-orange'][data-mode='light'] {
+  /* 主色 */
+  --color-primary: #F25C2A;
+  --color-primary-rgb: 242, 92, 42;
+  --color-primary-hover: #E55A2B;
+  --color-primary-active: #CC4A1F;
+  --color-primary-soft: #FFE5DA;
+  --color-primary-disabled: #FFB499;
+
+  /* 9 阶主色(由 --color-primary 自动派生见 theme store) */
+  --color-primary-50:  #FFF4EE;
+  --color-primary-100: #FFE4D4;
+  --color-primary-200: #FFCBAA;
+  --color-primary-300: #FFAA7A;
+  --color-primary-400: #FF8A5C;
+  --color-primary-500: #F25C2A;
+  --color-primary-600: #D44417;
+  --color-primary-700: #A8330F;
+  --color-primary-800: #82270B;
+  --color-primary-900: #5A1A07;
+
+  /* 文本 */
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  --color-text-disabled: #CCCCCC;
+  --color-text-inverse: #FFFFFF;
+  --color-text-link: #F25C2A;
+  --color-text-price: #FF4D4F;
+
+  /* 背景 */
+  --color-bg-page: #F5F5F7;
+  --color-bg-card: #FFFFFF;
+  --color-bg-section: #FAFAFA;
+  --color-bg-mask: rgba(0, 0, 0, 0.4);
+  --color-bg-hover: #F0F0F0;
+  --color-bg-pressed: #E5E5E5;
+
+  /* 状态色 */
+  --color-success: #07C160;
+  --color-warning: #FFA500;
+  --color-error: #FF4D4F;
+  --color-info: #1989FA;
+
+  /* 信用分 */
+  --color-credit-high: #07C160;
+  --color-credit-mid: #FFA500;
+  --color-credit-low: #FF4D4F;
+
+  /* 边框 */
+  --color-border-light: #EEEEEE;
+  --color-border-base: #DDDDDD;
+  --color-border-strong: #CCCCCC;
+  --color-divider: #F0F0F0;
+
+  /* 阴影(由 --shadow-color-rgb 控制深浅) */
+  --shadow-color-rgb: 0, 0, 0;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-base: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-orange: 0 4px 16px rgba(242, 92, 42, 0.3);
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+
+  /* 玻璃:浅色背景 */
+  --glass-bd-1: 1px solid rgba(255, 255, 255, 0.28);
+  --glass-bd-2: 1px solid rgba(255, 255, 255, 0.42);
+  --glass-bd-3: 1px solid rgba(255, 255, 255, 0.6);
+  --glass-bd-dark: 1px solid rgba(255, 255, 255, 0.1);
+
+  /* 玻璃面浅色模式(白玻璃) */
+  --glass-light-1: rgba(255, 255, 255, 0.45);
+  --glass-light-2: rgba(255, 255, 255, 0.60);
+  --glass-light-3: rgba(255, 255, 255, 0.78);
+  --glass-light-4: rgba(255, 255, 255, 0.92);
+  /* 浅色高光 */
+  --glass-hl-1: inset 0 1px 0 0 rgba(255, 255, 255, 0.28);
+  --glass-hl-2: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  --glass-hl-3: inset 0 2px 0 0 rgba(255, 255, 255, 0.7);
+  /* 单值高光色(给 inset/边框用) */
+  --glass-hl-color: rgba(255, 255, 255, 0.6);
+  /* 主色 tint(给底色反射用) */
+  --glass-primary-tint: rgba(255, 138, 92, 0.08);
+  /* 输入框玻璃背景色 */
+  --glass-input-bg: rgba(255, 255, 255, 0.42);
+  --glass-input-bg-hover: rgba(255, 255, 255, 0.58);
+  --glass-input-bg-focus: rgba(255, 255, 255, 0.78);
+  /* 快速登录子卡 */
+  --glass-quick-bg: rgba(255, 255, 255, 0.4);
+  --glass-quick-btn-bg: rgba(255, 255, 255, 0.55);
+  --glass-quick-btn-bg-hover: rgba(255, 255, 255, 0.78);
+  --glass-quick-btn-bg-focus: rgba(255, 255, 255, 0.88);
+  /* 演示提示框 */
+  --demo-tip-bg-start: rgba(255, 220, 192, 0.5);
+  --demo-tip-bg-end:   rgba(255, 184, 138, 0.45);
+  --demo-tip-code-bg:  rgba(255, 255, 255, 0.7);
+  /* AI 内联议价(浅色 = 暖橙玻璃) */
+  --ai-inline-bg-start: #FFF7F4;
+  --ai-inline-bg-end:   #FFF0E9;
+  /* 学习小贴士卡(浅色 = 浅蓝玻璃) */
+  --tip-card-soft-bg-start: #E8F4FF;
+  --tip-card-soft-bg-end:   #D6EBFF;
+  --tip-card-soft-border:   #CCE6FF;
+  /* 主题色块激活态背景(浅色 = 浅橙) */
+  --swatch-active-bg: var(--color-primary-50);
+
+  /* Element Plus 主题同步 */
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-light-3: var(--color-primary-300);
+  --el-color-primary-light-5: var(--color-primary-200);
+  --el-color-primary-light-7: var(--color-primary-100);
+  --el-color-primary-light-8: var(--color-primary-50);
+  --el-color-primary-light-9: var(--color-primary-50);
+  --el-color-primary-dark-2: var(--color-primary-700);
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+  --el-color-danger: var(--color-error);
+  --el-color-error: var(--color-error);
+  --el-color-info: var(--color-info);
+  --el-text-color-primary: var(--color-text-primary);
+  --el-text-color-regular: var(--color-text-secondary);
+  --el-text-color-secondary: var(--color-text-tertiary);
+  --el-text-color-placeholder: #C0C4CC;
+  --el-border-color: var(--color-border-light);
+  --el-border-color-light: var(--color-border-light);
+  --el-border-color-lighter: var(--color-border-light);
+  --el-bg-color: var(--color-bg-card);
+  --el-bg-color-page: var(--color-bg-page);
+  --el-fill-color-blank: var(--color-bg-card);
+  --el-border-radius-base: var(--radius-md);
+  --el-font-size-base: var(--font-size-base);
+}
+
+/* ============================================================
+ * # 2 暗色模式(覆盖所有主题)
+ * ============================================================ */
+:root[data-mode='dark'] {
+  --color-primary-rgb: 255, 138, 92;
+
+  /* 主色(深色下提亮) */
+  --color-primary: #FF8A5C;
+  --color-primary-hover: #FFAA7A;
+  --color-primary-active: #FFCBAA;
+  --color-primary-soft: rgba(255, 138, 92, 0.16);
+  --color-primary-disabled: #5A1A07;
+
+  --color-primary-50:  #2A1407;
+  --color-primary-100: #3D1D0A;
+  --color-primary-200: #5A1A07;
+  --color-primary-300: #82270B;
+  --color-primary-400: #A8330F;
+  --color-primary-500: #D44417;
+  --color-primary-600: #F25C2A;
+  --color-primary-700: #FF8A5C;
+  --color-primary-800: #FFAA7A;
+  --color-primary-900: #FFCBAA;
+
+  /* 文本(深色背景) */
+  --color-text-primary: #F5F5F7;
+  --color-text-secondary: #C0C4CC;
+  --color-text-tertiary: #909399;
+  --color-text-disabled: #606266;
+  /* 语义:在反色背景(深色侧边栏)上的文字 → 永远保持浅色 */
+  --color-text-inverse: #F5F5F7;
+  --color-text-link: #FFAA7A;
+  --color-text-price: #FF7676;
+
+  /* 背景 */
+  --color-bg-page: #15171C;
+  --color-bg-card: #1F2128;
+  --color-bg-section: #262932;
+  --color-bg-mask: rgba(0, 0, 0, 0.65);
+  --color-bg-hover: #2A2D38;
+  --color-bg-pressed: #353945;
+
+  /* 状态色(提亮) */
+  --color-success: #4CD964;
+  --color-warning: #FFB84D;
+  --color-error: #FF6B6B;
+  --color-info: #56CCF2;
+
+  --color-credit-high: #4CD964;
+  --color-credit-mid: #FFB84D;
+  --color-credit-low: #FF6B6B;
+
+  /* 边框 */
+  --color-border-light: #2C2E36;
+  --color-border-base: #3A3D48;
+  --color-border-strong: #4A4D58;
+  --color-divider: #2C2E36;
+
+  /* 阴影 */
+  --shadow-color-rgb: 0, 0, 0;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --shadow-base: 0 2px 12px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+  --shadow-orange: 0 4px 16px rgba(255, 138, 92, 0.25);
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-glass: 0 6px 20px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+
+  /* 玻璃:深色 */
+  --glass-bd-1: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-bd-2: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-bd-3: 1px solid rgba(255, 255, 255, 0.18);
+  --glass-bd-dark: 1px solid rgba(255, 255, 255, 0.05);
+
+  /* 玻璃面深色模式(深玻璃,对比浅色模式的 88% 白玻璃) */
+  --glass-light-1: rgba(20, 22, 30, 0.72);
+  --glass-light-2: rgba(20, 22, 30, 0.82);
+  --glass-light-3: rgba(20, 22, 30, 0.90);
+  --glass-light-4: rgba(20, 22, 30, 0.96);
+  /* 暗色模式下高光带用极弱光(几乎透明) */
+  --glass-hl-1: inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+  --glass-hl-2: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  --glass-hl-3: inset 0 2px 0 0 rgba(255, 255, 255, 0.07);
+  /* 单值高光色(给 inset/边框用) */
+  --glass-hl-color: rgba(255, 255, 255, 0.05);
+  /* 主色 tint(给底色反射用,深色下几乎不显示) */
+  --glass-primary-tint: rgba(var(--color-primary-rgb), 0.02);
+  /* 输入框玻璃背景色 */
+  --glass-input-bg: rgba(20, 22, 30, 0.55);
+  --glass-input-bg-hover: rgba(30, 32, 40, 0.72);
+  --glass-input-bg-focus: rgba(40, 42, 50, 0.88);
+  /* 快速登录子卡 */
+  --glass-quick-bg: rgba(20, 22, 30, 0.6);
+  --glass-quick-btn-bg: rgba(30, 32, 40, 0.72);
+  --glass-quick-btn-bg-hover: rgba(40, 42, 50, 0.88);
+  --glass-quick-btn-bg-focus: rgba(40, 42, 50, 0.96);
+  /* 演示提示框(深底+主色微亮) */
+  --demo-tip-bg-start: rgba(var(--color-primary-rgb), 0.10);
+  --demo-tip-bg-end:   rgba(var(--color-primary-rgb), 0.15);
+  --demo-tip-code-bg:  rgba(0, 0, 0, 0.35);
+  /* AI 内联议价(深色 = 主色微亮玻璃) */
+  --ai-inline-bg-start: rgba(var(--color-primary-rgb), 0.10);
+  --ai-inline-bg-end:   rgba(var(--color-primary-rgb), 0.15);
+  /* 学习小贴士卡(深色 = 信息色微亮玻璃) */
+  --tip-card-soft-bg-start: rgba(25, 137, 250, 0.12);
+  --tip-card-soft-bg-end:   rgba(25, 137, 250, 0.18);
+  --tip-card-soft-border:   rgba(25, 137, 250, 0.3);
+  /* 主题色块激活态背景(深色 = 主色微亮玻璃) */
+  --swatch-active-bg: rgba(var(--color-primary-rgb), 0.18);
+
+  /* Element Plus 暗色 */
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-light-3: var(--color-primary-700);
+  --el-color-primary-light-5: var(--color-primary-500);
+  --el-color-primary-light-7: var(--color-primary-300);
+  --el-color-primary-light-8: var(--color-primary-200);
+  --el-color-primary-light-9: var(--color-primary-100);
+  --el-color-primary-dark-2: var(--color-primary-400);
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+  --el-color-danger: var(--color-error);
+  --el-color-error: var(--color-error);
+  --el-color-info: var(--color-info);
+  --el-text-color-primary: var(--color-text-primary);
+  --el-text-color-regular: var(--color-text-secondary);
+  --el-text-color-secondary: var(--color-text-tertiary);
+  --el-text-color-placeholder: #606266;
+  --el-border-color: var(--color-border-light);
+  --el-border-color-light: var(--color-border-light);
+  --el-border-color-lighter: var(--color-border-light);
+  --el-bg-color: var(--color-bg-card);
+  --el-bg-color-page: var(--color-bg-page);
+  --el-fill-color-blank: var(--color-bg-card);
+}
+
+/* ============================================================
+ * # 2.5 Element Plus 描述列表(深色模式适配)
+ *    Element Plus 自带暗黑主题需要在 html.dark 下才会生效,
+ *    本项目通过 [data-mode="dark"] 模拟深色,需要单独覆盖
+ *    描述列表 body 与 cell 的背景/文字色,确保带 border 的
+ *    描述列表在深色模式下背景与文字都跟随切换。
+ * ============================================================ */
+:root[data-mode='dark'] .el-descriptions {
+  color: var(--color-text-primary);
+}
+:root[data-mode='dark'] .el-descriptions__body,
+:root[data-mode='dark'] .el-descriptions__body .el-descriptions__table,
+:root[data-mode='dark'] .el-descriptions__body .el-descriptions__cell {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+:root[data-mode='dark'] .el-descriptions__body .el-descriptions__cell.is-bordered-label {
+  background-color: var(--color-bg-section);
+  color: var(--color-text-secondary);
+}
+:root[data-mode='dark'] .el-descriptions__body .el-descriptions__cell.is-bordered-content {
+  color: var(--color-text-primary);
+}
+:root[data-mode='dark'] .el-descriptions__title {
+  color: var(--color-text-primary);
+}
+
+/* ============================================================
+ * # 2.6 Element Plus 数字输入框(el-input-number)适配
+ *    默认 controls-position="right" 时,增减按钮背景被 EP 硬编码为
+ *    #FFFFFF,深色模式下与页面背景严重脱节。此处把按钮、图标、
+ *    hover / active / disabled 等状态都改为跟随主题变量。
+ * ============================================================ */
+:root[data-mode='dark'] .el-input-number {
+  --el-input-number-controls-color: var(--color-text-secondary);
+}
+:root[data-mode='dark'] .el-input-number .el-input-number__decrease,
+:root[data-mode='dark'] .el-input-number .el-input-number__increase {
+  background: var(--color-bg-section);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-light);
+  transition: background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+:root[data-mode='dark'] .el-input-number .el-input-number__decrease:hover,
+:root[data-mode='dark'] .el-input-number .el-input-number__increase:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-primary);
+}
+:root[data-mode='dark'] .el-input-number .el-input-number__decrease:disabled,
+:root[data-mode='dark'] .el-input-number .el-input-number__increase:disabled {
+  color: var(--color-text-disabled);
+  background: var(--color-bg-section);
+}
+:root[data-mode='dark'] .el-input-number .el-input-number__decrease.is-disabled,
+:root[data-mode='dark'] .el-input-number .el-input-number__increase.is-disabled {
+  color: var(--color-text-disabled);
+  background: var(--color-bg-section);
+}
+/* 深色模式下分隔线也变深 */
+:root[data-mode='dark'] .el-input-number .el-input-number__decrease + .el-input-number__increase,
+:root[data-mode='dark'] .el-input-number .el-input-number__increase + .el-input-number__decrease {
+  border-left-color: var(--color-border-light);
+}
+
+/* 浅色模式:把按钮也改为走主题变量,让"+" / "-" 区域在 hover 时与品牌色保持一致 */
+:root[data-mode='light'] .el-input-number .el-input-number__decrease,
+:root[data-mode='light'] .el-input-number .el-input-number__increase {
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  transition: background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+:root[data-mode='light'] .el-input-number .el-input-number__decrease:hover,
+:root[data-mode='light'] .el-input-number .el-input-number__increase:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+/* ============================================================
+ * # 2.5.5 Element Plus 表格 / 分页 / 加载
+ *    EP 的 .el-table 默认底色为白、斑马纹极浅,深色模式下底色
+ *    与卡片底色(深灰)对比偏弱;把行底与表头底改成"卡片底/分区底"
+ *    二档区分,保留边框,让表格层次清晰。
+ * ============================================================ */
+:root[data-mode='dark'] .el-table {
+  --el-table-bg-color: var(--color-bg-card);
+  --el-table-tr-bg-color: var(--color-bg-card);
+  --el-table-header-bg-color: var(--color-bg-section);
+  --el-table-row-hover-bg-color: var(--color-bg-hover);
+  --el-table-border-color: var(--color-border-light);
+  --el-table-header-text-color: var(--color-text-primary);
+  --el-table-text-color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+:root[data-mode='dark'] .el-table .el-table__cell {
+  background-color: transparent;
+}
+:root[data-mode='dark'] .el-table--striped .el-table__body tr.el-table__row--striped td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+:root[data-mode='dark'] .el-table__inner-wrapper::before,
+:root[data-mode='dark'] .el-table--border::after,
+:root[data-mode='dark'] .el-table--border .el-table__inner-wrapper::before,
+:root[data-mode='dark'] .el-table--border td.el-table__cell,
+:root[data-mode='dark'] .el-table--border th.el-table__cell {
+  border-color: var(--color-border-light);
+}
+/* 空数据 / 加载层在深色下的过渡 */
+:root[data-mode='dark'] .el-table__empty-block {
+  background-color: var(--color-bg-card);
+}
+:root[data-mode='dark'] .el-pagination {
+  --el-pagination-bg-color: var(--color-bg-card);
+  --el-pagination-button-bg-color: var(--color-bg-section);
+  --el-pagination-hover-color: var(--color-primary);
+  color: var(--color-text-primary);
+}
+:root[data-mode='dark'] .el-pagination .el-pager li,
+:root[data-mode='dark'] .el-pagination .btn-prev,
+:root[data-mode='dark'] .el-pagination .btn-next {
+  background: var(--color-bg-section) !important;
+  color: var(--color-text-primary) !important;
+}
+:root[data-mode='dark'] .el-pagination .el-pager li.is-active {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+}
+:root[data-mode='dark'] .el-loading-mask {
+  background-color: rgba(20, 22, 30, 0.7) !important;
+}
+:root[data-mode='dark'] .el-loading-spinner .circular {
+  stroke: var(--color-primary);
+}
+
+/* ============================================================
+ * # 2.6.5 Element Plus Tag 适配
+ *    EP 的 .el-tag--success / --info / --warning / --danger 默认背景
+ *    是浅绿/浅蓝/浅橙/浅红,在深色模式下与深色页面严重脱节。
+ *    这里把背景换成"对应语义色 + alpha"的玻璃感,文字保留原色。
+ * ============================================================ */
+:root[data-mode='dark'] .el-tag {
+  --el-tag-bg-color: transparent;
+  --el-tag-border-color: transparent;
+}
+:root[data-mode='dark'] .el-tag--success {
+  background-color: rgba(76, 217, 100, 0.16) !important;
+  color: var(--color-success) !important;
+}
+:root[data-mode='dark'] .el-tag--info {
+  background-color: rgba(86, 204, 242, 0.16) !important;
+  color: var(--color-info) !important;
+}
+:root[data-mode='dark'] .el-tag--warning {
+  background-color: rgba(255, 184, 77, 0.16) !important;
+  color: var(--color-warning) !important;
+}
+:root[data-mode='dark'] .el-tag--danger {
+  background-color: rgba(255, 107, 107, 0.18) !important;
+  color: var(--color-error) !important;
+}
+:root[data-mode='dark'] .el-tag--primary {
+  background-color: var(--color-primary-soft) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ============================================================
+ * # 2.7 Element Plus 下拉菜单(el-dropdown)与 Popper 容器适配
+ *    头像/用户名触发的「个人资料 / 发布商品 / 退出登录」下拉,
+ *    Element Plus 默认面板背景写死 #FFFFFF、文字走 --el-text-color-regular。
+ *    深色模式下面板与背景脱节,此处统一覆盖背景、边框、文字、hover、分割线。
+ *    顺便把 el-popper 容器(同时被 select / tooltip 共用)一起处理,避免遗漏。
+ * ============================================================ */
+:root[data-mode='dark'] .el-popper,
+:root[data-mode='dark'] .el-popper__arrow::before {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+:root[data-mode='dark'] .el-dropdown-menu,
+:root[data-mode='dark'] .el-dropdown-menu__item,
+:root[data-mode='dark'] .el-dropdown-menu__item:not(.is-disabled):hover,
+:root[data-mode='dark'] .el-dropdown-menu__item:not(.is-disabled):focus {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+:root[data-mode='dark'] .el-dropdown-menu__item:not(.is-disabled):hover,
+:root[data-mode='dark'] .el-dropdown-menu__item:not(.is-disabled):focus {
+  background-color: var(--color-bg-hover);
+  color: var(--color-primary);
+}
+:root[data-mode='dark'] .el-dropdown-menu__item.is-disabled {
+  color: var(--color-text-disabled);
+}
+:root[data-mode='dark'] .el-dropdown-menu .el-dropdown-menu__item--divided {
+  border-top-color: var(--color-border-light);
+}
+:root[data-mode='dark'] .el-dropdown-menu__item .el-icon,
+:root[data-mode='dark'] .el-dropdown-menu__item > * {
+  color: inherit;
+}
+
+/* ============================================================
+ * # 2.8 状态徽章(.status-badge)全状态深色模式适配
+ *    各业务页面(订单/商品/Dashboard)用了大量硬编码色值的
+ *    status-badge--xxx,在深色模式下与背景严重脱节。这里统一
+ *    用语义色 + soft 背景做替换,所有状态在两种模式下都协调。
+ * ============================================================ */
+/* 基础结构(走 CSS 变量) */
+.status-badge {
+  --status-badge-bg: var(--color-bg-hover);
+  --status-badge-fg: var(--color-text-tertiary);
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.6;
+  background: var(--status-badge-bg);
+  color: var(--status-badge-fg);
+}
+/* 订单状态 */
+.status-badge--requested,
+.status-badge--pending {
+  --status-badge-bg: rgba(255, 165, 0, 0.12);
+  --status-badge-fg: var(--color-warning);
+}
+.status-badge--confirmed,
+.status-badge--shipping {
+  --status-badge-bg: rgba(25, 137, 250, 0.12);
+  --status-badge-fg: var(--color-info);
+}
+.status-badge--completed {
+  --status-badge-bg: rgba(7, 193, 96, 0.12);
+  --status-badge-fg: var(--color-success);
+}
+.status-badge--cancelled,
+.status-badge--off_shelf,
+.status-badge--offline,
+.status-badge--sold {
+  --status-badge-bg: var(--color-bg-hover);
+  --status-badge-fg: var(--color-text-tertiary);
+}
+/* 商品状态 */
+.status-badge--on_sale {
+  --status-badge-bg: var(--color-primary-soft);
+  --status-badge-fg: var(--color-primary);
+}
+.status-badge--draft {
+  --status-badge-bg: rgba(25, 137, 250, 0.12);
+  --status-badge-fg: var(--color-info);
+}
+/* 深色模式:轻微提亮背景,避免被深色页面"吃"掉 */
+:root[data-mode='dark'] .status-badge--requested,
+:root[data-mode='dark'] .status-badge--pending {
+  --status-badge-bg: rgba(255, 184, 77, 0.18);
+}
+:root[data-mode='dark'] .status-badge--confirmed,
+:root[data-mode='dark'] .status-badge--shipping,
+:root[data-mode='dark'] .status-badge--draft {
+  --status-badge-bg: rgba(86, 204, 242, 0.18);
+}
+:root[data-mode='dark'] .status-badge--completed {
+  --status-badge-bg: rgba(76, 217, 100, 0.18);
+}
+:root[data-mode='dark'] .status-badge--cancelled,
+:root[data-mode='dark'] .status-badge--off_shelf,
+:root[data-mode='dark'] .status-badge--offline,
+:root[data-mode='dark'] .status-badge--sold {
+  --status-badge-bg: var(--color-bg-section);
+}
+
+/* ============================================================
+ * # 3 主题微调(各主题下明色态)
+ *    只覆盖主色阶与主色相关 token,其余沿用默认
+ * ============================================================ */
+:root[data-theme='midnight-blue'][data-mode='light'] {
+  --color-primary: #2F80ED;
+  --color-primary-rgb: 47, 128, 237;
+  --color-primary-hover: #1B62C7;
+  --color-primary-soft: #E0EBFA;
+  --color-primary-50: #EBF3FE;
+  --color-primary-100: #D6E6FD;
+  --color-primary-200: #ADCEFB;
+  --color-primary-300: #7FAEF6;
+  --color-primary-400: #5691F1;
+  --color-primary-500: #2F80ED;
+  --color-primary-600: #1B62C7;
+  --color-primary-700: #154A99;
+  --color-primary-800: #0F336B;
+  --color-primary-900: #091D3D;
+  --color-text-link: #2F80ED;
+  --shadow-orange: 0 4px 16px rgba(47, 128, 237, 0.3);
+}
+:root[data-theme='midnight-blue'][data-mode='dark'] {
+  --color-primary: #56CCF2;
+  --color-primary-rgb: 86, 204, 242;
+  --color-primary-hover: #6FB1FF;
+  --color-primary-soft: rgba(86, 204, 242, 0.16);
+  --color-primary-50: #0A1E29;
+  --color-primary-500: #154A99;
+  --color-primary-700: #2F80ED;
+  --color-primary-900: #6FB1FF;
+  --color-text-link: #56CCF2;
+  --shadow-orange: 0 4px 16px rgba(86, 204, 242, 0.25);
+}
+
+:root[data-theme='rose-pink'][data-mode='light'] {
+  --color-primary: #E94B82;
+  --color-primary-rgb: 233, 75, 130;
+  --color-primary-hover: #C73066;
+  --color-primary-soft: #FCE0EB;
+  --color-primary-50: #FCE5EE;
+  --color-primary-100: #F8CADE;
+  --color-primary-200: #F2A1BE;
+  --color-primary-300: #EC78A0;
+  --color-primary-400: #EC6694;
+  --color-primary-500: #E94B82;
+  --color-primary-600: #C73066;
+  --color-primary-700: #95214C;
+  --color-primary-800: #631632;
+  --color-primary-900: #380B1B;
+  --color-text-link: #E94B82;
+  --shadow-orange: 0 4px 16px rgba(233, 75, 130, 0.3);
+}
+:root[data-theme='rose-pink'][data-mode='dark'] {
+  --color-primary: #FF7AA0;
+  --color-primary-rgb: 255, 122, 160;
+  --color-primary-hover: #FFA8C2;
+  --color-primary-soft: rgba(255, 122, 160, 0.16);
+  --color-primary-500: #95214C;
+  --color-primary-700: #E94B82;
+  --color-primary-900: #FFA8C2;
+  --color-text-link: #FF7AA0;
+  --shadow-orange: 0 4px 16px rgba(255, 122, 160, 0.25);
+}
+
+:root[data-theme='forest-green'][data-mode='light'] {
+  --color-primary: #2F9E54;
+  --color-primary-rgb: 47, 158, 84;
+  --color-primary-hover: #1F7A40;
+  --color-primary-soft: #DEF3E5;
+  --color-primary-50: #E8F6ED;
+  --color-primary-100: #C5E8D2;
+  --color-primary-200: #95D5AB;
+  --color-primary-300: #6FCF8B;
+  --color-primary-400: #4FB873;
+  --color-primary-500: #2F9E54;
+  --color-primary-600: #1F7A40;
+  --color-primary-700: #155730;
+  --color-primary-800: #0D3A1F;
+  --color-primary-900: #061E10;
+  --color-text-link: #2F9E54;
+  --shadow-orange: 0 4px 16px rgba(47, 158, 84, 0.3);
+}
+:root[data-theme='forest-green'][data-mode='dark'] {
+  --color-primary: #6FCF8B;
+  --color-primary-rgb: 111, 207, 139;
+  --color-primary-hover: #9DDDB1;
+  --color-primary-soft: rgba(111, 207, 139, 0.16);
+  --color-primary-500: #155730;
+  --color-primary-700: #2F9E54;
+  --color-primary-900: #9DDDB1;
+  --color-text-link: #6FCF8B;
+  --shadow-orange: 0 4px 16px rgba(111, 207, 139, 0.25);
+}
+
+:root[data-theme='royal-purple'][data-mode='light'] {
+  --color-primary: #7E57C2;
+  --color-primary-rgb: 126, 87, 194;
+  --color-primary-hover: #5E35B1;
+  --color-primary-soft: #ECE6F8;
+  --color-primary-50: #F2EDFB;
+  --color-primary-100: #E2D7F6;
+  --color-primary-200: #C7B0ED;
+  --color-primary-300: #A989E0;
+  --color-primary-400: #8E6DD1;
+  --color-primary-500: #7E57C2;
+  --color-primary-600: #5E35B1;
+  --color-primary-700: #45278A;
+  --color-primary-800: #2E1A5C;
+  --color-primary-900: #190D2E;
+  --color-text-link: #7E57C2;
+  --shadow-orange: 0 4px 16px rgba(126, 87, 194, 0.3);
+}
+:root[data-theme='royal-purple'][data-mode='dark'] {
+  --color-primary: #B39DDB;
+  --color-primary-rgb: 179, 157, 219;
+  --color-primary-hover: #D1C4E9;
+  --color-primary-soft: rgba(179, 157, 219, 0.16);
+  --color-primary-500: #45278A;
+  --color-primary-700: #7E57C2;
+  --color-primary-900: #D1C4E9;
+  --color-text-link: #B39DDB;
+  --shadow-orange: 0 4px 16px rgba(179, 157, 219, 0.25);
+}
+
+:root[data-theme='graphite'][data-mode='light'] {
+  --color-primary: #37474F;
+  --color-primary-rgb: 55, 71, 79;
+  --color-primary-hover: #263238;
+  --color-primary-soft: #E1E5E7;
+  --color-primary-50: #ECEFF1;
+  --color-primary-100: #CFD8DC;
+  --color-primary-200: #B0BEC5;
+  --color-primary-300: #90A4AE;
+  --color-primary-400: #78909C;
+  --color-primary-500: #37474F;
+  --color-primary-600: #263238;
+  --color-primary-700: #1A2226;
+  --color-primary-800: #101518;
+  --color-primary-900: #070A0C;
+  --color-text-link: #37474F;
+  --shadow-orange: 0 4px 16px rgba(55, 71, 79, 0.3);
+}
+:root[data-theme='graphite'][data-mode='dark'] {
+  --color-primary: #90A4AE;
+  --color-primary-rgb: 144, 164, 174;
+  --color-primary-hover: #B0BEC5;
+  --color-primary-soft: rgba(144, 164, 174, 0.16);
+  --color-primary-500: #1A2226;
+  --color-primary-700: #37474F;
+  --color-primary-900: #B0BEC5;
+  --color-text-link: #90A4AE;
+  --shadow-orange: 0 4px 16px rgba(144, 164, 174, 0.25);
+}
+
+:root[data-theme='sunset'][data-mode='light'] {
+  --color-primary: #E94560;
+  --color-primary-rgb: 233, 69, 96;
+  --color-primary-hover: #C73050;
+  --color-primary-soft: #FBDDE3;
+  --color-primary-50: #FDE2E7;
+  --color-primary-100: #FBC0CC;
+  --color-primary-200: #F7909F;
+  --color-primary-300: #F36B7E;
+  --color-primary-400: #EE5872;
+  --color-primary-500: #E94560;
+  --color-primary-600: #C73050;
+  --color-primary-700: #951F38;
+  --color-primary-800: #641225;
+  --color-primary-900: #380812;
+  --color-text-link: #E94560;
+  --shadow-orange: 0 4px 16px rgba(233, 69, 96, 0.3);
+}
+:root[data-theme='sunset'][data-mode='dark'] {
+  --color-primary: #FF8066;
+  --color-primary-rgb: 255, 128, 102;
+  --color-primary-hover: #FFA899;
+  --color-primary-soft: rgba(255, 128, 102, 0.16);
+  --color-primary-500: #951F38;
+  --color-primary-700: #E94560;
+  --color-primary-900: #FFA899;
+  --color-text-link: #FF8066;
+  --shadow-orange: 0 4px 16px rgba(255, 128, 102, 0.25);
+}
+
+/* ============================================================
+ * # 4 偏好减少动效
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+}
+
+/* ============================================================
+ * # 5 全局基础样式
+ * ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 主题切换平滑过渡 */
+  transition:
+    background-color var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out);
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 页面过渡 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* ============================================================
+ * # 6 通用工具类
+ * ============================================================ */
+.page-container {
+  padding: var(--space-5);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-5);
+}
+
+.page-header h2 {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.stat-card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-base);
+  border: 1px solid var(--color-border-light);
+  transition: transform var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card .label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.stat-card .value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.stat-card .sub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.stat-card.income .value {
+  color: var(--color-success);
+}
+.stat-card.expense .value {
+  color: var(--color-error);
+}
+.stat-card.primary .value {
+  color: var(--color-primary);
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  align-items: center;
+  background: var(--color-bg-card);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+}
+
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-base);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-light);
+}
+
+.text-price {
+  color: var(--color-text-price);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-mono);
+}
+
+.text-muted {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* 信用分徽章 */
+.credit-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+  border: 1.5px solid transparent;
+  flex-shrink: 0;
+}
+.credit-badge--high { background: var(--color-credit-high); }
+.credit-badge--mid  { background: var(--color-credit-mid); }
+.credit-badge--low  { background: var(--color-credit-low); }
+.credit-badge--large {
+  width: 56px;
+  height: 56px;
+  font-size: var(--font-size-base);
+}
+
+/* 状态徽章 */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  line-height: var(--line-height-tight);
+}
+.status-badge--on_sale { background: var(--color-primary-soft); color: var(--color-success); }
+.status-badge--pending  { background: var(--color-primary-soft); color: var(--color-warning); }
+.status-badge--sold     { background: var(--color-bg-hover); color: var(--color-text-tertiary); }
+.status-badge--off_shelf,
+.status-badge--offline  { background: var(--color-primary-soft); color: var(--color-error); }
+.status-badge--draft    { background: var(--color-primary-soft); color: var(--color-info); }
+.status-badge--completed,
+.status-badge--reviewed { background: var(--color-primary-soft); color: var(--color-success); }
+.status-badge--confirmed,
+.status-badge--shipping,
+.status-badge--picking  { background: var(--color-primary-soft); color: var(--color-warning); }
+.status-badge--requested{ background: var(--color-primary-soft); color: var(--color-info); }
+.status-badge--cancelled{ background: var(--color-bg-hover); color: var(--color-text-tertiary); }
+
+/* 主按钮 */
+.primary-btn {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  height: 44px;
+  padding: 0 var(--space-5);
+  cursor: pointer;
+  box-shadow: var(--shadow-orange);
+  transition: transform var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+.primary-btn:hover { background: var(--color-primary-hover); }
+.primary-btn:active { background: var(--color-primary-active); transform: scale(0.98); }
+.primary-btn:disabled { background: var(--color-primary-disabled); cursor: not-allowed; }

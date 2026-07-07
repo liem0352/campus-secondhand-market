@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  校园易物 · favicon（高分辨率版本）
+  - 用途：浏览器 tab、桌面快捷方式、APP icon
+  - 本文件为 256x256 矢量源
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="favGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF8A5C"/>
+      <stop offset="100%" stop-color="#F25C2A"/>
+    </linearGradient>
+    <!-- 底部磨砂遮罩 -->
+    <linearGradient id="favMask" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.04"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.34"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#favGradient)"/>
+  <rect width="256" height="256" rx="56" fill="url(#favMask)"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 64 112 A 64 64 0 0 1 144 56"/>
+    <polyline points="120,40 144,56 128,80"/>
+    <path d="M 192 144 A 64 64 0 0 1 112 200"/>
+    <polyline points="136,216 112,200 128,176"/>
+  </g>
+  <circle cx="128" cy="128" r="9" fill="#FFFFFF"/>
+</svg>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 标题由 env.VITE_APP_TITLE 注入,避免硬编码 -->
+    <title>校园易物</title>
+    <!--
+      内联主题初始化脚本(防闪烁)
+      必须在 CSS 加载前执行,以确保页面首帧已是用户选定主题
+    -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('campus-market.theme')
+          var data = raw ? JSON.parse(raw) : null
+          var themeId = (data && data.themeId) || 'warm-orange'
+          var mode = (data && data.mode) || 'light'
+          // 未指定 mode 时,跟随系统
+          if (!data) {
+            mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          }
+          document.documentElement.setAttribute('data-theme', themeId)
+          document.documentElement.setAttribute('data-mode', mode)
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'warm-orange')
+          document.documentElement.setAttribute('data-mode', 'light')
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

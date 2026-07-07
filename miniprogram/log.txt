@@ -1,0 +1,100 @@
+components/voice-input/voice-input.wxss
+pages/ai/ai.wxml
+pages/ai/ai.wxss
+pages/home/home.wxml
+app.wxss
+components/voice-input/voice-input.wxml
+components/voice-input/voice-input.wxss
+pages/ai/ai.wxml
+pages/ai/ai.wxss
+pages/home/home.wxml
+编译 pages/home/home.wxss
+编译 pages/home/home.wxss
+编译 pages/login/login.js
+编译 pages/login/login.js
+编译 pages/login/login.wxml
+编译 pages/login/login.wxml
+编译 pages/login/login.wxss
+编译 pages/login/login.wxss
+编译 pages/mine/mine.js
+编译 pages/mine/mine.js
+编译 pages/mine/mine.wxml
+编译 pages/mine/mine.wxml
+编译 pages/mine/mine.wxss
+编译 pages/mine/mine.wxss
+编译 pages/record/record.js
+编译 pages/record/record.js
+编译 pages/record/record.wxml
+编译 pages/record/record.wxml
+编译 pages/record/record.wxss
+编译 pages/record/record.wxss
+编译 pages/stats/stats.js
+编译 pages/stats/stats.js
+编译 pages/stats/stats.wxml
+编译 pages/stats/stats.wxml
+编译 pages/stats/stats.wxss
+编译 pages/stats/stats.wxss
+编译 utils/api.js
+编译 utils/api.js
+pages/home/home.wxss
+编译 utils/request.js
+编译 utils/request.js
+编译 utils/voice.js
+编译 utils/voice.js
+pages/login/login.wxml
+pages/login/login.wxss
+pages/mine/mine.wxml
+pages/mine/mine.wxss
+pages/home/home.wxss
+pages/record/record.wxml
+pages/record/record.wxss
+pages/login/login.wxml
+pages/login/login.wxss
+pages/stats/stats.wxml
+pages/stats/stats.wxss
+pages/mine/mine.wxml
+pages/mine/mine.wxss
+pages/record/record.wxml
+pages/record/record.wxss
+pages/stats/stats.wxml
+pages/stats/stats.wxss
+pages/home/home.js
+app.js
+pages/mine/mine.js
+pages/login/login.js
+pages/stats/stats.js
+pages/ai/ai.js
+pages/record/record.js
+utils/voice.js
+utils/request.js
+utils/api.js
+components/voice-input/voice-input.js
+pages/mine/mine.js
+pages/home/home.js
+pages/ai/ai.js
+pages/record/record.js
+pages/login/login.js
+utils/request.js
+utils/api.js
+components/voice-input/voice-input.js
+app.js
+pages/stats/stats.js
+utils/voice.js
+追加 babel helper 文件
+封装代码包
+analyzing codes...
+ignoring files: pages/record/record-voice-demo.js,pages/record/record-voice-demo.json,pages/record/record-voice-demo.wxml,project.private.config.json
+analyzing codes success
+Pack resource file finish
+编译所有文件完成，共编译 61 个文件，耗时：3952ms
+过滤文件
+正在处理编译结果
+处理编译结果完成，耗时：0ms
+正在对比文件列表
+analyzing codes...
+ignoring files: pages/record/record-voice-demo.js,pages/record/record-voice-demo.json,pages/record/record-voice-demo.wxml,project.private.config.json
+analyzing codes success
+对比文件列表完成，耗时：2ms
+正在打包
+打包完成，耗时：2ms
+上传中

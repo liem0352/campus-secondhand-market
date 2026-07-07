@@ -1,0 +1,199 @@
+================================================================
+                校园二手交易平台 · 安装运行流程
+================================================================
+
+> 业务领域：校园二手交易平台（C2C）
+> 适用系统：Windows 11 64-bit
+> Python  : C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe
+> MySQL   : C:\Program Files\MySQL\MySQL Server 9.4\bin\ (root / tyb1124)
+> RabbitMQ（可选）: D:\RJ\RabbitMQ
+
+----------------------------------------------------------------
+一、一键启动（推荐）
+----------------------------------------------------------------
+
+:: 1. 首次安装依赖（Python + 两个前端）
+scripts\install-deps.bat
+
+:: 2. 一键启动后端 + 卖家工作台 + 平台管理后台
+scripts\start-all.bat
+
+:: 3. 完成后停止全部服务
+scripts\stop-all.bat
+
+----------------------------------------------------------------
+二、分步启动（首次必须建库 + 迁移 + 种子数据）
+----------------------------------------------------------------
+
+:: 第 1 步：建库
+"C:\Program Files\MySQL\MySQL Server 9.4\bin\mysql.exe" -u root -ptyb1124 < backend\scripts\create_mysql_db.sql
+:: 库名：campus_market （字符集 utf8mb4）
+
+:: 第 2 步：进入后端目录
+cd backend
+
+:: 第 3 步：生成并执行 migrations
+C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe manage.py makemigrations market
+C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe manage.py migrate
+
+:: 第 4 步：初始化种子数据（4 个默认账号 + 5 个分类 + 20+ 商品）
+C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe scripts\init_data_market.py
+
+:: 第 5 步：启动后端（端口 8000）
+cd ..
+scripts\start-backend.bat
+
+:: 第 6 步：启动卖家工作台（端口 3000，新终端）
+scripts\start-frontend-web.bat
+
+:: 第 7 步：启动平台管理后台（端口 5173，新终端）
+scripts\start-frontend-admin.bat
+
+:: 第 8 步：导入微信小程序
+:: 微信开发者工具 -> 导入项目 -> 选择 miniprogram\
+:: 修改 app.js 的 apiBase 指向 http://127.0.0.1:8000 或电脑局域网 IP
+:: 勾选「不校验合法域名」
+
+----------------------------------------------------------------
+三、手动启动后端（不通过 .bat 脚本）
+----------------------------------------------------------------
+
+:: 进入后端目录
+cd D:\文件\工作 作业\微信小程序实训\4次课程内容\综合实训\backend
+
+:: 安装 Python 依赖
+C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe -m pip install -r requirements.txt
+
+:: 启动 Django 开发服务器
+C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe manage.py runserver 0.0.0.0:8000 --noreload
+
+----------------------------------------------------------------
+四、默认账号
+----------------------------------------------------------------
+
+| 角色     | 账号       | 密码       | 使用端                                |
+|----------|------------|------------|---------------------------------------|
+| 管理员   | admin      | admin123   | 平台管理后台 http://127.0.0.1:5173/   |
+| 卖家     | zhangsan   | 123456     | 小程序 / 卖家工作台 http://127.0.0.1:3000/ |
+| 卖家     | lisi       | 123456     | 小程序 / 卖家工作台 http://127.0.0.1:3000/ |
+| 买家     | wangwu     | 123456     | 小程序                                |
+
+----------------------------------------------------------------
+五、访问地址
+----------------------------------------------------------------
+
+后端 API            : http://127.0.0.1:8000/
+健康检查            : http://127.0.0.1:8000/api/health/
+卖家工作台 Web 端  : http://127.0.0.1:3000/
+平台管理后台 Web 端: http://127.0.0.1:5173/
+微信小程序          : 微信开发者工具内（导入 miniprogram\）
+
+----------------------------------------------------------------
+六、MySQL 库与账号
+----------------------------------------------------------------
+
+库名      : campus_market
+账号      : root
+密码      : tyb1124
+字符集    : utf8mb4
+建库脚本  : backend\scripts\create_mysql_db.sql
+种子数据  : backend\scripts\init_data_market.py
+
+----------------------------------------------------------------
+七、AI 配置（.env 中的 LLM_API_KEY）
+----------------------------------------------------------------
+
+编辑 backend\.env，配置 LLM 相关项：
+
+  LLM_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
+  LLM_BASE_URL=https://api.openai.com/v1
+  LLM_MODEL=gpt-4o-mini
+  LLM_MOCK_MODE=False
+
+未配置 LLM_API_KEY 时，AI 一键发布自动降级为 mock，前端展示
+"AI 推荐"灰色标识。
+
+----------------------------------------------------------------
+八、RabbitMQ 集成（可选，用于订单异步通知）
+----------------------------------------------------------------
+
+安装路径 : D:\RJ\RabbitMQ
+AMQP 端口: 5672
+管理界面 : http://127.0.0.1:15672/ (guest / guest)
+
+编辑 backend\.env，启用 RabbitMQ：
+
+  RABBITMQ_URL=amqp://guest:guest@127.0.0.1:5672//
+  RABBITMQ_ENABLED=True
+
+启动 Worker：
+  C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe manage.py mq_worker
+
+----------------------------------------------------------------
+九、激活账号（如登录提示用户名或密码错误）
+----------------------------------------------------------------
+
+cd backend
+C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe manage.py shell
+
+  >>> from django.contrib.auth import get_user_model
+  >>> u = get_user_model().objects.get(username='zhangsan')
+  >>> u.is_active = True
+  >>> u.set_password('123456')
+  >>> u.save()
+
+----------------------------------------------------------------
+十、常见问题
+----------------------------------------------------------------
+
+1. Access denied for user 'root'
+   -> 检查 backend\.env 中 DB_USER / DB_PASSWORD
+
+2. Unknown database 'campus_market'
+   -> 先执行 backend\scripts\create_mysql_db.sql 建库
+
+3. No module named 'pymysql' / 'rest_framework'
+   -> pip install -r backend\requirements.txt
+
+4. 前端 3000 / 5173 端口连不上
+   -> 检查 frontend-*\vite.config.{js,ts} 端口配置
+   -> 端口被占用：netstat -ano | findstr ":3000"
+
+5. 微信小程序请求失败
+   -> 微信开发者工具 -> 详情 -> 勾选「不校验合法域名」
+   -> app.js 的 apiBase 指向电脑局域网 IP（真机调试）
+
+6. CORS 跨域报错
+   -> 后端已默认开启 corsheaders，无需额外配置
+
+7. AI 一键发布返回 mock
+   -> 检查 LLM_API_KEY 是否配置
+   -> 临时演示可设 LLM_MOCK_MODE=True
+
+8. RabbitMQ 连接失败
+   -> 确认 D:\RJ\RabbitMQ 已启动
+   -> 检查 RABBITMQ_URL 和 5672 端口
+
+9. 媒体文件 404
+   -> 开发环境 runserver 自动处理 /media/
+   -> 生产环境需 Nginx 配 location /media/ 指向 MEDIA_ROOT
+
+----------------------------------------------------------------
+十一、相关文档
+----------------------------------------------------------------
+
+- README.md                    项目总览
+- docs\联调检查清单.md         三端联调 + 5 分钟答辩演示脚本
+- docs\实验指导书.md           4 次课程实验指导书
+- docs\部署说明.md             生产环境部署（Nginx + Waitress + RabbitMQ）
+- .trae\specs\pivot-to-secondhand-market\spec.md   业务转型 Spec
+- .trae\specs\pivot-to-secondhand-market\tasks.md  任务清单
+
+----------------------------------------------------------------
+十二、版本信息
+----------------------------------------------------------------
+
+项目版本  : v2.0（业务转型版）
+最后更新  : 2026-06-06
+技术栈    : Python 3.13 + Django 5 + DRF + MySQL 9.4 + Vue3 + 微信小程序
+================================================================

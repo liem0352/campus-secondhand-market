@@ -1,0 +1,1611 @@
+/**
+ * 全局样式入口 —— 校园易物（Campus Second-hand Market）
+ * --------------------------------------------------------------------
+ * v4 升级（2026-06）：基于 fusion-ui-design 设计语言
+ *   - Apple HIG + Liquid Glass 液态玻璃（湿玻璃质感）
+ *   - Material Design 3 Expressive 形状系统
+ *   - OriginOS 6 光感设计（四大光效：环境光/弥散光/增强光/边缘光）
+ *   - STRAY_洋葱 动效方法论（弹性动效 + 光感反馈）
+ *
+ * 本文件提供：
+ *   1. 完整 design token（CSS 变量）：颜色/字号/字重/间距/圆角/阴影/动效/光感；
+ *   2. 全局 reset；
+ *   3. 沉淀通用 class（布局/文本/卡片/按钮/工具类）；
+ *   4. 组件原子样式（玻璃卡/按钮/标签/头像/徽章）；
+ *   5. Spring 弹性动效 + 光感反馈工具类。
+ *
+ * 后续所有页面的 WXSS 通过 class 复用，**严禁硬编码 hex 颜色或字号**。
+ *
+ * 微信小程序 WXSS 限制（必须遵守）：
+ *   - 不支持 `backdrop-filter`，用「半透色 + 顶部高光 + 多层阴影」模拟湿玻璃；
+ *   - 不支持 `@import url("...")` 中带协议前缀的远程资源；
+ *   - 不支持 `var()` 与 `calc()` 中混用 rpx 与非 rpx 单位；
+ *   - 自定义属性仅在 page / 自定义组件根节点上生效。
+ */
+
+/* ====================================================================
+ * 1. Design Token 定义（在 page 节点上以 CSS 变量形式暴露给所有页面）
+ * ==================================================================== */
+page {
+  /* ==============================================================
+   * 1.1 颜色系统 —— 暖橙主色 + 多层次语义色
+   * 品牌色：活力橙（与 H5/admin 完全同步）
+   * 间距：4/8/12/16/24/32/40/48/64/80/96
+   * ============================================================== */
+
+  /* ---------- 品牌主色（CTA、强调、主操作） ---------- */
+  --color-primary: #ff6b35;
+  --color-primary-hover: #e55a2b;
+  --color-primary-pressed: #cc4d22;
+  --color-primary-soft: #ffe5da;
+  --color-primary-softer: #fff2eb;
+  --color-primary-glow: rgba(255, 107, 53, 0.18);
+
+  /* ---------- 文本色阶（保证对比度 ≥ 4.5:1） ---------- */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  --color-text-disabled: #cccccc;
+  --color-text-inverse: #ffffff;
+  --color-text-link: #ff6b35;
+  --color-text-on-primary: #ffffff;
+
+  /* ---------- 背景与容器（融合光感暖白） ---------- */
+  --color-bg-page: #fafafb;
+  --color-bg-page-warm: linear-gradient(180deg, #fffbf6 0%, #fff4ee 100%);
+  --color-bg-card: #ffffff;
+  --color-bg-card-elevated: #ffffff;
+  --color-bg-mask: rgba(0, 0, 0, 0.4);
+  --color-bg-mask-strong: rgba(0, 0, 0, 0.6);
+  --color-bg-hover: #f5f5f7;
+  --color-bg-divider: #ebedf0;
+  --color-bg-section: #f7f8fa;
+
+  /* ---------- 语义色（与品牌色协调的橘色调） ---------- */
+  --color-success: #07c160;
+  --color-success-soft: rgba(7, 193, 96, 0.12);
+  --color-warning: #ffa500;
+  --color-warning-soft: rgba(255, 165, 0, 0.12);
+  --color-error: #ff4d4f;
+  --color-error-soft: rgba(255, 77, 79, 0.12);
+  --color-info: #ff6b35;
+  --color-info-soft: rgba(255, 107, 53, 0.12);
+
+  /* ---------- 信用分等级（业务专属） ---------- */
+  --color-credit-high: #07c160;
+  --color-credit-mid: #ffa500;
+  --color-credit-low: #ff4d4f;
+
+  /* ---------- 商品成色 chip 用色 ---------- */
+  --color-condition-new: #07c160;
+  --color-condition-like-new: #ff6b35;
+  --color-condition-good: #ffa500;
+  --color-condition-fair: #999999;
+
+  /* ==============================================================
+   * 1.2 字号系统（Material 3 Expressive + Apple 17pt 基准）
+   * ============================================================== */
+  --font-size-xs: 22rpx;   /* 11px：极小注释 */
+  --font-size-sm: 26rpx;   /* 13px：辅助说明 */
+  --font-size-base: 28rpx; /* 14px：正文默认 */
+  --font-size-md: 30rpx;   /* 15px：略大 */
+  --font-size-lg: 32rpx;   /* 16px：小标题 */
+  --font-size-xl: 36rpx;   /* 18px：标题 */
+  --font-size-2xl: 40rpx;  /* 20px：大标题 */
+  --font-size-3xl: 48rpx;  /* 24px：价格 */
+  --font-size-4xl: 56rpx;  /* 28px：Hero */
+  --font-size-5xl: 64rpx;  /* 32px：大数字 */
+
+  /* ---------- 字重 ---------- */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* ---------- 行高 ---------- */
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-base: 1.5;
+  --line-height-loose: 1.7;
+
+  /* ---------- 字体族 ---------- */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  --font-family-mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+  --font-family-display: -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Helvetica Neue", "Microsoft YaHei", sans-serif;
+
+  /* ==============================================================
+   * 1.3 间距系统（4rpx 步进，Material 3 8dp 网格）
+   * ============================================================== */
+  --space-0: 0rpx;
+  --space-1: 8rpx;     /* 4px */
+  --space-2: 16rpx;    /* 8px */
+  --space-3: 24rpx;    /* 12px */
+  --space-4: 32rpx;    /* 16px */
+  --space-5: 40rpx;    /* 20px */
+  --space-6: 48rpx;    /* 24px */
+  --space-7: 56rpx;    /* 28px */
+  --space-8: 64rpx;    /* 32px */
+  --space-10: 80rpx;   /* 40px */
+  --space-12: 96rpx;   /* 48px */
+  --space-16: 128rpx;  /* 64px */
+  --space-20: 160rpx;  /* 80px */
+
+  /* ==============================================================
+   * 1.4 圆角系统（Material 3 Expressive 35 种形状 + Apple Squircle）
+   * ============================================================== */
+  --radius-xs: 6rpx;       /* 极小：标签/小按钮 */
+  --radius-sm: 12rpx;      /* 小：次要按钮 */
+  --radius-base: 20rpx;    /* 基础：默认卡片 */
+  --radius-md: 28rpx;      /* 中：标准卡片（↑ M3 Expressive 16→28） */
+  --radius-lg: 36rpx;      /* 大：Hero 卡 / 强调卡片 */
+  --radius-xl: 48rpx;      /* 超大：弹窗 */
+  --radius-2xl: 64rpx;     /* 极大：强调容器 */
+  --radius-3xl: 80rpx;     /* Hero 容器 */
+  --radius-pill: 9999rpx;  /* 胶囊 */
+  --radius-circle: 50%;
+
+  /* ==============================================================
+   * 1.5 阴影系统（多层光影：环境光 + 关键光 + 顶部高光）
+   * 5 级基础阴影 + 3 级玻璃阴影 + 2 级光感阴影
+   * ============================================================== */
+  /* 基础阴影（Material 3 elevation 5 级） */
+  --shadow-none: none;
+  --shadow-xs: 0 1rpx 2rpx rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04), 0 1rpx 2rpx rgba(0, 0, 0, 0.06);
+  --shadow-base: 0 4rpx 12rpx rgba(0, 0, 0, 0.06), 0 2rpx 4rpx rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8rpx 24rpx rgba(0, 0, 0, 0.08), 0 2rpx 6rpx rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 16rpx 32rpx rgba(0, 0, 0, 0.10), 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 24rpx 48rpx rgba(0, 0, 0, 0.12), 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+
+  /* 玻璃阴影（多层光影模拟 Liquid Glass） */
+  --shadow-glass-sm:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1rpx 0 rgba(0, 0, 0, 0.04),
+    0 4rpx 12rpx rgba(0, 0, 0, 0.04),
+    0 1rpx 3rpx rgba(0, 0, 0, 0.03);
+  --shadow-glass-md:
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1rpx 0 rgba(0, 0, 0, 0.04),
+    0 12rpx 24rpx rgba(0, 0, 0, 0.08),
+    0 2rpx 6rpx rgba(0, 0, 0, 0.04);
+  --shadow-glass-lg:
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1rpx 0 rgba(0, 0, 0, 0.04),
+    0 24rpx 48rpx rgba(0, 0, 0, 0.12),
+    0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+
+  /* 光感阴影（OriginOS 6 + Apple Liquid Glass 主色光晕） */
+  --shadow-primary-sm: 0 4rpx 12rpx rgba(255, 107, 53, 0.18);
+  --shadow-primary-md: 0 8rpx 24rpx rgba(255, 107, 53, 0.24), 0 2rpx 6rpx rgba(255, 107, 53, 0.12);
+  --shadow-primary-lg: 0 16rpx 32rpx rgba(255, 107, 53, 0.32), 0 4rpx 12rpx rgba(255, 107, 53, 0.16);
+  --shadow-orange-inset:
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2rpx 0 rgba(0, 0, 0, 0.1);
+
+  /* ==============================================================
+   * 1.6 边框 / 描边
+   * ============================================================== */
+  --border-width: 2rpx;
+  --border-width-thick: 4rpx;
+  --border-color: #ebedf0;
+  --border-color-light: #f0f0f2;
+  --border-color-strong: #d9d9d9;
+  --border-color-primary: rgba(255, 107, 53, 0.3);
+
+  /* ==============================================================
+   * 1.7 动效系统（Spring 弹性 + Apple 标准 + MD3 物理）
+   * --------------------------------------------------------------
+   * 时长（4 档）：
+   *   - instant: 100ms（瞬时反馈）
+   *   - fast:    200ms（微交互：按钮/输入）
+   *   - base:    300ms（标准过渡）
+   *   - slow:    450ms（场景切换）
+   *
+   * 缓动曲线（含 Spring 模拟）：
+   *   - ease-out：渐出
+   *   - ease-in：渐入
+   *   - ease-in-out：缓入缓出
+   *   - spring：弹性（cubic-bezier 模拟 spring physics）
+   *   - spring-bounce：强弹性（带回弹）
+   * ============================================================== */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 450ms;
+  --duration-extra-slow: 600ms;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring-bounce: cubic-bezier(0.5, 1.8, 0.5, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* 过渡模板（按使用场景预设） */
+  --transition-color: color var(--duration-fast) var(--ease-out),
+                       background-color var(--duration-fast) var(--ease-out),
+                       border-color var(--duration-fast) var(--ease-out);
+  --transition-transform: transform var(--duration-base) var(--ease-spring);
+  --transition-opacity: opacity var(--duration-fast) var(--ease-out);
+  --transition-shadow: box-shadow var(--duration-base) var(--ease-out);
+  --transition-all: all var(--duration-base) var(--ease-out);
+
+  /* ==============================================================
+   * 1.7.1 Spring Motion 体系 v2（融合十一大体系）
+   * --------------------------------------------------------------
+   * 来源：
+   *   - MD3 Expressive：6 套 spring spec（fast/default/slow × spatial/effects）
+   *   - OriginOS 6：弹性动效（damping=0.6, stiffness=380）
+   *   - ColorOS 16：干脆利落 spring（damping=0.6, stiffness=800 ≈ 300ms）
+   *   - MagicOS 10：灵动胶囊 spring（damping=0.65, stiffness=450）
+   *   - Pixel UI：expressive motion（damping=0.7, stiffness=500）
+   *   - iOS 26 spring：bounce 弹性 + dampingFraction 0.7
+   *   - One UI 9：流畅轻快 spring（damping=0.7, stiffness=500）
+   * ============================================================== */
+
+  /* ---------- MD3 Expressive 6 套 Spring（核心体系） ---------- */
+  /* Spatial：位置/旋转/尺寸（damping + stiffness 模拟） */
+  --ease-m3-spatial-fast:    cubic-bezier(0.42, 1.67, 0.21, 0.90); /* ~350ms */
+  --ease-m3-spatial-default: cubic-bezier(0.38, 1.21, 0.22, 1.00); /* ~500ms */
+  --ease-m3-spatial-slow:    cubic-bezier(0.39, 1.29, 0.35, 0.98); /* ~650ms */
+  /* Effects：颜色/透明度（仅 duration + easing） */
+  --ease-m3-effects-fast:    cubic-bezier(0.31, 0.94, 0.34, 1.00); /* ~150ms */
+  --ease-m3-effects-default: cubic-bezier(0.34, 0.80, 0.34, 1.00); /* ~200ms */
+  --ease-m3-effects-slow:    cubic-bezier(0.34, 0.88, 0.34, 1.00); /* ~300ms */
+
+  /* ---------- OriginOS 6 弹性动效（damping=0.6, stiffness=380） ---------- */
+  --ease-origin-spring:      cubic-bezier(0.34, 1.45, 0.55, 1.00);
+
+  /* ---------- ColorOS 16 干脆利落（damping=0.6, stiffness=800 ≈ 300ms） ---------- */
+  --ease-coloros-quick:      cubic-bezier(0.34, 1.62, 0.64, 1.00);
+  --ease-coloros-default:    cubic-bezier(0.38, 1.50, 0.55, 1.00);
+
+  /* ---------- MagicOS 10 灵动胶囊（damping=0.65, stiffness=450） ---------- */
+  --ease-magicos-capsule:    cubic-bezier(0.34, 1.50, 0.55, 1.00);
+  --ease-magicos-seamless:   cubic-bezier(0.40, 1.20, 0.30, 1.00); /* 一镜到底 */
+
+  /* ---------- One UI 9 流畅轻快（damping=0.7, stiffness=500） ---------- */
+  --ease-oneui-smooth:       cubic-bezier(0.27, 1.06, 0.30, 1.00);
+
+  /* ---------- iOS 26 Spring / Liquid Glass ---------- */
+  --ease-ios-spring:         cubic-bezier(0.32, 1.50, 0.40, 1.00);
+  --ease-ios-glass-morph:    cubic-bezier(0.40, 1.40, 0.50, 1.00);
+
+  /* ---------- Pixel UI / Material 3 Standard 方案 ---------- */
+  --ease-pixel-spring:       cubic-bezier(0.30, 1.30, 0.40, 1.00);
+
+  /* ---------- 时长分级（新增 v2 速度体系） ---------- */
+  --duration-spring-instant: 80ms;    /* 瞬时反馈（按下） */
+  --duration-spring-fast:    200ms;   /* 微交互 */
+  --duration-spring-quick:   280ms;   /* 干脆利落（ColorOS） */
+  --duration-spring-default: 350ms;   /* 标准（MD3 fast spatial） */
+  --duration-spring-base:    450ms;   /* 标准过渡 */
+  --duration-spring-slow:    600ms;   /* 场景切换（页面对话框） */
+  --duration-spring-glacial: 800ms;   /* 大型动效（页面入场） */
+
+  /* ==============================================================
+   * 1.7.2 Shape Morph 形变系统（M3 Expressive 35 种形状）
+   * --------------------------------------------------------------
+   * 用于按钮按下时圆→方、卡片选中时形状变化、Toggle 圆→方
+   * ============================================================== */
+  --shape-circle: 50%;
+  --shape-pill: 9999rpx;
+  --shape-square-sm: 12rpx;
+  --shape-square-md: 16rpx;
+  --shape-square-lg: 24rpx;
+  --shape-morph-duration: var(--duration-spring-default);
+  --shape-morph-ease: var(--ease-m3-spatial-fast);
+
+  /* ==============================================================
+   * 1.7.3 打断动画（Spring Retargeting）
+   * --------------------------------------------------------------
+   * ColorOS 16 特色：动画可随时打断并切换方向，无跳帧
+   * 实现：使用 transform-only 过渡 + 短 duration
+   * ============================================================== */
+  --transition-interruptible: transform var(--duration-spring-quick) var(--ease-coloros-quick),
+                                opacity var(--duration-spring-instant) linear;
+  --transition-spring-quick:  transform var(--duration-spring-quick) var(--ease-coloros-quick);
+  --transition-spring-base:   transform var(--duration-spring-base) var(--ease-magicos-capsule);
+  --transition-spring-slow:   transform var(--duration-spring-slow) var(--ease-m3-spatial-default);
+
+  /* ==============================================================
+   * 1.8 光感系统（OriginOS 6 四大光效）
+   * --------------------------------------------------------------
+   *  - ambient（环境光）: 静态柔光
+   *  - diffuse（弥散光）: 操作瞬时光
+   *  - enhanced（增强光）: 按压反馈光
+   *  - edge（边缘光）: 焦点光
+   * ============================================================== */
+  --light-ambient: 0 0 32rpx rgba(255, 138, 92, 0.16);
+  --light-diffuse: 0 0 24rpx rgba(255, 255, 255, 0.4);
+  --light-enhanced: 0 0 0 6rpx rgba(255, 107, 53, 0.18);
+  --light-edge: inset 0 0 0 2rpx rgba(255, 107, 53, 0.3);
+
+  /* ==============================================================
+   * 1.8.1 OriginOS 6 四大光效扩展（v2）
+   * --------------------------------------------------------------
+   *  - ambient（环境光）: 静态柔光 + 缓慢呼吸
+   *  - diffuse（弥散光）: 操作瞬时光，按下瞬亮
+   *  - enhanced（增强光）: 中心点高光，强反馈
+   *  - edge（边缘光）: 边缘光带，焦点引导
+   * ============================================================== */
+  /* 增强：更强的环境光（用于 Hero 顶部） */
+  --light-ambient-strong: 0 0 64rpx rgba(255, 138, 92, 0.28),
+                          0 0 128rpx rgba(255, 107, 53, 0.12);
+  /* 弥散光 - 强版（按下瞬时） */
+  --light-diffuse-strong: 0 0 0 16rpx rgba(255, 107, 53, 0.18),
+                          0 0 32rpx rgba(255, 138, 92, 0.12);
+  /* 增强光 - 中心点（卡片选中） */
+  --light-enhanced-center: 0 0 0 8rpx rgba(255, 107, 53, 0.22),
+                            inset 0 0 0 2rpx rgba(255, 255, 255, 0.4);
+  /* 边缘光 - 顶部聚焦光带 */
+  --light-edge-top: inset 0 2rpx 0 rgba(255, 255, 255, 0.9),
+                     inset 0 -1rpx 0 rgba(0, 0, 0, 0.04);
+  /* 边缘光 - 底部聚焦光带 */
+  --light-edge-bottom: inset 0 -2rpx 0 rgba(255, 255, 255, 0.7),
+                       inset 0 1rpx 0 rgba(0, 0, 0, 0.04);
+  /* 陀螺仪光影（OriginOS 6 独家） */
+  --light-gyro-top-left: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, transparent 35%);
+  --light-gyro-top-right: linear-gradient(225deg, rgba(255, 255, 255, 0.3) 0%, transparent 35%);
+
+  /* ==============================================================
+   * 1.8.2 AI 光效（OriginOS 6 AI 动效）
+   * --------------------------------------------------------------
+   * AI 唤醒/对话/思考状态的统一光效语言
+   * ============================================================== */
+  --ai-pulse-glow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  --ai-pulse-glow-end: 0 0 0 16rpx rgba(99, 102, 241, 0);
+  --ai-thinking: rgba(99, 102, 241, 0.6);
+  --ai-orb-size: 96rpx;
+
+  /* ==============================================================
+   * 1.8.3 充电岛光效（ColorOS 16.1 金标版）
+   * ============================================================== */
+  --charge-pulse-start: 0 0 0 0 rgba(76, 175, 80, 0.5);
+  --charge-pulse-end: 0 0 0 24rpx rgba(76, 175, 80, 0);
+  --charge-bar-fill: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+
+  /* ==============================================================
+   * 1.9 Liquid Glass 设计 Token
+   * 小程序不支持 backdrop-filter，用「半透色 + 顶部高光 + 多层阴影」模拟
+   * ============================================================== */
+  --glass-bg-light-1: rgba(255, 255, 255, 0.45);
+  --glass-bg-light-2: rgba(255, 255, 255, 0.6);
+  --glass-bg-light-3: rgba(255, 255, 255, 0.78);
+  --glass-bg-light-4: rgba(255, 255, 255, 0.92);
+  --glass-bg-dark-1: rgba(28, 28, 30, 0.5);
+  --glass-bg-dark-2: rgba(28, 28, 30, 0.65);
+  --glass-border-light: 2rpx solid rgba(255, 255, 255, 0.5);
+  --glass-border-strong: 2rpx solid rgba(255, 255, 255, 0.7);
+  --glass-border-dark: 2rpx solid rgba(255, 255, 255, 0.12);
+  --glass-highlight: inset 0 2rpx 0 rgba(255, 255, 255, 0.8);
+  --glass-highlight-soft: inset 0 1rpx 0 rgba(255, 255, 255, 0.5);
+
+  /* ==============================================================
+   * 1.9.1 One UI 9 全链路半透明 token（v2）
+   * --------------------------------------------------------------
+   * 三星 One UI 9 特色：状态栏、底部导航、快捷面板、通知、锁屏
+   * 全覆盖 blur(30px) saturate(150%) 半透明
+   * ============================================================== */
+  --oneui-blur-1: blur(20rpx) saturate(150%);  /* 状态栏 */
+  --oneui-blur-2: blur(30rpx) saturate(150%);  /* 底部导航 */
+  --oneui-blur-3: blur(40rpx) saturate(160%);  /* 快捷面板 */
+  --oneui-blur-4: blur(50rpx) saturate(180%);  /* 锁屏/通知 */
+
+  --oneui-bg-light-1: rgba(255, 255, 255, 0.55);  /* 状态栏 */
+  --oneui-bg-light-2: rgba(255, 255, 255, 0.65);  /* 底部导航 */
+  --oneui-bg-light-3: rgba(255, 255, 255, 0.75);  /* 快捷面板 */
+  --oneui-bg-light-4: rgba(255, 255, 255, 0.85);  /* 锁屏 */
+
+  --oneui-bg-dark-1: rgba(18, 18, 18, 0.55);
+  --oneui-bg-dark-2: rgba(18, 18, 18, 0.65);
+  --oneui-bg-dark-3: rgba(18, 18, 18, 0.75);
+  --oneui-bg-dark-4: rgba(18, 18, 18, 0.85);
+
+  --oneui-border-light: 1rpx solid rgba(255, 255, 255, 0.2);
+  --oneui-border-dark: 1rpx solid rgba(255, 255, 255, 0.08);
+
+  /* ==============================================================
+   * 1.9.2 iOS 26 Liquid Glass 折射层（v2）
+   * --------------------------------------------------------------
+   * 模拟光学折射效果：通过多层 inset 阴影 + 顶/底高光
+   * ============================================================== */
+  --liquid-refract-top: inset 0 1rpx 0 rgba(255, 255, 255, 0.9),
+                         inset 0 -1rpx 0 rgba(0, 0, 0, 0.06);
+  --liquid-refract-prism: inset 0 2rpx 0 rgba(255, 255, 255, 0.7),
+                           inset 0 1rpx 1rpx rgba(255, 255, 255, 0.4),
+                           inset 0 -1rpx 0 rgba(0, 0, 0, 0.05);
+  --liquid-edge-glow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.3);
+  --liquid-specular: linear-gradient(115deg,
+                       transparent 0%,
+                       transparent 40%,
+                       rgba(255, 255, 255, 0.5) 50%,
+                       transparent 60%,
+                       transparent 100%);
+
+  /* ==============================================================
+   * 1.9.3 MagicOS 10 灵动胶囊 / 锁屏岛（v2）
+   * --------------------------------------------------------------
+   * 灵动胶囊：圆形 → 胶囊 → 卡片 形变
+   * ============================================================== */
+  --capsule-bg: rgba(0, 0, 0, 0.72);
+  --capsule-bg-light: rgba(255, 255, 255, 0.92);
+  --capsule-blur: blur(24rpx) saturate(160%);
+  --capsule-radius: 9999rpx;
+  --capsule-padding: 6rpx 14rpx;
+  --capsule-height: 36rpx;
+  --capsule-expanded-radius: 24rpx;
+  --capsule-expanded-width: 320rpx;
+  --capsule-expanded-min-height: 160rpx;
+  --capsule-text-color: rgba(255, 255, 255, 0.92);
+  --capsule-text-color-light: rgba(0, 0, 0, 0.88);
+
+  /* Now Bar（三星 One UI 9 通知胶囊） */
+  --nowbar-width: 160rpx;
+  --nowbar-height: 44rpx;
+  --nowbar-expanded-width: 340rpx;
+  --nowbar-expanded-height: 180rpx;
+
+  /* ==============================================================
+   * 1.9.4 ColorOS 16 光感玻璃（v2）
+   * --------------------------------------------------------------
+   * 随环境光实时变化的半透明玻璃
+   * ============================================================== */
+  --cos-glass-light: rgba(255, 255, 255, 0.72);
+  --cos-glass-dark: rgba(0, 0, 0, 0.75);
+  --cos-glass-blur: blur(20rpx) saturate(180%);
+  --cos-glass-blur-ambient: blur(10rpx) saturate(120%);  /* 强光环境 */
+  --cos-glass-blur-dark: blur(25rpx) saturate(150%);     /* 弱光环境 */
+  --cos-glass-border: 1rpx solid rgba(255, 255, 255, 0.15);
+  --cos-island-bg: rgba(0, 0, 0, 0.78);
+  --cos-island-blur: blur(20rpx);
+
+  /* ==============================================================
+   * 1.9.5 OriginOS 6 空间玻璃（v2）
+   * --------------------------------------------------------------
+   * 渐进模糊 + 陀螺仪光影
+   * ============================================================== */
+  --origin-blur-tier-1: blur(8rpx);    /* 远景 */
+  --origin-blur-tier-2: blur(16rpx);   /* 中景 */
+  --origin-blur-tier-3: blur(24rpx);   /* 近景/全屏 */
+  --origin-glass-bg: rgba(255, 255, 255, 0.65);
+  --origin-glass-bg-strong: rgba(255, 255, 255, 0.78);
+
+  /* ==============================================================
+   * 1.9.6 Pixel UI / Material 3 Expressive 模糊（v2）
+   * ============================================================== */
+  --m3-blur-1: blur(20rpx);   /* 通知栏 */
+  --m3-blur-2: blur(30rpx);   /* Quick Settings */
+  --m3-blur-3: blur(40rpx);   /* 全屏模糊 */
+  --m3-glass-bg: rgba(var(--md-sys-color-surface, 255, 251, 254), 0.75);
+
+  /* ==============================================================
+   * 1.10 暖色系调色板（项目特征 = 暖橙，与 H5/admin 同步）
+   * 5 套暖色变体 + 4 套状态色
+   * ============================================================== */
+  --orange-50:  #FFF4EE; --orange-100: #FFE4D4; --orange-200: #FFCBAA;
+  --orange-300: #FFAA7A; --orange-400: #FF8A5C; --orange-500: #F25C2A;
+  --orange-600: #D44417; --orange-700: #A8330F; --orange-800: #82270B; --orange-900: #5A1A07;
+
+  --amber-50:  #FFF8E8; --amber-100: #FFEDC4; --amber-200: #FFDD92;
+  --amber-300: #FFC75E; --amber-400: #FFAB38; --amber-500: #E88A1B;
+  --amber-600: #C57015; --amber-700: #8E4F0F; --amber-800: #5C3308;
+
+  --coral-50:  #FFEEE9; --coral-100: #FFD5C8; --coral-200: #FFB59A;
+  --coral-300: #FF8E68; --coral-400: #FF6B45; --coral-500: #E84B25;
+  --coral-600: #C03A18; --coral-700: #8E2B11; --coral-800: #5C1B0A;
+
+  --cream-50:  #FFFBF6; --cream-100: #FCF4EB; --cream-200: #F7E8D6; --cream-300: #EFD8B7;
+
+  --warm-50:  #FAF8F5; --warm-100: #F1ECE3; --warm-200: #E1D8C7; --warm-300: #C8BBA1;
+  --warm-400: #8E8270; --warm-500: #5C5040; --warm-600: #3D3528; --warm-700: #2A2418;
+
+  --success-50:  #E8F6ED; --success-100: #C5E8D2; --success-300: #6FCF8B;
+  --success-500: #2F9E54; --success-600: #1F7A40;
+  --warning-50:  #FFF6E5; --warning-100: #FFE4B5; --warning-300: #FFB84D;
+  --warning-500: #E89414; --warning-600: #B87408;
+  --danger-50:   #FFE8E8; --danger-100:  #FFC4C4; --danger-300:  #FF7676;
+  --danger-500:  #DC3545; --danger-600:  #B01C2C;
+  --info-50:     #E5F2FF; --info-100:    #B8DBFF; --info-300:    #6FB1FF;
+  --info-500:    #2F80ED; --info-600:    #1B62C7;
+
+  /* 品牌主渐变（含光感角度） */
+  --gradient-warm:  linear-gradient(135deg, #FF8A5C 0%, #F25C2A 50%, #E84B25 100%);
+  --gradient-warm-soft: linear-gradient(135deg, #FFB89A 0%, #FF8A5C 50%, #FF6B35 100%);
+  --gradient-amber: linear-gradient(135deg, #FFB84D 0%, #E88A1B 100%);
+  --gradient-coral: linear-gradient(135deg, #FF6B45 0%, #E84B25 100%);
+  --gradient-cream: linear-gradient(180deg, #FFFBF6 0%, #FCF4EB 100%);
+  --gradient-soft:  linear-gradient(180deg, #FFF4EE 0%, #FFE4D4 100%);
+  --gradient-page:  linear-gradient(180deg, #FFFBF6 0%, #FFF4EE 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.6) 100%);
+  --gradient-shine: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.6) 50%, transparent 70%);
+
+  /* ==============================================================
+   * 1.11 Z-Index 层级管理
+   * ============================================================== */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 500;
+  --z-modal-backdrop: 900;
+  --z-modal: 1000;
+  --z-popover: 1100;
+  --z-toast: 2000;
+
+  /* ==============================================================
+   * 1.12 全局背景与字体基线
+   * ============================================================== */
+  background: var(--color-bg-page);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ====================================================================
+ * 1.7.4 减动效偏好（prefers-reduced-motion）
+ * 说明：必须放在 page 块外，因为 WXSS 不支持在选择器内嵌套 @media
+ * WXSS 限制：不支持 * 通用选择器，需列出具体元素
+ * ==================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  view, text, image, button, input, textarea, scroll-view,
+  navigator, swiper, swiper-item, icon, label, picker,
+  view::before, view::after, text::before, text::after,
+  button::before, button::after, image::before, image::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ====================================================================
+ * 2. 液态玻璃通用工具类（小程序适配版）
+ * --------------------------------------------------------------
+ * 微信小程序不支持 backdrop-filter，所以"湿玻璃"效果用：
+ *   - 半透白色 / 半透深色
+ *   - 顶部 inset 1px 白色高光（玻璃折光）
+ *   - 多层柔和外阴影（环境光 + 关键光）
+ *   - 白色 / 半透明白色细边框
+ * 组合实现"看得见背景的浮起玻璃"
+ * ==================================================================== */
+
+/* 浅色玻璃（用于浅色背景上的浮卡） */
+.glass-light {
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  box-shadow: var(--shadow-glass-md);
+}
+
+.glass-light-soft {
+  background: var(--glass-bg-light-2);
+  border: var(--glass-border-light);
+  box-shadow: var(--shadow-glass-sm);
+}
+
+/* 强玻璃（更"实"的卡片，强调用） */
+.glass-strong {
+  background: var(--glass-bg-light-4);
+  border: var(--glass-border-strong);
+  box-shadow: var(--shadow-glass-lg);
+}
+
+/* 深色玻璃（用于深色背景 / 强调块） */
+.glass-dark {
+  background: var(--glass-bg-dark-2);
+  color: rgba(255, 255, 255, 0.92);
+  border: var(--glass-border-dark);
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.08),
+    0 16rpx 32rpx rgba(0, 0, 0, 0.24);
+}
+
+/* 主色玻璃（按钮 / 强调块） */
+.glass-primary {
+  background: var(--gradient-warm);
+  color: var(--color-text-on-primary);
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    var(--shadow-orange-inset),
+    var(--shadow-primary-md);
+}
+
+/* 玻璃分割线（左右渐隐） */
+.glass-divider {
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 107, 53, 0.3) 50%, transparent 100%);
+  border: none;
+}
+
+/* ====================================================================
+ * 3. 全局 reset（最小化、避免破坏小程序内置组件）
+ * ==================================================================== */
+view,
+text,
+image,
+button,
+input,
+textarea,
+scroll-view,
+navigator,
+swiper,
+swiper-item {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  line-height: 1.4;
+}
+button::after {
+  border: none;
+}
+
+image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ====================================================================
+ * 4. 布局通用 class
+ * ==================================================================== */
+/* 弹性布局 */
+.flex-row { display: flex; flex-direction: row; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-around { display: flex; align-items: center; justify-content: space-around; }
+.flex-start { display: flex; align-items: center; justify-content: flex-start; }
+.flex-end { display: flex; align-items: center; justify-content: flex-end; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; min-width: 0; }
+.flex-shrink-0 { flex-shrink: 0; }
+.flex-grow-0 { flex-grow: 0; }
+
+/* 主轴 / 交叉轴 */
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.items-center { align-items: center; }
+.items-stretch { align-items: stretch; }
+.items-baseline { align-items: baseline; }
+
+/* 文本对齐 */
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-justify { text-align: justify; }
+
+/* 文本截断 */
+.text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.text-ellipsis-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 显隐 */
+.hidden { display: none; }
+.invisible { visibility: hidden; }
+
+/* 定位 */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.fixed-bottom { position: fixed; left: 0; right: 0; bottom: 0; }
+
+/* 溢出 */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-scroll { overflow: scroll; }
+
+/* ====================================================================
+ * 5. 文本色 / 字号 / 字重
+ * ==================================================================== */
+.text-primary-color { color: var(--color-primary); }
+.text-primary-text { color: var(--color-text-primary); }
+.text-secondary-text { color: var(--color-text-secondary); }
+.text-tertiary-text { color: var(--color-text-tertiary); }
+.text-disabled { color: var(--color-text-disabled); }
+.text-inverse { color: var(--color-text-inverse); }
+.text-success { color: var(--color-success); }
+.text-success-color { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-error { color: var(--color-error); }
+.text-error-color { color: var(--color-error); }
+.text-info { color: var(--color-info); }
+
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-2xl { font-size: var(--font-size-2xl); }
+.text-3xl { font-size: var(--font-size-3xl); }
+.text-4xl { font-size: var(--font-size-4xl); }
+.text-5xl { font-size: var(--font-size-5xl); }
+
+.text-price {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-primary);
+  line-height: 1.2;
+  font-family: var(--font-family-mono);
+}
+
+.text-mono { font-family: var(--font-family-mono); }
+.text-display { font-family: var(--font-family-display); }
+
+.text-bold { font-weight: var(--font-weight-bold); }
+.text-semibold { font-weight: var(--font-weight-semibold); }
+.text-medium { font-weight: var(--font-weight-medium); }
+.text-regular { font-weight: var(--font-weight-regular); }
+
+.text-loose { line-height: var(--line-height-loose); }
+.text-snug { line-height: var(--line-height-snug); }
+.text-tight { line-height: var(--line-height-tight); }
+
+/* ====================================================================
+ * 6. 背景与容器
+ * ==================================================================== */
+.bg-page { background: var(--color-bg-page); }
+.bg-card { background: var(--color-bg-card); }
+.bg-primary { background: var(--color-primary); }
+.bg-primary-soft { background: var(--color-primary-soft); }
+.bg-mask { background: var(--color-bg-mask); }
+.bg-warm-soft { background: var(--gradient-soft); }
+.bg-warm-page { background: var(--gradient-page); }
+
+.page-wrap {
+  min-height: 100vh;
+  padding-bottom: 140rpx; /* 预留 tab-bar + 安全区 */
+}
+
+/* ====================================================================
+ * 页面切换连贯动画（一体性动效）
+ * --------------------------------------------------------------------
+ * 设计参考：iOS 26 一镜到底 + MagicOS 10 灵动衔接 + Material 3 Expressive
+ *   - 所有页面根容器（.page / .page-wrap）统一入场：淡入 + 轻微上移 + 微缩放
+ *   - 使用 spring 弹性曲线，避免线性硬切
+ *   - 280ms 与系统原生路由动画时长对齐，视觉无缝衔接
+ *   - prefers-reduced-motion 下自动降级为纯透明度过渡
+ * ==================================================================== */
+.page,
+.page-wrap {
+  animation: page-enter var(--duration-base) var(--ease-magicos-seamless) both;
+  will-change: opacity, transform;
+}
+
+/* 页面入场关键帧：淡入 + 8rpx 上移 + 0.99→1 微缩放（一镜到底感） */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8rpx) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Tab 切换专用：更轻量的横向淡入（避免与 push 路由混淆） */
+.page--tab-enter {
+  animation: page-tab-enter var(--duration-base) var(--ease-magicos-seamless) both;
+}
+@keyframes page-tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 通用卡片：白底 + 圆角 + 阴影 */
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-base);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+.card-md { border-radius: var(--radius-md); }
+.card-lg { border-radius: var(--radius-lg); }
+.card-flat { box-shadow: none; border: var(--border-width) solid var(--border-color-light); }
+
+/* 玻璃卡（液态玻璃质感） */
+.card-glass {
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-base);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-glass-md);
+}
+
+/* 分割线 */
+.divider {
+  height: 2rpx;
+  background: var(--color-bg-divider);
+  width: 100%;
+}
+.divider-v {
+  width: 2rpx;
+  background: var(--color-bg-divider);
+  height: 100%;
+}
+
+/* ====================================================================
+ * 7. 按钮（基础类，供页面/组件继承）
+ * --------------------------------------------------------------
+ * 5 种类型：primary / secondary / outline / ghost / glass
+ * 3 种尺寸：sm (64rpx) / base (88rpx) / lg (96rpx)
+ * ==================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;          /* 44pt 触控热区 */
+  min-width: 88rpx;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 1rpx;
+  transition: transform var(--duration-fast) var(--ease-spring),
+              opacity var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+.btn::after { border: none; }
+
+.btn-primary {
+  background: var(--gradient-warm);
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-orange-inset), var(--shadow-primary-sm);
+}
+.btn-primary.btn-active,
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-orange-inset), var(--shadow-primary-md);
+  background: var(--color-primary-pressed);
+}
+
+.btn-secondary {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.btn-secondary.btn-active,
+.btn-secondary:active {
+  background: #ffd4bd;
+  transform: scale(0.97);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: var(--border-width) solid var(--color-primary);
+}
+.btn-outline.btn-active,
+.btn-outline:active {
+  background: var(--color-primary-softer);
+  transform: scale(0.97);
+}
+
+.btn-ghost {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: var(--border-width) solid var(--border-color);
+}
+.btn-ghost.btn-active,
+.btn-ghost:active {
+  background: var(--color-bg-hover);
+  transform: scale(0.97);
+}
+
+/* 玻璃按钮（液态玻璃质感） */
+.btn-glass {
+  background: var(--glass-bg-light-3);
+  color: var(--color-text-primary);
+  border: var(--glass-border-light);
+  box-shadow: var(--shadow-glass-md);
+}
+.btn-glass.btn-active,
+.btn-glass:active {
+  background: var(--glass-bg-light-4);
+  transform: scale(0.97);
+}
+
+.btn-block { width: 100%; }
+.btn-sm { height: 64rpx; font-size: var(--font-size-sm); padding: 0 var(--space-3); border-radius: var(--radius-sm); }
+.btn-lg { height: 96rpx; font-size: var(--font-size-lg); border-radius: var(--radius-md); }
+.btn-xl { height: 104rpx; font-size: var(--font-size-lg); border-radius: var(--radius-md); }
+
+.btn-disabled, .btn[disabled] {
+  opacity: 0.4;
+  color: var(--color-text-disabled);
+  background: var(--color-bg-section);
+  box-shadow: none;
+}
+
+/* ====================================================================
+ * 8. 工具类 —— 间距（mt / mb / ml / mr / mx / my / pt / pb / px / py / p）
+ *    数值：0/1/2/3/4/5/6/8/10/12
+ * ==================================================================== */
+.m-0 { margin: 0; }
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+
+.ml-0 { margin-left: 0; }
+.ml-1 { margin-left: var(--space-1); }
+.ml-2 { margin-left: var(--space-2); }
+.ml-3 { margin-left: var(--space-3); }
+.ml-4 { margin-left: var(--space-4); }
+.ml-auto { margin-left: auto; }
+
+.mr-0 { margin-right: 0; }
+.mr-1 { margin-right: var(--space-1); }
+.mr-2 { margin-right: var(--space-2); }
+.mr-3 { margin-right: var(--space-3); }
+.mr-4 { margin-right: var(--space-4); }
+.mr-auto { margin-right: auto; }
+
+.mx-0 { margin-left: 0; margin-right: 0; }
+.mx-1 { margin-left: var(--space-1); margin-right: var(--space-1); }
+.mx-2 { margin-left: var(--space-2); margin-right: var(--space-2); }
+.mx-3 { margin-left: var(--space-3); margin-right: var(--space-3); }
+.mx-4 { margin-left: var(--space-4); margin-right: var(--space-4); }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+.my-0 { margin-top: 0; margin-bottom: 0; }
+.my-1 { margin-top: var(--space-1); margin-bottom: var(--space-1); }
+.my-2 { margin-top: var(--space-2); margin-bottom: var(--space-2); }
+.my-3 { margin-top: var(--space-3); margin-bottom: var(--space-3); }
+.my-4 { margin-top: var(--space-4); margin-bottom: var(--space-4); }
+
+.p-0 { padding: 0; }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.pt-0 { padding-top: 0; }
+.pt-1 { padding-top: var(--space-1); }
+.pt-2 { padding-top: var(--space-2); }
+.pt-3 { padding-top: var(--space-3); }
+.pt-4 { padding-top: var(--space-4); }
+.pb-0 { padding-bottom: 0; }
+.pb-1 { padding-bottom: var(--space-1); }
+.pb-2 { padding-bottom: var(--space-2); }
+.pb-3 { padding-bottom: var(--space-3); }
+.pb-4 { padding-bottom: var(--space-4); }
+
+.px-0 { padding-left: 0; padding-right: 0; }
+.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
+.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.py-0 { padding-top: 0; padding-bottom: 0; }
+.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+/* ====================================================================
+ * 9. 头像 / 徽章 / 标签
+ * ==================================================================== */
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: var(--radius-circle);
+  background: var(--color-primary-soft);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.avatar-sm { width: 56rpx; height: 56rpx; }
+.avatar-md { width: 80rpx; height: 80rpx; }
+.avatar-lg { width: 120rpx; height: 120rpx; }
+.avatar-xl { width: 160rpx; height: 160rpx; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 36rpx;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  background: var(--color-bg-divider);
+  color: var(--color-text-secondary);
+  line-height: 1;
+  letter-spacing: 0.5rpx;
+}
+.tag-primary { background: var(--color-primary-soft); color: var(--color-primary); }
+.tag-success { background: var(--color-success-soft); color: var(--color-success); }
+.tag-warning { background: var(--color-warning-soft); color: var(--color-warning); }
+.tag-error { background: var(--color-error-soft); color: var(--color-error); }
+.tag-info { background: var(--color-info-soft); color: var(--color-info); }
+
+/* 信用分徽章（业务专属） */
+.credit-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 40rpx;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  letter-spacing: 0.5rpx;
+}
+.credit-high { background: var(--color-success-soft); color: var(--color-credit-high); }
+.credit-mid  { background: var(--color-warning-soft); color: var(--color-credit-mid); }
+.credit-low  { background: var(--color-error-soft); color: var(--color-credit-low); }
+
+/* ====================================================================
+ * 10. Spring 弹性动效 + 关键帧
+ * --------------------------------------------------------------
+ * 提供可复用的微交互类：
+ *   - press-scale：按压缩放（通用）
+ *   - press-depress：按下时下沉（深按反馈）
+ *   - press-glow：按下时光晕增强（光感反馈）
+ *   - hover-lift：悬停时上浮（光感浮起）
+ * ==================================================================== */
+.press-scale {
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+.press-scale:active {
+  transform: scale(0.96);
+}
+
+.press-depress {
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+.press-depress:active {
+  transform: scale(0.94) translateY(2rpx);
+}
+
+.press-glow {
+  transition: transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+.press-glow:active {
+  transform: scale(0.96);
+  box-shadow: 0 0 0 8rpx rgba(255, 107, 53, 0.12);
+}
+
+.hover-lift {
+  transition: transform var(--duration-base) var(--ease-spring),
+              box-shadow var(--duration-base) var(--ease-out);
+}
+.hover-lift:hover {
+  transform: translateY(-4rpx);
+  box-shadow: var(--shadow-md);
+}
+
+/* ====================================================================
+ * 11. 通用动画
+ * ==================================================================== */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fade-in-up {
+  from { transform: translateY(16rpx); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes fade-in-down {
+  from { transform: translateY(-16rpx); opacity: 0; }
+  to   { transform: translateY(0);      opacity: 1; }
+}
+@keyframes slide-up {
+  from { transform: translateY(24rpx); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes slide-down {
+  from { transform: translateY(-24rpx); opacity: 0; }
+  to   { transform: translateY(0);      opacity: 1; }
+}
+@keyframes scale-in {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1);   opacity: 0.6; }
+  50%      { transform: scale(1.2); opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes twinkle {
+  0%, 100% { transform: scale(0.6); opacity: 0.4; }
+  50%      { transform: scale(1.4); opacity: 1; }
+}
+@keyframes shine-sweep {
+  0%        { left: -120%; }
+  60%, 100% { left: 220%; }
+}
+
+/* ====================================================================
+ * 11.1 融合体系 v2 关键帧动画（新增 fusion-ui-design Part 22）
+ * ==================================================================== */
+
+/* iOS 26 Liquid Glass 折射光斑扫过 */
+@keyframes liquid-specular-sweep {
+  0%        { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+  20%       { opacity: 1; }
+  60%       { transform: translateX(200%) skewX(-15deg); opacity: 0.6; }
+  100%      { transform: translateX(220%) skewX(-15deg); opacity: 0; }
+}
+.anim-liquid-shine {
+  position: relative;
+  overflow: hidden;
+}
+.anim-liquid-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: var(--liquid-specular);
+  animation: liquid-specular-sweep 3s var(--ease-m3-spatial-default) infinite;
+  pointer-events: none;
+}
+
+/* MagicOS 10 一镜到底转场（页面切换无缝衔接） */
+@keyframes seamless-morph {
+  0%   { transform: scale(1) translateY(0); opacity: 1; border-radius: var(--radius-md); }
+  60%  { transform: scale(1.04) translateY(-8rpx); opacity: 0.9; border-radius: var(--radius-lg); }
+  100% { transform: scale(1) translateY(0); opacity: 1; border-radius: var(--radius-md); }
+}
+.anim-seamless {
+  animation: seamless-morph var(--duration-spring-slow) var(--ease-magicos-seamless) both;
+}
+
+/* OriginOS 6 陀螺仪光影（左→右扫过） */
+@keyframes gyro-light-sweep {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.gyro-light {
+  background-image: linear-gradient(115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: gyro-light-sweep 4s var(--ease-in-out) infinite;
+}
+
+/* Nothing OS 3.5 点阵跳动（点阵字符刷新） */
+@keyframes dot-flicker {
+  0%, 100% { opacity: 0.2; }
+  20%      { opacity: 1; }
+  40%      { opacity: 0.6; }
+  60%      { opacity: 1; }
+  80%      { opacity: 0.4; }
+}
+.anim-dot-flicker { animation: dot-flicker 1.2s steps(5, end) infinite; }
+
+/* Nothing OS 点阵扫描 */
+@keyframes dot-scan {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+.anim-dot-scan {
+  background-image: radial-gradient(circle at center, var(--color-text-primary) 1rpx, transparent 1.5rpx);
+  background-size: 6rpx 6rpx;
+  animation: dot-scan 1.5s steps(8, end) infinite;
+}
+
+/* Pixel UI / Material 3 Expressive 弹性入场 */
+@keyframes m3-spatial-in {
+  0%   { transform: scale(0.85) translateY(8rpx); opacity: 0; }
+  60%  { transform: scale(1.02) translateY(-2rpx); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.anim-m3-spatial-in { animation: m3-spatial-in var(--duration-spring-base) var(--ease-m3-spatial-fast) both; }
+
+/* ColorOS 16 充电岛能量波扩散 */
+@keyframes charge-wave {
+  0%   { transform: scaleY(0.3); opacity: 0.6; }
+  50%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(0.3); opacity: 0.6; }
+}
+.anim-charge-wave {
+  transform-origin: bottom center;
+  animation: charge-wave 1.4s var(--ease-magicos-capsule) infinite;
+}
+
+/* One UI 9 Now Bar 渐变擦除进入 */
+@keyframes oneui-reveal {
+  0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+  60%  { clip-path: inset(0 0 0 0); opacity: 1; }
+  100% { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+.anim-oneui-reveal { animation: oneui-reveal var(--duration-spring-base) var(--ease-oneui-smooth) both; }
+
+/* MagicOS 10 灵动胶囊出现（圆→胶囊→卡片） */
+@keyframes smart-capsule-in {
+  0%   { width: 72rpx; height: 72rpx; border-radius: 50%; opacity: 0; transform: scale(0.5); }
+  40%  { width: 96rpx; height: 72rpx; border-radius: 36rpx; opacity: 1; transform: scale(1.05); }
+  100% { width: 200rpx; height: 72rpx; border-radius: 36rpx; opacity: 1; transform: scale(1); }
+}
+.anim-capsule-in { animation: smart-capsule-in var(--duration-spring-base) var(--ease-magicos-capsule) both; }
+
+/* 频谱岛波形（MagicOS 10 音乐频谱） */
+@keyframes spectrum-bar {
+  0%, 100% { transform: scaleY(0.3); }
+  50%      { transform: scaleY(1); }
+}
+.anim-spectrum {
+  transform-origin: center;
+  animation: spectrum-bar 0.8s var(--ease-in-out) infinite;
+}
+.anim-spectrum-1 { animation-delay: 0s; }
+.anim-spectrum-2 { animation-delay: 0.15s; }
+.anim-spectrum-3 { animation-delay: 0.3s; }
+.anim-spectrum-4 { animation-delay: 0.45s; }
+.anim-spectrum-5 { animation-delay: 0.6s; }
+
+/* 3D 深度锁屏视差（HarmonyOS 7 特色） */
+@keyframes parallax-depth {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-4rpx, -2rpx, 0) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+.anim-parallax { animation: parallax-depth 6s var(--ease-in-out) infinite; }
+
+/* OriginOS 6 渐进模糊 */
+@keyframes progressive-blur-anim {
+  0%   { filter: blur(0rpx); }
+  100% { filter: blur(16rpx); }
+}
+.anim-progressive-blur-in {
+  animation: progressive-blur-anim var(--duration-spring-base) var(--ease-magicos-seamless) both;
+}
+
+/* 倒计时环（MagicOS 10 计时器岛） */
+@keyframes countdown-ring {
+  0%   { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: var(--ring-circumference, 220); }
+}
+.anim-countdown-ring {
+  animation: countdown-ring var(--countdown-duration, 60s) linear both;
+}
+
+/* 数据流入（统计图表用） */
+@keyframes data-flow {
+  0%   { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.anim-data-flow {
+  animation: data-flow var(--duration-spring-base) var(--ease-m3-spatial-default) both;
+}
+
+/* 数字滚动（iOS 弹簧数字） */
+@keyframes number-roll {
+  0%   { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.anim-number-roll {
+  display: inline-block;
+  animation: number-roll var(--duration-spring-base) var(--ease-m3-spatial-default) both;
+}
+
+/* 加载旋转（ColorOS 16 干脆利落） */
+@keyframes loader-coloros {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.anim-loader-coloros { animation: loader-coloros 0.8s var(--ease-coloros-quick) infinite; }
+
+/* 弥散光按钮反馈（按下时 OriginOS 6 弥散光） */
+@keyframes diffuse-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4); }
+  100% { box-shadow: 0 0 0 24rpx rgba(255, 107, 53, 0); }
+}
+.anim-diffuse-flash:active {
+  animation: diffuse-flash 0.6s var(--ease-out) both;
+}
+
+/* 渐显光带（页面顶部 hero 渐显） */
+@keyframes hero-shimmer {
+  0%   { opacity: 0; transform: translateY(-20rpx); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.anim-hero-shimmer { animation: hero-shimmer var(--duration-spring-slow) var(--ease-m3-spatial-default) both; }
+
+/* 错落列表入场（增强版） */
+.anim-stagger-in {
+  animation: bounce-in var(--duration-spring-base) var(--ease-origin-spring) both;
+  animation-delay: var(--stagger-delay, 0ms);
+}
+
+/* 弹性出现 / 消失（OriginOS 6 风格） */
+.bounce-in {
+  animation: bounce-in var(--duration-spring-base) var(--ease-origin-spring) both;
+}
+@keyframes bounce-in {
+  0%   { opacity: 0; transform: scale(0.5) translateY(20rpx); }
+  60%  { opacity: 1; transform: scale(1.05) translateY(-4rpx); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.anim-fade { animation: fade-in var(--duration-base) var(--ease-out) both; }
+.anim-fade-up { animation: fade-in-up var(--duration-base) var(--ease-out) both; }
+.anim-fade-down { animation: fade-in-down var(--duration-base) var(--ease-out) both; }
+.anim-slide-up { animation: slide-up var(--duration-slow) var(--ease-out) both; }
+.anim-scale-in { animation: scale-in var(--duration-base) var(--ease-spring) both; }
+.anim-spin { animation: spin 1s linear infinite; }
+.anim-pulse { animation: pulse 2s var(--ease-in-out) infinite; }
+.anim-breathe { animation: breathe 3s var(--ease-in-out) infinite; }
+
+/* ==============================================================
+ * 10.5 v2 Spring Motion 工具类（融合十一大体系）
+ * --------------------------------------------------------------
+ * 用法：直接添加到元素上即可获得对应体系的弹性动效
+ * ============================================================== */
+
+/* MD3 Expressive 6 套 spring 工具类 */
+.spring-m3-fast     { transition: all var(--duration-spring-fast)    var(--ease-m3-spatial-fast); }
+.spring-m3-default  { transition: all var(--duration-spring-base)    var(--ease-m3-spatial-default); }
+.spring-m3-slow     { transition: all var(--duration-spring-slow)    var(--ease-m3-spatial-slow); }
+.spring-m3-effects  { transition: opacity var(--duration-spring-fast) var(--ease-m3-effects-fast),
+                                  color var(--duration-spring-fast) var(--ease-m3-effects-fast); }
+
+/* OriginOS 6 弹性动效（damping=0.6, stiffness=380） */
+.spring-origin      { transition: all var(--duration-spring-default) var(--ease-origin-spring); }
+
+/* ColorOS 16 干脆利落（damping=0.6, stiffness=800 ≈ 300ms） */
+.spring-coloros     { transition: all var(--duration-spring-quick) var(--ease-coloros-quick); }
+.spring-coloros-soft { transition: all var(--duration-spring-base) var(--ease-coloros-default); }
+
+/* MagicOS 10 灵动胶囊（damping=0.65, stiffness=450） */
+.spring-magicos     { transition: all var(--duration-spring-default) var(--ease-magicos-capsule); }
+.spring-magicos-seamless { transition: all var(--duration-spring-base) var(--ease-magicos-seamless); }
+
+/* One UI 9 流畅轻快（damping=0.7, stiffness=500） */
+.spring-oneui       { transition: all var(--duration-spring-default) var(--ease-oneui-smooth); }
+
+/* iOS 26 Liquid Glass spring */
+.spring-ios         { transition: all var(--duration-spring-default) var(--ease-ios-spring); }
+.spring-ios-morph   { transition: all var(--duration-spring-base) var(--ease-ios-glass-morph); }
+
+/* Pixel UI / Material 3 Standard */
+.spring-pixel       { transition: all var(--duration-spring-default) var(--ease-pixel-spring); }
+
+/* 打断动画：transform-only + 短 duration（ColorOS 16 特色） */
+.interruptible { transition: var(--transition-interruptible); }
+
+/* 按压交互（Press 反馈）—— 替换原 press-scale 更细致 */
+.press-spring-fast {
+  transition: transform var(--duration-spring-quick) var(--ease-coloros-quick);
+}
+.press-spring-fast:active {
+  transform: scale(0.94);
+}
+
+.press-spring-base {
+  transition: transform var(--duration-spring-default) var(--ease-m3-spatial-fast);
+}
+.press-spring-base:active {
+  transform: scale(0.96);
+}
+
+.press-spring-soft {
+  transition: transform var(--duration-spring-fast) var(--ease-ios-spring);
+}
+.press-spring-soft:active {
+  transform: scale(0.98);
+}
+
+/* Shape Morph（M3 Expressive 35 种形状）—— 圆 ↔ 方 形变 */
+.shape-morph-pill-to-square {
+  transition: border-radius var(--duration-spring-default) var(--ease-m3-spatial-fast);
+}
+.shape-morph-pill-to-square:active {
+  border-radius: var(--shape-square-sm);
+}
+
+.shape-morph-circle-to-square {
+  transition: border-radius var(--duration-spring-default) var(--ease-m3-spatial-fast);
+}
+.shape-morph-circle-to-square:active {
+  border-radius: var(--shape-square-md);
+}
+
+/* ==============================================================
+ * 10.6 Spring Morph + Liquid Glass 工具类
+ * ============================================================== */
+
+/* 液态玻璃弹性：按下时玻璃质感增强（弥散光） */
+.glass-spring {
+  transition: transform var(--duration-spring-default) var(--ease-ios-spring),
+              box-shadow var(--duration-spring-base) var(--ease-out),
+              background var(--duration-spring-fast) var(--ease-out);
+}
+.glass-spring:active {
+  transform: scale(0.97);
+  box-shadow: var(--light-diffuse-strong);
+}
+
+/* 灵动胶囊形变（MagicOS 10） */
+.capsule-morph {
+  transition: width var(--duration-spring-base) var(--ease-magicos-capsule),
+              height var(--duration-spring-base) var(--ease-magicos-capsule),
+              border-radius var(--duration-spring-base) var(--ease-magicos-capsule);
+}
+
+/* OriginOS 6 陀螺仪光影：轻微 3D 倾斜反馈（CSS 模拟） */
+.gyro-tilt {
+  transition: transform var(--duration-spring-base) var(--ease-magicos-capsule);
+  transform-style: preserve-3d;
+}
+
+/* 弹性出现 / 消失（OriginOS 6 风格） */
+.bounce-in {
+  animation: bounce-in var(--duration-spring-base) var(--ease-origin-spring) both;
+}
+@keyframes bounce-in {
+  0%   { opacity: 0; transform: scale(0.5) translateY(20rpx); }
+  60%  { opacity: 1; transform: scale(1.05) translateY(-4rpx); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* MagicOS 灵动胶囊形变动画（圆→胶囊→卡片） */
+@keyframes capsule-morph-in {
+  0%   { width: var(--capsule-height); border-radius: var(--capsule-radius); }
+  60%  { width: calc(var(--capsule-height) * 1.5); }
+  100% { width: 200rpx; border-radius: var(--capsule-radius); }
+}
+@keyframes capsule-expand {
+  from { width: 200rpx; height: var(--capsule-height); border-radius: var(--capsule-radius); }
+  to   { width: var(--capsule-expanded-width); height: var(--capsule-expanded-min-height); border-radius: var(--capsule-expanded-radius); }
+}
+
+/* Now Bar 通知出现（One UI 9） */
+@keyframes nowbar-in {
+  0%   { transform: translateY(40rpx) scale(0.8); opacity: 0; }
+  60%  { transform: translateY(-4rpx) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.anim-nowbar-in {
+  animation: nowbar-in var(--duration-spring-default) var(--ease-oneui-smooth) both;
+}
+
+/* AI 光晕脉冲（OriginOS 6 AI 动效） */
+@keyframes ai-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50%  { box-shadow: 0 0 0 16rpx rgba(99, 102, 241, 0.12); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+.anim-ai-pulse {
+  animation: ai-pulse 2s var(--ease-in-out) infinite;
+}
+
+/* AI 思考光晕（持续呼吸） */
+@keyframes ai-thinking {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5),
+                       0 0 24rpx 4rpx rgba(99, 102, 241, 0.2); }
+  50%      { box-shadow: 0 0 0 8rpx rgba(99, 102, 241, 0.2),
+                       0 0 48rpx 8rpx rgba(99, 102, 241, 0.3); }
+}
+.anim-ai-thinking {
+  animation: ai-thinking 1.6s var(--ease-in-out) infinite;
+}
+
+/* 充电岛能量脉冲（ColorOS 16.1） */
+@keyframes charge-pulse {
+  0%   { box-shadow: var(--charge-pulse-start); }
+  100% { box-shadow: var(--charge-pulse-end); }
+}
+.anim-charge-pulse {
+  animation: charge-pulse 1.6s var(--ease-out) infinite;
+}
+
+/* 渐进模糊（OriginOS 6 特色） */
+@keyframes progressive-blur {
+  from { filter: blur(0rpx); }
+  to   { filter: blur(24rpx); }
+}
+.anim-progressive-blur {
+  animation: progressive-blur var(--duration-spring-base) var(--ease-magicos-seamless) both;
+}
+
+/* 数字滚动（用于价格、统计数字） */
+@keyframes number-pop {
+  0%   { transform: translateY(8rpx) scale(0.92); opacity: 0; }
+  50%  { transform: translateY(-2rpx) scale(1.04); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.anim-number-pop {
+  animation: number-pop var(--duration-spring-base) var(--ease-m3-spatial-fast) both;
+}
+
+/* 进度条填充（弹簧式增长） */
+@keyframes progress-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.anim-progress-fill {
+  transform-origin: left center;
+  animation: progress-fill var(--duration-spring-slow) var(--ease-magicos-seamless) both;
+}
+
+/* 数据流入（柱状图） */
+@keyframes bar-rise {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+.anim-bar-rise {
+  transform-origin: bottom center;
+  animation: bar-rise var(--duration-spring-base) var(--ease-m3-spatial-default) both;
+}
+
+/* 列表项错落入场（增强版） */
+.anim-stagger-in {
+  animation: bounce-in var(--duration-spring-base) var(--ease-origin-spring) both;
+  animation-delay: var(--stagger-delay, 0ms);
+}
+
+/* ====================================================================
+ * 12. 安全区与底栏留白（防止 tab-bar 遮挡）
+ * ==================================================================== */
+.safe-area-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 180rpx);
+}
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}

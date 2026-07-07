@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  校园易物 · 品牌徽标 inverse 版本
+  - 用途：浅色背景 / 文字旁边 / 印刷物上的小图标
+  - 设计：透明底 + 主色描边的交换循环
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="校园易物 logo inverse">
+  <g fill="none" stroke="#FF7A45" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 16 28 A 16 16 0 0 1 36 14"/>
+    <polyline points="30,10 36,14 32,20"/>
+    <path d="M 48 36 A 16 16 0 0 1 28 50"/>
+    <polyline points="34,54 28,50 32,44"/>
+  </g>
+  <circle cx="32" cy="32" r="2.2" fill="#FF7A45"/>
+</svg>

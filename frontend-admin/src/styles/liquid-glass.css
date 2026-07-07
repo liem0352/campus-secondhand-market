@@ -1,0 +1,898 @@
+/* =============================================================
+ *  校园易物 · Liquid Glass 设计系统 v2.0
+ *  -------------------------------------------------------------
+ *  设计哲学（iOS 26+ Liquid Glass 跨平台落地版）：
+ *  1. 半透磨砂：rgba + backdrop-filter 实现"湿玻璃"
+ *  2. 边缘高光：inset 顶部 1-2px 白色高光，模拟玻璃折光
+ *  3. 分层深度：3 档 elevation（subtle / base / prominent）
+ *  4. 环境色：tint 变体让玻璃反映主色（暖橙）
+ *  5. 形态统一：胶囊 + 圆角矩形 + 圆 3 种系统形状
+ *  6. 交互响应：hover/press/focus 状态都有物理反馈
+ *  7. 性能优先：单次 backdrop-filter 合并，避免层叠抖动
+ *  8. 可降级：@supports 回退到半透明纯色
+ *  ============================================================= */
+
+:root {
+  /* ===== 玻璃表面：5 档透明度 ===== */
+  --glass-0: transparent;                              /* 完全透明 */
+  --glass-light-1: rgba(255, 255, 255, 0.45);          /* 弱玻璃 */
+  --glass-light-2: rgba(255, 255, 255, 0.60);          /* 标准玻璃 */
+  --glass-light-3: rgba(255, 255, 255, 0.78);          /* 厚玻璃（顶栏） */
+  --glass-light-4: rgba(255, 255, 255, 0.92);          /* 实心（modal） */
+  --glass-dark-1: rgba(28, 28, 30, 0.42);              /* 暗弱 */
+  --glass-dark-2: rgba(28, 28, 30, 0.58);              /* 暗标准 */
+  --glass-dark-3: rgba(28, 28, 30, 0.72);              /* 暗厚 */
+
+  /* ===== 主色玻璃（暖橙） ===== */
+  --glass-primary-1: rgba(255, 138, 92, 0.18);
+  --glass-primary-2: rgba(255, 138, 92, 0.32);
+  --glass-primary-3: rgba(242, 92, 42, 0.55);
+  --glass-primary-grad: linear-gradient(135deg, #FF8A5C 0%, #F25C2A 100%);
+
+  /* ===== 边框 ===== */
+  --glass-bd-1: 1px solid rgba(255, 255, 255, 0.28);
+  --glass-bd-2: 1px solid rgba(255, 255, 255, 0.42);
+  --glass-bd-3: 1px solid rgba(255, 255, 255, 0.6);
+  --glass-bd-dark: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-bd-primary: 1px solid rgba(242, 92, 42, 0.4);
+  --glass-bd-primary-2: 1px solid rgba(242, 92, 42, 0.65);
+
+  /* ===== 模糊度 ===== */
+  --glass-blur-1: saturate(160%) blur(12px);          /* 轻 */
+  --glass-blur-2: saturate(180%) blur(20px);          /* 中 */
+  --glass-blur-3: saturate(200%) blur(32px);          /* 重（顶栏） */
+  --glass-blur-4: saturate(220%) blur(48px);          /* 超重（modal） */
+
+  /* ===== 边缘高光 ===== */
+  --glass-hl-1: inset 0 1px 0 0 rgba(255, 255, 255, 0.28);
+  --glass-hl-2: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  --glass-hl-3: inset 0 2px 0 0 rgba(255, 255, 255, 0.7);
+  --glass-hl-dark: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+  /* ===== 阴影 ===== */
+  --glass-sh-1: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --glass-sh-2: 0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --glass-sh-3: 0 14px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  --glass-sh-4: 0 24px 64px rgba(0, 0, 0, 0.18), 0 8px 24px rgba(0, 0, 0, 0.1);
+  --glass-sh-primary: 0 12px 32px rgba(242, 92, 42, 0.32), 0 2px 8px rgba(242, 92, 42, 0.16);
+  --glass-sh-primary-hover: 0 16px 40px rgba(242, 92, 42, 0.4), 0 4px 12px rgba(242, 92, 42, 0.2);
+
+  /* ===== 圆角 ===== */
+  --glass-r-xs: 8px;
+  --glass-r-sm: 12px;
+  --glass-r-md: 16px;
+  --glass-r-lg: 20px;
+  --glass-r-xl: 24px;
+  --glass-r-2xl: 32px;
+  --glass-r-pill: 999px;
+
+  /* ===== 主题色变量（跨平台保持一致） ===== */
+  --glass-color-primary: #F25C2A;
+  --glass-color-primary-light: #FF8A5C;
+  --glass-color-text: #1F2937;
+  --glass-color-text-muted: #6B7280;
+  --glass-color-bg-page: linear-gradient(135deg, #FFB07A 0%, #FF6B35 100%);
+
+  /* =============================================================
+   *  暖色系调色板（项目特征 = 暖橙）
+   *  ------------------------------------------------------------
+   *  设计原则：主色不变，配套 5 套暖色变体 + 柔和状态色
+   *  命名规范：--orange-XXX（主橙）/--amber-XXX（暖琥珀）
+   *           /--coral-XXX（暖珊瑚）/--cream-XXX（暖米）
+   *           /--warm-XXX（暖灰）
+   *  ============================================================= */
+
+  /* ===== 主橙 Orange（品牌核心，5 阶明度） ===== */
+  --orange-50:  #FFF4EE;   /* 极浅橙（hover 背景） */
+  --orange-100: #FFE4D4;   /* 浅橙（chip 背景） */
+  --orange-200: #FFCBAA;   /* 中浅（disabled border） */
+  --orange-300: #FFAA7A;   /* 中（gradient 起点） */
+  --orange-400: #FF8A5C;   /* 较深（hover 渐变） */
+  --orange-500: #F25C2A;   /* ★ 品牌主色（CTA / 主按钮） */
+  --orange-600: #D44417;   /* 深（pressed 状态） */
+  --orange-700: #A8330F;   /* 极深（disabled text） */
+  --orange-800: #82270B;   /* 文字 / 标题 */
+  --orange-900: #5A1A07;   /* 极深（极强调） */
+
+  /* ===== 暖琥珀 Amber（次主色，搭配主橙） ===== */
+  --amber-50:  #FFF8E8;
+  --amber-100: #FFEDC4;
+  --amber-200: #FFDD92;
+  --amber-300: #FFC75E;
+  --amber-400: #FFAB38;
+  --amber-500: #E88A1B;   /* 暖琥珀主色（vip 标签/优惠/高亮） */
+  --amber-600: #C57015;
+  --amber-700: #8E4F0F;
+  --amber-800: #5C3308;
+
+  /* ===== 暖珊瑚 Coral（强调色，用于女性/活动/季节性） ===== */
+  --coral-50:  #FFEEE9;
+  --coral-100: #FFD5C8;
+  --coral-200: #FFB59A;
+  --coral-300: #FF8E68;
+  --coral-400: #FF6B45;
+  --coral-500: #E84B25;   /* 暖珊瑚主色（活动 banner） */
+  --coral-600: #C03A18;
+  --coral-700: #8E2B11;
+  --coral-800: #5C1B0A;
+
+  /* ===== 暖米 Cream（背景 / 卡片） ===== */
+  --cream-50:  #FFFBF6;   /* 极浅米（页面底色） */
+  --cream-100: #FCF4EB;   /* 浅米（卡片底） */
+  --cream-200: #F7E8D6;   /* 中米（次级背景） */
+  --cream-300: #EFD8B7;   /* 较深米（分割） */
+
+  /* ===== 暖灰 Warm（文字 / 描边） ===== */
+  --warm-50:  #FAF8F5;   /* 极浅暖灰（hover bg） */
+  --warm-100: #F1ECE3;   /* 浅暖灰（弱分割） */
+  --warm-200: #E1D8C7;   /* 中浅（border） */
+  --warm-300: #C8BBA1;   /* 中（placeholder） */
+  --warm-400: #8E8270;   /* 较深（muted text） */
+  --warm-500: #5C5040;   /* 深（副标题） */
+  --warm-600: #3D3528;   /* 极深（标题） */
+  --warm-700: #2A2418;   /* 最深（强调文字） */
+
+  /* ===== 柔和状态色（与暖橙协调，不刺眼） ===== */
+  --success-50:  #E8F6ED;
+  --success-100: #C5E8D2;
+  --success-300: #6FCF8B;
+  --success-500: #2F9E54;   /* 成功绿（订单完成） */
+  --success-600: #1F7A40;
+
+  --warning-50:  #FFF6E5;
+  --warning-100: #FFE4B5;
+  --warning-300: #FFB84D;
+  --warning-500: #E89414;   /* 警告黄（待付款） */
+  --warning-600: #B87408;
+
+  --danger-50:   #FFE8E8;
+  --danger-100:  #FFC4C4;
+  --danger-300:  #FF7676;
+  --danger-500:  #DC3545;   /* 危险红（下架/删除） */
+  --danger-600:  #B01C2C;
+
+  --info-50:     #E5F2FF;
+  --info-100:    #B8DBFF;
+  --info-300:    #6FB1FF;
+  --info-500:    #2F80ED;   /* 信息蓝（提示） */
+  --info-600:    #1B62C7;
+
+  /* ===== 品牌主渐变（项目核心 token） ===== */
+  --brand-gradient-warm:  linear-gradient(135deg, #FF8A5C 0%, #F25C2A 50%, #E84B25 100%);
+  --brand-gradient-amber: linear-gradient(135deg, #FFB84D 0%, #E88A1B 100%);
+  --brand-gradient-coral: linear-gradient(135deg, #FF6B45 0%, #E84B25 100%);
+  --brand-gradient-cream: linear-gradient(180deg, #FFFBF6 0%, #FCF4EB 100%);
+  --brand-gradient-soft:  linear-gradient(180deg, #FFF4EE 0%, #FFE4D4 100%);
+
+  /* 渐变背景：页面级（与 Glass 配合最佳） */
+  --brand-bg-page:      linear-gradient(135deg, #FFB07A 0%, #FF6B35 60%, #E84B25 100%);
+  --brand-bg-page-soft: linear-gradient(180deg, #FFFBF6 0%, #FFF4EE 100%);
+  --brand-bg-page-warm: linear-gradient(135deg, #FF8A5C 0%, #F25C2A 100%);
+
+  /* ===== 主色玻璃（暖橙） ===== */
+  --glass-primary-1: var(--orange-50);
+  --glass-primary-2: var(--orange-100);
+  --glass-primary-3: var(--orange-500);
+  --glass-primary-grad: var(--brand-gradient-warm);
+
+  /* 状态色玻璃（在原 glass-tag --success/--warning/--danger/--info 里引用） */
+  --glass-tint-success: var(--success-50);
+  --glass-tint-warning: var(--warning-50);
+  --glass-tint-danger:  var(--danger-50);
+  --glass-tint-info:    var(--info-50);
+}
+
+/* =============================================================
+ *  # 1 玻璃表面（卡片 / 容器 / 面板）
+ *  ============================================================= */
+
+/* 标准玻璃卡片：浅色背景上 */
+.glass {
+  background: var(--glass-light-2);
+  backdrop-filter: var(--glass-blur-2);
+  -webkit-backdrop-filter: var(--glass-blur-2);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-sh-2), var(--glass-hl-2);
+  border-radius: var(--glass-r-xl);
+}
+
+/* 厚重玻璃：用于顶栏 / 重要面板 */
+.glass-strong {
+  background: var(--glass-light-3);
+  backdrop-filter: var(--glass-blur-3);
+  -webkit-backdrop-filter: var(--glass-blur-3);
+  border: var(--glass-bd-2);
+  box-shadow: var(--glass-sh-1), var(--glass-hl-2);
+  border-radius: var(--glass-r-lg);
+}
+
+/* 弱化玻璃：用于副层级 / 嵌套 */
+.glass-soft {
+  background: var(--glass-light-1);
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-sh-1), var(--glass-hl-1);
+  border-radius: var(--glass-r-md);
+}
+
+/* 深色玻璃：用于深色背景 */
+.glass-dark {
+  background: var(--glass-dark-2);
+  backdrop-filter: var(--glass-blur-2);
+  -webkit-backdrop-filter: var(--glass-blur-2);
+  border: var(--glass-bd-dark);
+  box-shadow: var(--glass-sh-3), var(--glass-hl-dark);
+  border-radius: var(--glass-r-xl);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* 主色玻璃：用于强调 / 状态色 */
+.glass-primary {
+  background: var(--glass-primary-grad);
+  backdrop-filter: var(--glass-blur-2);
+  -webkit-backdrop-filter: var(--glass-blur-2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: var(--glass-sh-primary), var(--glass-hl-3);
+  border-radius: var(--glass-r-lg);
+  color: #ffffff;
+}
+
+/* 实心玻璃：用于 modal / 抽屉 */
+.glass-solid {
+  background: var(--glass-light-4);
+  backdrop-filter: var(--glass-blur-4);
+  -webkit-backdrop-filter: var(--glass-blur-4);
+  border: var(--glass-bd-3);
+  box-shadow: var(--glass-sh-4), var(--glass-hl-3);
+  border-radius: var(--glass-r-2xl);
+}
+
+/* =============================================================
+ *  # 2 玻璃按钮
+ *  ============================================================= */
+.glass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 18px;
+  background: var(--glass-light-3);
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-2);
+  box-shadow: var(--glass-sh-1), var(--glass-hl-2);
+  border-radius: var(--glass-r-pill);
+  color: var(--glass-color-text);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+              box-shadow 200ms ease,
+              background 200ms ease;
+}
+.glass-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--glass-sh-2), var(--glass-hl-2);
+}
+.glass-btn:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: var(--glass-sh-1), var(--glass-hl-1);
+}
+.glass-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 主色按钮（强调 CTA） */
+.glass-btn--primary {
+  background: var(--glass-primary-grad);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: var(--glass-sh-primary), var(--glass-hl-3);
+  color: #ffffff;
+  font-weight: 600;
+}
+.glass-btn--primary:hover {
+  box-shadow: var(--glass-sh-primary-hover), var(--glass-hl-3);
+  background: linear-gradient(135deg, #FF9B6E 0%, #F3682F 100%);
+}
+
+/* 危险按钮 */
+.glass-btn--danger {
+  background: linear-gradient(135deg, #FF5A5F 0%, #E03E3E 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 32px rgba(224, 62, 62, 0.32), var(--glass-hl-3);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* 图标按钮（圆形，44×44） */
+.glass-btn--icon {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+/* =============================================================
+ *  # 3 玻璃输入框
+ *  ============================================================= */
+.glass-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  background: var(--glass-light-1);
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-hl-1);
+  border-radius: var(--glass-r-md);
+  color: var(--glass-color-text);
+  font-size: 15px;
+  transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+}
+.glass-input:hover {
+  background: var(--glass-light-2);
+}
+.glass-input:focus {
+  outline: none;
+  background: var(--glass-light-3);
+  border-color: var(--glass-bd-primary-2);
+  box-shadow: 0 0 0 3px rgba(242, 92, 42, 0.12), var(--glass-hl-2);
+}
+.glass-input::placeholder {
+  color: var(--glass-color-text-muted);
+  opacity: 0.6;
+}
+
+/* 输入框容器（带前置/后置图标） */
+.glass-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--glass-light-1);
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-hl-1);
+  border-radius: var(--glass-r-md);
+  transition: border-color 200ms ease;
+}
+.glass-input-group:focus-within {
+  background: var(--glass-light-3);
+  border-color: var(--glass-bd-primary-2);
+  box-shadow: 0 0 0 3px rgba(242, 92, 42, 0.12), var(--glass-hl-2);
+}
+.glass-input-group .glass-input {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* =============================================================
+ *  # 4 玻璃标签 / 胶囊
+ *  ============================================================= */
+.glass-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--glass-light-1);
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-hl-1);
+  border-radius: var(--glass-r-pill);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--glass-color-text);
+  line-height: 1;
+}
+.glass-tag--primary {
+  background: var(--glass-primary-1);
+  color: var(--glass-color-primary);
+  border-color: rgba(242, 92, 42, 0.3);
+}
+.glass-tag--success {
+  background: rgba(40, 192, 100, 0.15);
+  color: #1F8A4F;
+  border-color: rgba(40, 192, 100, 0.3);
+}
+.glass-tag--warning {
+  background: rgba(255, 167, 38, 0.15);
+  color: #C56B00;
+  border-color: rgba(255, 167, 38, 0.3);
+}
+.glass-tag--danger {
+  background: rgba(255, 90, 95, 0.15);
+  color: #C72A30;
+  border-color: rgba(255, 90, 95, 0.3);
+}
+.glass-tag--info {
+  background: rgba(56, 132, 255, 0.15);
+  color: #1B58C7;
+  border-color: rgba(56, 132, 255, 0.3);
+}
+
+/* =============================================================
+ *  # 5 玻璃 chip（可点击标签，类别切换）
+ *  ============================================================= */
+.glass-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  background: var(--glass-light-2);
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-hl-1);
+  border-radius: var(--glass-r-pill);
+  font-size: 13px;
+  color: var(--glass-color-text-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: all 180ms cubic-bezier(0.2, 0, 0, 1);
+}
+.glass-chip:hover {
+  background: var(--glass-light-3);
+  color: var(--glass-color-text);
+  transform: translateY(-1px);
+}
+.glass-chip:active {
+  transform: scale(0.96);
+}
+.glass-chip--active {
+  background: var(--glass-primary-grad);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: var(--glass-sh-primary), var(--glass-hl-2);
+  font-weight: 600;
+}
+
+/* =============================================================
+ *  # 6 玻璃 Modal / 抽屉 / Dialog
+ *  ============================================================= */
+.glass-modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.glass-modal {
+  min-width: 320px;
+  max-width: 480px;
+  background: var(--glass-light-4);
+  backdrop-filter: var(--glass-blur-4);
+  -webkit-backdrop-filter: var(--glass-blur-4);
+  border: var(--glass-bd-3);
+  box-shadow: var(--glass-sh-4), var(--glass-hl-3);
+  border-radius: var(--glass-r-2xl);
+  padding: 24px;
+  animation: glassModalIn 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes glassModalIn {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* 抽屉 */
+.glass-drawer {
+  position: fixed;
+  background: var(--glass-light-4);
+  backdrop-filter: var(--glass-blur-4);
+  -webkit-backdrop-filter: var(--glass-blur-4);
+  border: var(--glass-bd-3);
+  box-shadow: var(--glass-sh-4), var(--glass-hl-3);
+  z-index: 999;
+}
+.glass-drawer--right {
+  top: 0; right: 0; bottom: 0;
+  width: 360px;
+  border-radius: var(--glass-r-2xl) 0 0 var(--glass-r-2xl);
+  animation: glassDrawerInRight 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes glassDrawerInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.glass-drawer--bottom {
+  left: 0; right: 0; bottom: 0;
+  max-height: 80vh;
+  border-radius: var(--glass-r-2xl) var(--glass-r-2xl) 0 0;
+  animation: glassDrawerInBottom 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes glassDrawerInBottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* =============================================================
+ *  # 7 玻璃表格 / 列表
+ *  ============================================================= */
+.glass-table {
+  width: 100%;
+  background: var(--glass-light-2);
+  backdrop-filter: var(--glass-blur-2);
+  -webkit-backdrop-filter: var(--glass-blur-2);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-sh-2), var(--glass-hl-2);
+  border-radius: var(--glass-r-lg);
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.glass-table thead th {
+  background: var(--glass-light-3);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--glass-color-text-muted);
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: var(--glass-bd-1);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+}
+.glass-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  font-size: 14px;
+}
+.glass-table tbody tr {
+  transition: background 150ms ease;
+}
+.glass-table tbody tr:hover {
+  background: var(--glass-light-1);
+}
+.glass-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 玻璃列表行（无表头，列表式） */
+.glass-list {
+  background: var(--glass-light-2);
+  backdrop-filter: var(--glass-blur-2);
+  -webkit-backdrop-filter: var(--glass-blur-2);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-sh-2), var(--glass-hl-2);
+  border-radius: var(--glass-r-lg);
+  overflow: hidden;
+}
+.glass-list__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  transition: background 150ms ease;
+}
+.glass-list__item:hover {
+  background: var(--glass-light-3);
+}
+.glass-list__item:last-child {
+  border-bottom: none;
+}
+.glass-list__item:active {
+  background: var(--glass-light-4);
+}
+
+/* =============================================================
+ *  # 8 玻璃空状态 / 错误状态
+ *  ============================================================= */
+.glass-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: var(--glass-light-1);
+  backdrop-filter: var(--glass-blur-1);
+  -webkit-backdrop-filter: var(--glass-blur-1);
+  border: 1px dashed rgba(255, 255, 255, 0.5);
+  border-radius: var(--glass-r-xl);
+  text-align: center;
+}
+.glass-empty__icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.glass-empty__title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--glass-color-text);
+  margin-bottom: 8px;
+}
+.glass-empty__desc {
+  font-size: 13px;
+  color: var(--glass-color-text-muted);
+  margin-bottom: 20px;
+}
+
+/* =============================================================
+ *  # 9 玻璃分割线 / 间隔
+ *  ============================================================= */
+.glass-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  border: none;
+  margin: 12px 0;
+}
+.glass-divider--strong {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.08), transparent);
+}
+.glass-divider--v {
+  width: 1px;
+  height: auto;
+  align-self: stretch;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  margin: 0 12px;
+}
+
+/* =============================================================
+ *  # 10 粘性层（顶栏 / 底部导航 / 工具栏）
+ *  ============================================================= */
+.glass-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--glass-light-3);
+  backdrop-filter: var(--glass-blur-3);
+  -webkit-backdrop-filter: var(--glass-blur-3);
+  border-bottom: var(--glass-bd-1);
+  box-shadow: var(--glass-sh-1);
+}
+.glass-sticky--top {
+  border-bottom: var(--glass-bd-1);
+}
+.glass-sticky--bottom {
+  top: auto;
+  bottom: 0;
+  border-top: var(--glass-bd-1);
+  border-bottom: none;
+}
+
+/* =============================================================
+ *  # 11 玻璃徽章（数字徽章 / 角标）
+ *  ============================================================= */
+.glass-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  background: var(--glass-primary-grad);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--glass-r-pill);
+  box-shadow: 0 2px 6px rgba(242, 92, 42, 0.4), var(--glass-hl-2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  line-height: 1;
+}
+.glass-badge--dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  padding: 0;
+}
+.glass-badge--danger {
+  background: linear-gradient(135deg, #FF5A5F 0%, #E03E3E 100%);
+  box-shadow: 0 2px 6px rgba(224, 62, 62, 0.4), var(--glass-hl-2);
+}
+
+/* =============================================================
+ *  # 12 玻璃进度条 / 滑块
+ *  ============================================================= */
+.glass-progress {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--glass-light-1);
+  backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-1);
+  border-radius: var(--glass-r-pill);
+  overflow: hidden;
+}
+.glass-progress__bar {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: var(--glass-primary-grad);
+  border-radius: var(--glass-r-pill);
+  transition: width 240ms cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 0 8px rgba(242, 92, 42, 0.4);
+}
+
+/* =============================================================
+ *  # 13 玻璃头像
+ *  ============================================================= */
+.glass-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--glass-light-2);
+  backdrop-filter: var(--glass-blur-1);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--glass-sh-1), var(--glass-hl-2);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.glass-avatar--sm { width: 32px; height: 32px; }
+.glass-avatar--lg { width: 56px; height: 56px; }
+.glass-avatar--xl { width: 80px; height: 80px; border-width: 3px; }
+
+/* =============================================================
+ *  # 14 玻璃 Tooltip
+ *  ============================================================= */
+.glass-tooltip {
+  position: absolute;
+  z-index: 1100;
+  padding: 6px 12px;
+  background: rgba(28, 28, 30, 0.88);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: var(--glass-sh-3), var(--glass-hl-dark);
+  border-radius: var(--glass-r-sm);
+  color: #ffffff;
+  font-size: 12px;
+  pointer-events: none;
+  animation: glassTooltipIn 160ms ease-out;
+}
+@keyframes glassTooltipIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* =============================================================
+ *  # 15 玻璃 Skeleton（骨架屏）
+ *  ============================================================= */
+.glass-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--glass-light-1) 0%,
+    var(--glass-light-2) 50%,
+    var(--glass-light-1) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--glass-r-sm);
+  animation: glassSkeleton 1.4s ease-in-out infinite;
+}
+@keyframes glassSkeleton {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* =============================================================
+ *  # 16 玻璃 Navigation Item（侧边栏/菜单项）
+ *  ============================================================= */
+.glass-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--glass-r-md);
+  color: var(--glass-color-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 180ms cubic-bezier(0.2, 0, 0, 1);
+}
+.glass-nav-item:hover {
+  background: var(--glass-light-2);
+}
+.glass-nav-item--active {
+  background: var(--glass-primary-grad);
+  color: #ffffff;
+  box-shadow: var(--glass-sh-primary), var(--glass-hl-2);
+}
+
+/* =============================================================
+ *  # 17 玻璃 Switch / 开关
+ *  ============================================================= */
+.glass-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+  background: var(--glass-light-1);
+  backdrop-filter: var(--glass-blur-1);
+  border: var(--glass-bd-1);
+  box-shadow: var(--glass-hl-1);
+  border-radius: var(--glass-r-pill);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.glass-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: var(--glass-light-4);
+  border-radius: 50%;
+  box-shadow: var(--glass-sh-2);
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+.glass-switch--on {
+  background: var(--glass-primary-grad);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: var(--glass-sh-primary);
+}
+.glass-switch--on::after {
+  left: 21px;
+}
+
+/* =============================================================
+ *  降级处理：不支持 backdrop-filter
+ *  ============================================================= */
+@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+  .glass,
+  .glass-strong,
+  .glass-soft,
+  .glass-dark,
+  .glass-primary,
+  .glass-solid,
+  .glass-card,
+  .glass-btn,
+  .glass-input,
+  .glass-input-group,
+  .glass-tag,
+  .glass-chip,
+  .glass-table,
+  .glass-list,
+  .glass-empty,
+  .glass-sticky,
+  .glass-progress,
+  .glass-avatar,
+  .glass-skeleton,
+  .glass-switch,
+  .glass-nav-item {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .glass { background: rgba(255, 255, 255, 0.92); }
+  .glass-strong { background: rgba(255, 255, 255, 0.96); }
+  .glass-soft { background: rgba(255, 255, 255, 0.86); }
+  .glass-dark { background: rgba(28, 28, 30, 0.92); }
+  .glass-solid { background: rgba(255, 255, 255, 0.98); }
+  .glass-primary { background: linear-gradient(135deg, #FF8A5C 0%, #F25C2A 100%); }
+}
+
+/* =============================================================
+ *  动画偏好
+ *  ============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .glass-btn,
+  .glass-btn:hover,
+  .glass-btn:active,
+  .glass-chip,
+  .glass-chip--active,
+  .glass-nav-item,
+  .glass-list__item,
+  .glass-skeleton {
+    animation: none !important;
+    transition: none !important;
+  }
+}

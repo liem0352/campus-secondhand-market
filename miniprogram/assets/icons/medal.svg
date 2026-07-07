@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- 圆形奖牌底板 -->
+  <circle cx="32" cy="28" r="16" fill="#FF6B35" opacity="0.15"/>
+  <circle cx="32" cy="28" r="14" fill="url(#medal-grad)"/>
+  <!-- 顶部丝带 -->
+  <path d="M 22 6 L 32 24 L 42 6 Z" fill="#FF6B35"/>
+  <path d="M 24 6 L 32 20 L 40 6 Z" fill="#FF8C5C"/>
+  <!-- 中心星形 -->
+  <path d="M 32 19 L 34 26 L 41 26 L 35.5 30.5 L 37.5 37 L 32 33 L 26.5 37 L 28.5 30.5 L 23 26 L 30 26 Z" fill="#FFFFFF"/>
+  <defs>
+    <linearGradient id="medal-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FF8C5C"/>
+      <stop offset="100%" stop-color="#F25C2A"/>
+    </linearGradient>
+  </defs>
+</svg>
