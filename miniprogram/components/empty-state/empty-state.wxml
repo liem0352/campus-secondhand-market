@@ -1,0 +1,104 @@
+<!--
+  components/empty-state（v2 融合 fusion-ui-design Part 22）
+  --------------------------------------------------------------------
+  通用空状态组件
+  设计融合：
+    - iOS 26 Liquid Glass 折射光斑（anim-liquid-shine）
+    - OriginOS 6 陀螺仪光影（gyro-light）
+    - Nothing OS 3.5 点阵美学（anim-dot-flicker / anim-dot-scan）
+    - One UI 9 流畅轻快（spring-oneui）
+  严格使用 design tokens（颜色/字号/间距/动效/圆角/阴影）
+  --------------------------------------------------------------------
+  用法：
+    <empty-state
+      title="暂无商品"
+      description="快去发布第一件闲置吧"
+      icon="box"
+      action-text="去发布"
+      bind:action="onPublish"
+      enable-parallax="{{true}}"
+    />
+-->
+<view class="empty-state {{compact ? 'empty-state--compact' : ''}}">
+  <!-- 插画底座（陀螺仪光影容器 + iOS 26 折射光斑） -->
+  <view class="empty-illust-wrap gyro-light anim-liquid-shine"
+        style="transform: translate3d({{tiltX}}rpx, {{tiltY}}rpx, 0); transition: transform var(--duration-spring-fast) var(--ease-oneui-smooth);">
+    <view class="empty-illust-glow"></view>
+    <view class="empty-illust" style="width: {{size}}rpx; height: {{size}}rpx;">
+      <block wx:if="{{icon === 'box'}}">
+        <!-- 空盒子插画（点阵装饰 + 陀螺仪光影） -->
+        <view class="illust-box illust-float">
+          <view class="illust-box__top"></view>
+          <view class="illust-box__body"></view>
+          <view class="illust-box__strip"></view>
+          <view class="illust-box__highlight"></view>
+          <!-- Nothing OS 3.5 点阵装饰：环绕盒身的微观点 -->
+          <view class="illust-box__dot illust-box__dot--1 anim-dot-flicker"></view>
+          <view class="illust-box__dot illust-box__dot--2 anim-dot-flicker"></view>
+          <view class="illust-box__dot illust-box__dot--3 anim-dot-flicker"></view>
+          <view class="illust-box__dot illust-box__dot--4 anim-dot-flicker"></view>
+          <view class="illust-box__dot illust-box__dot--5 anim-dot-flicker"></view>
+          <view class="illust-box__dot illust-box__dot--6 anim-dot-flicker"></view>
+        </view>
+      </block>
+      <block wx:elif="{{icon === 'search'}}">
+        <!-- 搜索无果 -->
+        <view class="illust-search illust-float">
+          <view class="illust-search__lens"></view>
+          <view class="illust-search__handle"></view>
+          <view class="illust-search__highlight"></view>
+        </view>
+      </block>
+      <block wx:elif="{{icon === 'chat'}}">
+        <!-- 聊天空 -->
+        <view class="illust-chat illust-float">
+          <view class="illust-chat__bubble illust-chat__bubble--left"></view>
+          <view class="illust-chat__bubble illust-chat__bubble--right"></view>
+        </view>
+      </block>
+      <block wx:elif="{{icon === 'order'}}">
+        <!-- 订单空 -->
+        <view class="illust-order illust-float">
+          <view class="illust-order__paper"></view>
+          <view class="illust-order__line"></view>
+          <view class="illust-order__line illust-order__line--short"></view>
+        </view>
+      </block>
+      <block wx:elif="{{icon === 'favorite'}}">
+        <!-- 收藏空 -->
+        <view class="illust-favorite illust-float">
+          <view class="illust-favorite__heart"></view>
+        </view>
+      </block>
+      <block wx:elif="{{icon === 'message'}}">
+        <!-- 消息空 -->
+        <view class="illust-msg illust-float">
+          <view class="illust-msg__bubble"></view>
+          <view class="illust-msg__dot illust-msg__dot--1"></view>
+          <view class="illust-msg__dot illust-msg__dot--2"></view>
+          <view class="illust-msg__dot illust-msg__dot--3"></view>
+        </view>
+      </block>
+      <block wx:else>
+        <!-- 默认插画（感叹号） -->
+        <view class="illust-default illust-float">
+          <view class="illust-default__circle"></view>
+          <view class="illust-default__highlight"></view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view wx:if="{{title}}" class="empty-title">{{title}}</view>
+  <view wx:if="{{description}}" class="empty-desc">{{description}}</view>
+
+  <view wx:if="{{actionText}}" class="empty-actions">
+    <button
+      class="empty-action press-spring spring-oneui"
+      bindtap="onAction"
+      hover-class="empty-action--hover"
+    >
+      <text class="empty-action__text">{{actionText}}</text>
+    </button>
+  </view>
+</view>

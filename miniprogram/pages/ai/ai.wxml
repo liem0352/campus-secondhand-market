@@ -1,0 +1,245 @@
+<!--pages/ai/ai.wxml - AI 智能理财助手（融合 fusion-ui-design v2）
+ * --------------------------------------------------------------------
+ * 升级内容（2026-06）：
+ *   - 22.9 OriginOS 6 AI 动效：AI 头像 anim-ai-pulse 光晕脉冲
+ *   - 22.9 OriginOS 6 AI 动效：AI 思考时 anim-ai-thinking 持续呼吸光晕
+ *   - 22.13 MagicOS 10 一镜到底：欢迎卡片 anim-seamless 平滑形变入场
+ *   - 22.2 MD3 Expressive：消息列表 anim-m3-spatial-in 弹性入场
+ *   - 22.2 iOS 26 Liquid Glass：输入区 glass-light-soft 液态玻璃
+ *   - 22.7 ColorOS 16：发送按钮 spring-coloros 干脆利落
+ *   - 22.9 OriginOS 6 陀螺仪光影：欢迎卡片 gyro-light 光斑扫过
+ *
+ * 严禁：emoji / 特殊符号作 UI 图标（用户规则 5）
+ * 所有颜色/字号/动效统一通过 var(--*) token 引用（app.wxss 定义）
+-->
+<view class="ai-page">
+  <!-- ============ 自定义导航栏 ============ -->
+  <view class="custom-nav" style="padding-top:{{statusBarHeight}}px;">
+    <view class="nav-bar" style="height:{{navBarHeight}}px;">
+      <!-- 返回按钮（标准 navigateBack 返回上一个页面） -->
+      <view class="nav-btn nav-back nav-btn-press" bindtap="onBack" hover-class="nav-btn-hover">
+        <view class="nav-back-arrow"></view>
+      </view>
+      <!-- 标题（AI 标识 + 文字） -->
+      <view class="nav-title">
+        <view class="nav-title-orb anim-ai-pulse">AI</view>
+        <view class="nav-title-text">智能理财助手</view>
+      </view>
+      <!-- 右侧菜单（清空对话） -->
+      <view class="nav-btn nav-menu nav-btn-press" bindtap="onMenuTap" hover-class="nav-btn-hover">
+        <view class="nav-menu-dot"></view>
+        <view class="nav-menu-dot"></view>
+        <view class="nav-menu-dot"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 顶部欢迎卡片（MagicOS 10 一镜到底 + OriginOS 陀螺仪光影） ============ -->
+  <view wx:if="{{showWelcome && !loading}}" class="welcome anim-seamless anim-m3-spatial-in">
+    <!-- 陀螺仪光影层（OriginOS 6 独家） -->
+    <view class="welcome-gyro gyro-light"></view>
+    <!-- iOS 26 Liquid Glass 折射层 -->
+    <view class="welcome-refract"></view>
+
+    <view class="welcome-header">
+      <!-- AI 头像：anim-ai-pulse（OriginOS 6 AI 脉冲） -->
+      <view class="welcome-avatar-wrap">
+        <view class="welcome-avatar-orb anim-ai-pulse"></view>
+        <view class="welcome-avatar">AI</view>
+      </view>
+      <view class="welcome-meta">
+        <view class="welcome-name">你好，我是你的家庭理财助手</view>
+        <view class="welcome-sub">基于你的真实账本数据</view>
+      </view>
+    </view>
+    <view class="welcome-desc">
+      问我本月花了多少钱、哪类支出最多、如何制定预算等任何理财问题
+    </view>
+    <view class="quick-title">试试这些问题</view>
+    <view class="quick-list">
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="本月花了多少钱？">
+        <text class="quick-emoji">Q1</text><text>本月花了多少钱？</text>
+      </view>
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="给我一些消费建议">
+        <text class="quick-emoji">Q2</text><text>给我一些消费建议</text>
+      </view>
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="哪类支出最多？">
+        <text class="quick-emoji">Q3</text><text>哪类支出最多？</text>
+      </view>
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="本月收入多少？">
+        <text class="quick-emoji">Q4</text><text>本月收入多少？</text>
+      </view>
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="谁花得最多？">
+        <text class="quick-emoji">Q5</text><text>谁花得最多？</text>
+      </view>
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="如何制定下月预算？">
+        <text class="quick-emoji">Q6</text><text>如何制定下月预算？</text>
+      </view>
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="我上个月花了多少？">
+        <text class="quick-emoji">Q7</text><text>我上个月花了多少？</text>
+      </view>
+      <view class="quick-chip press-spring-fast" bindtap="onQuickTap" data-q="怎么节省开支？">
+        <text class="quick-emoji">Q8</text><text>怎么节省开支？</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 聊天消息列表（MD3 Expressive 弹性入场） ============ -->
+  <scroll-view
+    scroll-y
+    class="chat-box"
+    scroll-into-view="msg-{{messages.length - 1}}"
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <block wx:for="{{messages}}" wx:key="id">
+      <!-- 消息行：每条消息 anim-m3-spatial-in 弹性入场 -->
+      <view
+        class="msg-row anim-m3-spatial-in {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}"
+        id="msg-{{index}}"
+        style="--stagger-delay: {{index * 40}}ms;"
+      >
+        <!-- AI 头像：anim-ai-pulse 持续脉冲；正在思考时叠加 anim-ai-thinking 呼吸光晕 -->
+        <view wx:if="{{item.role === 'ai'}}" class="avatar-wrap">
+          <view class="avatar-orb {{state.thinking ? 'anim-ai-thinking' : 'anim-ai-pulse'}}"></view>
+          <view class="avatar avatar-ai">AI</view>
+        </view>
+
+        <!-- 消息气泡（包裹一个 outer 用于长按操作） -->
+        <view class="bubble-wrap">
+          <view class="bubble {{item.role === 'user' ? 'bubble-user' : 'bubble-ai'}}" bindlongpress="onMsgLongPress" data-id="{{item.id}}" data-index="{{index}}">
+            <text class="bubble-text" user-select="true" space="emsp">{{item.text}}</text>
+            <view class="bubble-time">{{item.time}}</view>
+          </view>
+
+          <!-- AI 消息的操作按钮（仅对已完成的 AI 消息显示） -->
+          <view wx:if="{{item.role === 'ai' && !item.typing && item.text}}" class="bubble-actions">
+            <view class="bubble-action press-spring-fast" bindtap="onCopyMsg" data-id="{{item.id}}" hover-class="bubble-action-hover">
+              <text>复制</text>
+            </view>
+            <view wx:if="{{item.regen}}" class="bubble-action press-spring-fast" bindtap="onRegenMsg" data-id="{{item.id}}" hover-class="bubble-action-hover">
+              <text>重新生成</text>
+            </view>
+            <view wx:if="{{item.regen}}" class="bubble-action bubble-action-danger press-spring-fast" bindtap="onBadMsg" data-id="{{item.id}}" hover-class="bubble-action-hover">
+              <text>没用</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 用户头像 -->
+        <view wx:if="{{item.role === 'user'}}" class="avatar avatar-user">我</view>
+      </view>
+
+      <!-- 打字动画占位：state.thinking 为 true 时 AI 头像 anim-ai-thinking 持续呼吸光晕 -->
+      <view
+        wx:if="{{item.typing}}"
+        class="msg-row msg-ai anim-m3-spatial-in"
+        id="msg-{{index}}"
+      >
+        <view class="avatar-wrap">
+          <view class="avatar-orb anim-ai-thinking"></view>
+          <view class="avatar avatar-ai">AI</view>
+        </view>
+        <view class="bubble bubble-ai bubble-typing">
+          <view class="dot"></view>
+          <view class="dot"></view>
+          <view class="dot"></view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态（不显示欢迎卡片时也不显示） -->
+    <view wx:if="{{messages.length === 0 && !loading && !showWelcome}}" class="chat-empty">
+      <view class="chat-empty-orb anim-ai-pulse"></view>
+      <view class="chat-empty-icon">AI</view>
+      <view class="chat-empty-text">开始问理财问题吧</view>
+    </view>
+  </scroll-view>
+
+  <!-- ============ 底部输入栏（iOS 26 Liquid Glass + ColorOS 16 干脆利落） ============ -->
+  <view class="input-bar glass-light-soft" style="padding-bottom: calc(20rpx + env(safe-area-inset-bottom));">
+    <view class="input-extra press-spring-fast" bindtap="onAdviceTap" hover-class="input-extra-hover">
+      <!-- 图标：SVG（utils/icon.js -> ICON.ai），严禁 emoji（用户规则 5） -->
+      <image class="input-extra-icon" src="{{iconAi}}" mode="aspectFit" />
+      <view class="input-extra-text">建议</view>
+    </view>
+    <view class="input-wrap">
+      <input
+        class="input-field"
+        placeholder="问理财问题…"
+        placeholder-class="input-placeholder"
+        value="{{input}}"
+        bindinput="onInput"
+        confirm-type="send"
+        bindconfirm="onSend"
+        hold-keyboard
+        disabled="{{loading}}"
+        adjust-position="{{true}}"
+      />
+      <!-- 清空按钮：SVG 关闭图标（utils/icon.js -> ICON.close），严禁使用 × 字符 -->
+      <view wx:if="{{input}}" class="input-clear press-spring-fast" bindtap="onClear">
+        <image class="input-clear-icon" src="{{iconClose}}" mode="aspectFit" />
+      </view>
+    </view>
+    <!-- 发送按钮：spring-coloros（ColorOS 16 干脆利落） -->
+    <button
+      class="send-btn spring-coloros"
+      type="primary"
+      bindtap="onSend"
+      disabled="{{loading || !input.trim()}}"
+    >发送</button>
+  </view>
+</view>
+
+<!-- ============ 长按消息操作弹层（点击遮罩关闭） ============ -->
+<view
+  wx:if="{{actionSheetVisible}}"
+  class="action-sheet-mask"
+  bindtap="onActionSheetClose"
+  catchtouchmove="true"
+>
+  <view class="action-sheet anim-slide-up" catchtap="">
+    <view class="action-sheet-title">消息操作</view>
+    <view class="action-sheet-item press-spring-fast" bindtap="onActionCopy">
+      <text>复制内容</text>
+    </view>
+    <view wx:if="{{actionMsg && actionMsg.regen}}" class="action-sheet-item press-spring-fast" bindtap="onActionRegen">
+      <text>重新生成</text>
+    </view>
+    <view wx:if="{{actionMsg && actionMsg.regen}}" class="action-sheet-item press-spring-fast" bindtap="onActionBad">
+      <text>这条没用</text>
+    </view>
+    <view class="action-sheet-item action-sheet-danger press-spring-fast" bindtap="onActionDelete">
+      <text>删除该消息</text>
+    </view>
+    <view class="action-sheet-cancel press-spring-fast" bindtap="onActionSheetClose">取消</view>
+  </view>
+</view>
+
+<!-- ============ 顶部菜单（点击右上角触发） ============ -->
+<view
+  wx:if="{{menuVisible}}"
+  class="menu-mask"
+  bindtap="onMenuClose"
+  catchtouchmove="true"
+>
+  <view class="menu-popup anim-scale-in" catchtap="">
+    <!-- 菜单项图标均使用 SVG（utils/icon.js），严禁 emoji / 特殊符号（用户规则 5） -->
+    <!-- 刷新历史：项目内无现成 refresh SVG，按规则保留"如果实在没有合适的 SVG，可直接删除图标文字"策略，仅显示文字 -->
+    <view class="menu-item press-spring-fast" bindtap="onMenuRefresh">
+      <text>刷新历史</text>
+    </view>
+    <view class="menu-item press-spring-fast" bindtap="onMenuExport">
+      <image class="menu-item-icon" src="{{iconShare}}" mode="aspectFit" />
+      <text>导出对话</text>
+    </view>
+    <view class="menu-item menu-item-danger press-spring-fast" bindtap="onMenuClear">
+      <image class="menu-item-icon" src="{{iconDelete}}" mode="aspectFit" />
+      <text>清空对话</text>
+    </view>
+    <view class="menu-item press-spring-fast" bindtap="onMenuClose">
+      <image class="menu-item-icon" src="{{iconClose}}" mode="aspectFit" />
+      <text>关闭</text>
+    </view>
+  </view>
+</view>

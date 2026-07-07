@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "校园易物",
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "backgroundColor": "#F5F5F7",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "product-card": "/components/product-card/product-card",
+    "empty-state": "/components/empty-state/empty-state",
+    "error-state": "/components/error-state/error-state"
+  }
+}

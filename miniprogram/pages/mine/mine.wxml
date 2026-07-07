@@ -1,0 +1,243 @@
+<!-- pages/mine/mine.wxml
+     ====================================================================
+     我的页 · 校园易物 v6 重构版（融合设计系统 v6，对齐登录页风格）
+     --------------------------------------------------------------------
+     视觉语言（与登录页统一）：
+       - 暖色光斑背景 + 双层 ambient 光晕（4s 呼吸）
+       - 顶部品牌头：玻璃 logo + 渐变品牌名 + slogan
+       - 液态玻璃 Hero：半透白 + 顶部高光 + 主色渐变头像环
+       - 玻璃小卡：4 列数据 + 5 列订单 + 2 行工具
+       - 主色描边退出按钮 + 玻璃感
+     --------------------------------------------------------------------
+     布局（一屏内可看完）：
+       1) 顶部品牌区（glass logo + 渐变品牌名 + slogan）
+       2) Hero（用户卡片，未登录/已登录双态）
+       3) 数据概览：4 列玻璃网格（在售 / 已售 / 收藏 / 评价）
+       4) 订单入口：5 列玻璃图标
+       5) 我的工具：2 行 x 5 列 玻璃宫格
+       6) 退出登录
+     --------------------------------------------------------------------
+     设计要点：
+       - 严格使用 var(--*) 引用 design token
+       - 触达目标 ≥ 88rpx
+       - 单一微交互：press-scale
+       - 入场动画 280ms + 错落 80ms（与登录页统一）
+     ==================================================================== -->
+
+<view class="page mine-page anim-page" style="padding-top: {{statusBarHeight + 12}}px;">
+
+  <!-- ============== 0. 暖色光斑背景（与登录页一致） ============== -->
+  <view class="mine-bg">
+    <view class="mine-bg__halo mine-bg__halo--1"></view>
+    <view class="mine-bg__halo mine-bg__halo--2"></view>
+    <view class="mine-bg__halo mine-bg__halo--3"></view>
+  </view>
+
+  <!-- （品牌头已移除：保留暖色光斑背景即可，Hero 用户卡直接呈现） -->
+
+  <!-- ============== 2. 紧凑 Hero ============== -->
+  <view class="hero card-glass anim-fade-down" style="animation-delay: 80ms;">
+    <view class="hero__shine"></view>
+
+    <block wx:if="{{logged}}">
+      <view
+        class="hero__avatar-ring press-scale"
+        hover-class="press-scale-active"
+        bindtap="onLoginTap"
+        aria-label="点击查看个人资料"
+      >
+        <image
+          class="hero__avatar"
+          src="{{userInfo.avatar || '/assets/icons/avatar.png'}}"
+          mode="aspectFill"
+        />
+      </view>
+      <view class="hero__meta">
+        <view class="hero__name-row">
+          <text class="hero__name text-ellipsis">{{userInfo.nickname || '未命名'}}</text>
+          <view wx:if="{{userInfo.is_verified}}" class="hero__verified" aria-label="已通过校园认证">
+            <view class="hero__verified-dot"></view>
+            <text>已认证</text>
+          </view>
+        </view>
+        <view class="hero__school text-ellipsis">
+          <view class="hero__school-icon"></view>
+          <text>{{userInfo.school || '未填写学校'}}</text>
+        </view>
+        <view wx:if="{{userInfo.student_id}}" class="hero__sid text-ellipsis">
+          {{userInfo.student_id}}
+        </view>
+      </view>
+      <view
+        class="hero__credit press-scale"
+        hover-class="press-scale-active"
+        bindtap="onCreditTap"
+        aria-label="信用分 {{userInfo.credit_score}}"
+      >
+        <text class="hero__credit-score">{{userInfo.credit_score}}</text>
+        <text class="hero__credit-label">信用 {{creditLevelText}}</text>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view
+        class="hero__login press-scale"
+        hover-class="press-scale-active"
+        bindtap="onLoginTap"
+        aria-label="点击登录"
+      >
+        <view class="hero__login-avatar">
+          <view class="hero__login-bolt"></view>
+        </view>
+        <view class="hero__login-meta">
+          <text class="hero__login-title">点击登录</text>
+          <text class="hero__login-sub">登录后查看完整功能</text>
+        </view>
+        <view class="hero__login-arrow"></view>
+      </view>
+    </block>
+  </view>
+
+  <!-- ============== 3. 数据概览：4 列 ============== -->
+  <view wx:if="{{logged}}" class="stats-row anim-fade-down" style="animation-delay: 160ms;">
+    <view
+      class="stats-cell press-scale"
+      hover-class="press-scale-active"
+      bindtap="goMyProducts"
+      aria-label="在售 {{stats.onSale}} 件"
+    >
+      <view class="stats-cell__icon stats-cell__icon--orange">
+        <view class="stats-cell__icon-dot"></view>
+      </view>
+      <text class="stats-num text-mono">{{stats.onSale}}</text>
+      <text class="stats-label">在售</text>
+    </view>
+    <view
+      class="stats-cell press-scale"
+      hover-class="press-scale-active"
+      bindtap="goMyProducts"
+      aria-label="已售 {{stats.sold}} 件"
+    >
+      <view class="stats-cell__icon stats-cell__icon--green">
+        <view class="stats-cell__icon-dot"></view>
+      </view>
+      <text class="stats-num text-mono">{{stats.sold}}</text>
+      <text class="stats-label">已售</text>
+    </view>
+    <view
+      class="stats-cell press-scale"
+      hover-class="press-scale-active"
+      bindtap="goFavorites"
+      aria-label="收藏 {{stats.favorites}} 件"
+    >
+      <view class="stats-cell__icon stats-cell__icon--red">
+        <view class="stats-cell__icon-dot"></view>
+      </view>
+      <text class="stats-num text-mono">{{stats.favorites}}</text>
+      <text class="stats-label">收藏</text>
+    </view>
+    <view
+      class="stats-cell press-scale"
+      hover-class="press-scale-active"
+      bindtap="goOrders"
+      aria-label="评价 {{stats.reviews}} 条"
+    >
+      <view class="stats-cell__icon stats-cell__icon--blue">
+        <view class="stats-cell__icon-dot"></view>
+      </view>
+      <text class="stats-num text-mono">{{stats.reviews}}</text>
+      <text class="stats-label">评价</text>
+    </view>
+  </view>
+
+  <!-- ============== 4. 订单入口：5 列 ============== -->
+  <view class="orders-card card-glass anim-fade-down" style="animation-delay: 240ms;">
+    <view class="orders-card__shine"></view>
+    <view class="section-head">
+      <view class="section-head__left">
+        <view class="section-head__bar"></view>
+        <text class="section-head__title">我的订单</text>
+      </view>
+      <view
+        class="section-head__more press-scale"
+        hover-class="press-scale-active"
+        bindtap="goOrders"
+        aria-label="查看全部订单"
+      >
+        <text>查看全部</text>
+        <view class="section-head__arrow"></view>
+      </view>
+    </view>
+
+    <view class="orders-grid">
+      <view
+        wx:for="{{orderEntries}}"
+        wx:key="key"
+        class="orders-cell press-scale"
+        hover-class="press-scale-active"
+        data-status="{{item.status}}"
+        bindtap="onOrderEntryTap"
+        aria-label="{{item.label}}  {{item.count}} 笔"
+      >
+        <view class="orders-cell__icon-wrap" style="background: {{item.color}};">
+          <image
+            class="orders-cell__icon-img"
+            src="{{item.iconSrc}}"
+            mode="aspectFit"
+            aria-hidden="true"
+          />
+          <view wx:if="{{item.count > 0}}" class="orders-cell__badge">{{item.count > 99 ? '99+' : item.count}}</view>
+        </view>
+        <text class="orders-cell__label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============== 5. 我的工具：2 行 x 5 列 ============== -->
+  <view class="grid-card card-glass anim-fade-down" style="animation-delay: 320ms;">
+    <view class="grid-card__shine"></view>
+    <view class="section-head">
+      <view class="section-head__left">
+        <view class="section-head__bar"></view>
+        <text class="section-head__title">我的工具</text>
+      </view>
+    </view>
+    <view class="grid-row">
+      <block wx:for="{{quickGrid}}" wx:key="key">
+        <view
+          class="grid-cell press-scale"
+          hover-class="press-scale-active"
+          data-key="{{item.key}}"
+          data-url="{{item.url}}"
+          data-action="{{item.action}}"
+          bindtap="onMenuTap"
+          aria-label="{{item.label}}"
+        >
+          <view class="grid-cell__icon" style="background: {{item.color}};">
+            <image
+              class="grid-cell__icon-img"
+              src="{{item.iconSrc}}"
+              mode="aspectFit"
+              aria-hidden="true"
+            />
+          </view>
+          <text class="grid-cell__label">{{item.label}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- ============== 6. 退出登录 ============== -->
+  <view wx:if="{{logged}}" class="logout-wrap anim-fade-down" style="animation-delay: 400ms;">
+    <view
+      class="logout-btn"
+      hover-class="logout-btn--active"
+      bindtap="onLogout"
+      role="button"
+      aria-label="退出登录"
+    ><text class="logout-btn__text">退出登录</text></view>
+  </view>
+
+  <view class="footer-version text-tertiary-text text-xs">校园易物 v1.0.0</view>
+  <view class="safe-area-spacer"></view>
+</view>

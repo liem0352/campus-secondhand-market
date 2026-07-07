@@ -1,0 +1,310 @@
+/* address.wxss —— 收货地址管理
+ * 设计原则（ui-ux-pro-max）：
+ *   - 8dp 节奏间距
+ *   - 单一微交互：仅按下微缩放
+ *   - 暗色模式：One UI 9 全链路
+ */
+
+.address-page {
+  min-height: 100vh;
+  background: #F5F5F7;
+  padding-bottom: 200rpx;
+}
+
+/* 空态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx 60rpx 0;
+}
+
+.empty__icon {
+  width: 160rpx;
+  height: 160rpx;
+  opacity: 0.5;
+  margin-bottom: 32rpx;
+}
+
+.empty__title {
+  font-size: 32rpx;
+  color: #1C1C1E;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+}
+
+.empty__sub {
+  font-size: 26rpx;
+  color: #8E8E93;
+}
+
+/* 列表 */
+.address-list {
+  padding: 24rpx;
+}
+
+.address-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx 32rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.address-card--selectable:active {
+  background: #FFF8F2;
+}
+
+.address-card__row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.address-card__name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1C1C1E;
+  margin-right: 16rpx;
+}
+
+.address-card__phone {
+  font-size: 28rpx;
+  color: #3A3A3C;
+}
+
+.address-card__chip {
+  margin-left: auto;
+  padding: 4rpx 14rpx;
+  background: linear-gradient(135deg, #FF8A5C 0%, #FF6B35 100%);
+  color: #FFFFFF;
+  font-size: 22rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+.address-card__addr {
+  font-size: 28rpx;
+  color: #3A3A3C;
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+}
+
+.address-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 32rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.address-card__action {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  color: #8E8E93;
+}
+
+.address-card__action image {
+  width: 28rpx;
+  height: 28rpx;
+  opacity: 0.6;
+}
+
+.address-card__check {
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid #D1D1D6;
+  border-radius: 8rpx;
+  position: relative;
+  transition: all 150ms ease-out;
+}
+
+.address-card__check--on {
+  background: linear-gradient(135deg, #FF8A5C 0%, #FF6B35 100%);
+  border-color: transparent;
+}
+
+.address-card__check--on::after {
+  content: '';
+  position: absolute;
+  top: 4rpx;
+  left: 9rpx;
+  width: 8rpx;
+  height: 14rpx;
+  border: solid #FFFFFF;
+  border-width: 0 3rpx 3rpx 0;
+  transform: rotate(45deg);
+}
+
+/* 底部新增栏 */
+.add-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+  border-top: 1rpx solid #F0F0F0;
+  z-index: 10;
+}
+
+.add-bar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-radius: 44rpx;
+  background: linear-gradient(135deg, #FF8A5C 0%, #FF6B35 100%);
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  box-shadow: 0 6rpx 16rpx rgba(255, 107, 53, 0.32);
+  transition: transform 100ms ease-out;
+}
+
+.add-bar__icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 12rpx;
+  filter: brightness(0) invert(1);
+}
+
+/* 编辑弹窗 */
+.edit-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 60rpx;
+}
+
+.edit-dialog {
+  width: 100%;
+  max-width: 560rpx;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 40rpx 36rpx 32rpx;
+  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.2);
+}
+
+.edit-dialog__title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1C1C1E;
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.edit-dialog__row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.edit-dialog__label {
+  width: 140rpx;
+  font-size: 28rpx;
+  color: #3A3A3C;
+  flex-shrink: 0;
+}
+
+.edit-dialog__input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #1C1C1E;
+  text-align: right;
+}
+
+.edit-dialog__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #1C1C1E;
+}
+
+.edit-dialog__actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.edit-dialog__btn {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.edit-dialog__btn--cancel {
+  background: #F5F5F7;
+  color: #1C1C1E;
+}
+
+.edit-dialog__btn--confirm {
+  background: linear-gradient(135deg, #FF8A5C 0%, #FF6B35 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.32);
+}
+
+/* 微交互 */
+.press-scale-active {
+  transform: scale(0.96);
+  transition: transform 100ms ease-out;
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .address-page {
+    background: #000000;
+  }
+  .address-card {
+    background: #1C1C1E;
+  }
+  .address-card--selectable:active {
+    background: rgba(255, 107, 53, 0.1);
+  }
+  .address-card__name,
+  .address-card__addr,
+  .edit-dialog__title,
+  .edit-dialog__input,
+  .edit-dialog__toggle {
+    color: #FFFFFF;
+  }
+  .address-card__phone,
+  .edit-dialog__label {
+    color: rgba(235, 235, 245, 0.6);
+  }
+  .address-card__actions,
+  .address-card__row {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .add-bar {
+    background: #1C1C1E;
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+  .edit-dialog {
+    background: #1C1C1E;
+  }
+  .edit-dialog__row {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .edit-dialog__btn--cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+  }
+}

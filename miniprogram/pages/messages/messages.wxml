@@ -1,0 +1,209 @@
+<!-- pages/messages/messages.wxml
+     消息中心 —— 校园易物
+     ====================================================
+     定位：与 tab "消息"(会话列表) 互补，聚焦"系统/订单/互动/优惠"四类业务通知
+
+     v2 升级（2026-06）：融合 fusion-ui-design v2（Part 22.12 One UI 9 Now Bar +
+                            Part 22.9 OriginOS 6 错落入场 + Part 22.2 iOS 26 Liquid Glass）
+       1) 顶部 Now Bar 通知条：未读消息提示（One UI 9 渐变擦除进入 anim-oneui-reveal）
+       2) 4 大类入口 + Tab 栏（保留）
+       3) 通知列表：液态玻璃卡 glass-light-soft + MD3 弹性入场 anim-m3-spatial-in
+                    + 错落 stagger-delay（OriginOS 6）
+       4) 未读红点：anim-pulse 持续脉冲
+       5) 长按操作：spring-coloros 反馈（ColorOS 16 干脆利落）
+
+     结构：
+       1) 顶部 Now Bar（一键闪记/未读消息提示，可点击关闭）
+       2) 顶部 4 大类入口（订单/系统/互动/优惠）+ 未读数
+       3) 通知列表（按时间倒序，支持分类筛选）
+       4) 空态 / 加载态
+       5) 底部"全部已读"快捷操作
+     设计：
+       - 严格使用 var(--*) token
+       - 列表用玻璃卡 glass-light-soft
+       - 点击通知：未读自动标记 + 跳转到对应详情（订单/商品/聊天）
+       - 长按通知：弹操作菜单（标记已读/删除） -->
+
+<view class="page-wrap msg-page">
+
+  <!-- ========== Now Bar 通知条（One UI 9 风格） ========== -->
+  <!-- anim-oneui-reveal：One UI 9 渐变擦除进入动画（clip-path 横向擦除） -->
+  <!-- 仅在有未读消息时显示，可点击展开 / 关闭 -->
+  <view
+    wx:if="{{nowBar.visible}}"
+    class="msg-nowbar anim-oneui-reveal"
+    bindtap="onTapNowBar"
+  >
+    <view class="msg-nowbar__inner">
+      <view class="msg-nowbar__icon">
+        <image src="{{nowBar.icon}}" mode="aspectFit"></image>
+      </view>
+      <view class="msg-nowbar__body">
+        <view class="msg-nowbar__title text-sm text-semibold">
+          {{nowBar.title}}
+        </view>
+        <view class="msg-nowbar__sub text-xs">
+          {{nowBar.subtitle}}
+        </view>
+      </view>
+      <view class="msg-nowbar__action" hover-class="msg-nowbar__action--hover" hover-stay-time="80">
+        <text class="text-xs text-semibold">{{nowBar.actionText}}</text>
+      </view>
+      <view
+        class="msg-nowbar__close"
+        catchtap="onCloseNowBar"
+        hover-class="msg-nowbar__close--hover"
+      >
+        <view class="msg-nowbar__close-line"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 顶部 4 大类入口 ========== -->
+  <view class="msg-cats card card-flat">
+    <view
+      class="msg-cat spring-oneui"
+      wx:for="{{categories}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="onTapCategory"
+      hover-class="msg-cat--hover"
+      hover-stay-time="80"
+    >
+      <view class="msg-cat__icon" style="background: {{item.bg}};">
+        <image src="{{item.icon}}" mode="aspectFit"></image>
+        <view wx:if="{{item.unread > 0}}" class="msg-cat__badge anim-pulse">
+          <text>{{item.unread > 99 ? '99+' : item.unread}}</text>
+        </view>
+      </view>
+      <text class="msg-cat__label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- ========== 分类标签（横向滚动） ========== -->
+  <scroll-view
+    class="msg-tabs"
+    scroll-x="{{true}}"
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <view class="msg-tabs__inner">
+      <view
+        wx:for="{{tabList}}"
+        wx:key="key"
+        class="msg-tab {{activeTab === item.key ? 'msg-tab--active' : ''}} spring-oneui"
+        data-key="{{item.key}}"
+        data-index="{{index}}"
+        bindtap="onSwitchTab"
+        bindlongpress="onLongPressTab"
+        hover-class="msg-tab--hover"
+      >
+        <text>{{item.label}}</text>
+        <view wx:if="{{item.unread > 0}}" class="msg-tab__dot anim-pulse"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- ========== 通知列表 ========== -->
+  <view class="msg-list" wx:if="{{filteredList.length}}">
+    <!--
+      anim-m3-spatial-in：MD3 Expressive 弹性入场动画（scale + translateY 弹簧）
+      style="--stagger-delay: {{item.staggerDelay}}ms"：通过 CSS 变量实现错落延迟（OriginOS 6）
+      glass-light-soft：iOS 26 液态玻璃软卡（半透 + 顶部高光 + 玻璃阴影）
+      spring-oneui：One UI 9 流畅轻快 spring
+      bindlongpress：长按操作菜单（ColorOS 16 干脆利落反馈）
+    -->
+    <view
+      wx:for="{{filteredList}}"
+      wx:key="id"
+      class="msg-item card-glass glass-light-soft anim-m3-spatial-in {{item.unread ? 'msg-item--unread' : ''}}"
+      data-id="{{item.id}}"
+      data-type="{{item.type}}"
+      data-action="{{item.action}}"
+      data-index="{{index}}"
+      bindtap="onTapItem"
+      bindlongpress="onLongPressItem"
+      hover-class="msg-item--hover"
+      hover-stay-time="80"
+      style="--stagger-delay: {{item.staggerDelay}}ms;"
+    >
+      <!-- 左侧 icon -->
+      <view class="msg-item__icon" style="background: {{item.iconBg}};">
+        <image src="{{item.icon}}" mode="aspectFit"></image>
+      </view>
+
+      <!-- 中间文本 -->
+      <view class="msg-item__body">
+        <view class="msg-item__top">
+          <text class="msg-item__title text-base text-semibold text-ellipsis">
+            {{item.title}}
+          </text>
+          <text class="msg-item__time text-xs text-tertiary-text">{{item.timeText}}</text>
+        </view>
+        <view class="msg-item__content text-sm text-secondary-text text-ellipsis-2">
+          {{item.content}}
+        </view>
+        <!-- 订单/商品类通知带卡片摘要 -->
+        <view wx:if="{{item.summary}}" class="msg-item__summary">
+          <image
+            wx:if="{{item.summary.cover}}"
+            class="msg-item__summary-cover"
+            src="{{item.summary.cover}}"
+            mode="aspectFill"
+          />
+          <view class="msg-item__summary-info">
+            <text class="msg-item__summary-title text-sm text-ellipsis">
+              {{item.summary.title}}
+            </text>
+            <text wx:if="{{item.summary.price}}" class="msg-item__summary-price text-price">
+              ¥{{item.summary.price}}
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 右侧未读小红点：anim-pulse 持续脉冲 -->
+      <view wx:if="{{item.unread}}" class="msg-item__dot anim-pulse"></view>
+
+      <!-- 长按操作区（默认隐藏，长按触发显示） -->
+      <view wx:if="{{item.showActions}}" class="msg-item__actions" catchtap="noop">
+        <view
+          class="msg-item__action spring-coloros"
+          data-id="{{item.id}}"
+          data-action="read"
+          bindtap="onActionItem"
+          hover-class="msg-item__action--hover"
+        >
+          <text class="text-xs">标为已读</text>
+        </view>
+        <view
+          class="msg-item__action msg-item__action--danger spring-coloros"
+          data-id="{{item.id}}"
+          data-action="delete"
+          bindtap="onActionItem"
+          hover-class="msg-item__action--hover"
+        >
+          <text class="text-xs">删除</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="msg-list__end text-xs text-tertiary-text">
+      <text>— 没有更多了 —</text>
+    </view>
+  </view>
+
+  <!-- ========== 空态 ========== -->
+  <view class="msg-empty flex-center" wx:elif="{{!loading}}">
+    <view class="empty-icon">@</view>
+    <view class="empty-title text-base text-medium mt-2">暂无消息</view>
+    <view class="empty-sub text-tertiary-text text-sm mt-1">
+      {{activeTab === 'all' ? '看看其他分类吧' : '该分类下还没有消息'}}
+    </view>
+  </view>
+
+  <!-- ========== 加载态 ========== -->
+  <view class="msg-loading flex-center" wx:else>
+    <text class="text-tertiary-text text-sm">加载中...</text>
+  </view>
+</view>

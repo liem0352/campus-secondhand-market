@@ -1,0 +1,125 @@
+<!--
+  components/error-state
+  ============================================================
+  通用错误状态组件 —— 校园易物 v5（fusion-ui-design v2）
+  ------------------------------------------------------------
+  设计语言：
+    - MagicOS 10 一镜到底入场（.anim-seamless）
+    - iOS 26 Liquid Glass 折射光斑（.anim-liquid-shine）
+    - OriginOS 6 陀螺仪光影（.gyro-light）
+    - ColorOS 16 干脆利落（.spring-coloros）
+  升级点（v4 → v5）：
+    1. 错误舞台容器新增 .anim-seamless（MagicOS 10 一镜到底）
+    2. 错误插图新增 .anim-liquid-shine + .gyro-light 双层光感
+    3. 按钮新增 .spring-coloros 过渡曲线
+    4. 增加 iOS 26 Liquid Glass 折射层（玻璃舞台）
+    5. 增加 OriginOS 6 弥散光（按下按钮时）
+    6. 增加 spring-magicos-seamless 一镜到底曲线
+    7. errorType 配色差异化（network/server/empty/warning）
+    8. 完整支持 prefers-reduced-motion 减弱动效
+    9. 每个新动效均带来源注释
+  ============================================================
+  Props:
+    title         {string}  错误标题
+    description   {string}  错误描述
+    errorMessage  {string}  错误详情
+    errorType     {string}  错误类型: network | server | empty | warning
+    errorCode     {string|number}  错误码（如 500、404、NET_ERR）
+    showRetry     {boolean} 是否显示重试按钮
+    showHome      {boolean} 是否显示"返回首页"副按钮
+    retryText     {string}  重试文案
+    homeText      {string}  返回首页文案
+    compact       {boolean} 紧凑模式
+    size          {number}  插画尺寸（rpx）
+  Event:
+    retry  点击重试
+    home   点击返回首页
+-->
+<view class="err-wrap {{compact ? 'err-wrap--compact' : ''}} {{typeClass}} anim-seamless">
+  <!-- 玻璃感底座 + 柔光圈 + 浮动插画（一镜到底 + 折射光斑 + 陀螺仪光影） -->
+  <view class="err-stage anim-seamless" style="width: {{size}}rpx; height: {{size}}rpx;">
+    <view class="err-stage__halo err-stage__halo--outer"></view>
+    <view class="err-stage__halo err-stage__halo--inner"></view>
+    <view class="err-stage__glass">
+      <view class="err-stage__shine"></view>
+      <view class="err-stage__refract"></view>
+      <view class="err-stage__art anim-liquid-shine gyro-light">
+        <block wx:if="{{errorType === 'network'}}">
+          <!-- 网络断开插画（CSS 绘制，禁用 emoji） -->
+          <view class="illust illust-network">
+            <view class="illust-network__cloud"></view>
+            <view class="illust-network__slash"></view>
+            <view class="illust-network__dot illust-network__dot--1"></view>
+            <view class="illust-network__dot illust-network__dot--2"></view>
+            <view class="illust-network__dot illust-network__dot--3"></view>
+          </view>
+        </block>
+        <block wx:elif="{{errorType === 'server'}}">
+          <!-- 服务器错误插画（CSS 绘制） -->
+          <view class="illust illust-server">
+            <view class="illust-server__tower">
+              <view class="illust-server__slot"></view>
+              <view class="illust-server__slot"></view>
+              <view class="illust-server__slot"></view>
+              <view class="illust-server__base"></view>
+            </view>
+            <view class="illust-server__bolt"></view>
+          </view>
+        </block>
+        <block wx:elif="{{errorType === 'empty'}}">
+          <!-- 空数据插画（CSS 绘制） -->
+          <view class="illust illust-empty">
+            <view class="illust-empty__box">
+              <view class="illust-empty__lid"></view>
+              <view class="illust-empty__body"></view>
+            </view>
+          </view>
+        </block>
+        <block wx:else>
+          <!-- 警告三角插画（默认） -->
+          <view class="illust illust-warn">
+            <view class="illust-warn__triangle"></view>
+            <view class="illust-warn__line"></view>
+            <view class="illust-warn__dot"></view>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <!-- 文案区 -->
+  <view class="err-text">
+    <view class="err-title">{{title}}</view>
+    <view wx:if="{{errorMessage}}" class="err-desc">{{errorMessage}}</view>
+    <view wx:elif="{{description}}" class="err-desc">{{description}}</view>
+    <view wx:if="{{errorCode}}" class="err-code">错误码 · {{errorCode}}</view>
+  </view>
+
+  <!-- 操作按钮（ColorOS 16 干脆利落 + MagicOS 10 一镜到底） -->
+  <view class="err-actions">
+    <button
+      wx:if="{{showHome}}"
+      class="err-btn err-btn--home press-spring spring-coloros"
+      bindtap="onHome"
+      hover-class="err-btn--hover"
+    >
+      <view class="err-btn__icon err-btn__icon--home">
+        <view class="home-icon__roof"></view>
+        <view class="home-icon__body"></view>
+      </view>
+      <text class="err-btn__text">{{homeText}}</text>
+    </button>
+    <button
+      wx:if="{{showRetry}}"
+      class="err-btn err-btn--primary press-spring spring-coloros"
+      bindtap="onRetry"
+      hover-class="err-btn--hover"
+    >
+      <view class="err-btn__icon err-btn__icon--retry">
+        <view class="retry-icon__arrow"></view>
+      </view>
+      <text class="err-btn__text">{{retryText}}</text>
+    </button>
+    <slot />
+  </view>
+</view>

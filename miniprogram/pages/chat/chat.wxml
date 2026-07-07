@@ -1,0 +1,56 @@
+<!-- pages/chat/chat.wxml
+     会话列表（消息 Tab）-->
+<view class="page-wrap chat-list-page">
+
+  <!-- 顶部标题 -->
+  <view class="chat-header">
+    <text class="chat-title text-2xl text-bold">消息</text>
+    <text class="chat-subtitle text-tertiary-text text-sm" wx:if="{{conversations.length}}">
+      共 {{conversations.length}} 个会话
+    </text>
+  </view>
+
+  <!-- 会话列表 -->
+  <view class="conv-list" wx:if="{{conversations.length}}">
+    <view class="conv-item"
+          wx:for="{{conversations}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onTapConv"
+          hover-class="conv-item-active"
+          hover-stay-time="80">
+      <!-- 头像：有图用图，无图用首字母 -->
+      <image class="avatar" src="{{item.peer.avatar}}" wx:if="{{item.peer.avatar}}"></image>
+      <view class="avatar avatar-placeholder text-primary-color text-bold" wx:else>
+        {{item.peer.initials}}
+      </view>
+
+      <view class="conv-body">
+        <view class="conv-top flex-row">
+          <text class="conv-name text-base text-semibold text-ellipsis flex-1">{{item.peer.username}}</text>
+          <text class="conv-time text-xs text-tertiary-text">{{item.last_message_at_text}}</text>
+        </view>
+        <view class="conv-msg text-sm text-tertiary-text text-ellipsis">
+          <text class="conv-product" wx:if="{{item.product && item.product.title}}">[{{item.product.title}}] </text>
+          <text>{{item.last_message}}</text>
+        </view>
+      </view>
+
+      <view class="conv-badge" wx:if="{{item.unread > 0}}">
+        <text class="conv-badge-text">{{item.unread > 99 ? '99+' : item.unread}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state flex-center" wx:elif="{{!loading}}">
+    <view class="empty-icon">@</view>
+    <view class="empty-title text-base text-medium mt-2">还没有消息</view>
+    <view class="empty-sub text-tertiary-text text-sm mt-1">去首页看看有没有心仪的好物吧</view>
+  </view>
+
+  <!-- 加载态 -->
+  <view class="loading flex-center" wx:else>
+    <text class="text-tertiary-text text-sm">加载中...</text>
+  </view>
+</view>

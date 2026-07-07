@@ -1,0 +1,411 @@
+<!--pages/login/login.wxml
+     校园易物 · 登录页（v3 融合设计系统重构）
+     ===================================================================
+     设计要点（Fusion Design System: Apple Liquid Glass + MD3 Expressive
+              + OriginOS 6 空间光学 + Spring 弹性动效）：
+       1) 顶部品牌区：渐变 logo + 光感光晕（4s 呼吸）
+       2) 登录 / 注册 Tab：胶囊滑动指示器（Spring 弹性位移）
+       3) 输入框：底部边框 + focus 状态高亮（光带从中心展开）
+       4) 协议勾选：玻璃感自定义 checkbox（勾选动画）
+       5) 提交按钮：主色渐变 + Spring 按下 + 加载态
+       6) 第三方登录图标区（微信/QQ/手机号）
+       7) 入场动画：卡片从下方淡入 + 缩放
+     注意：严格遵循用户规则 5 —— 全程禁止 emoji / 特殊字符作 UI 图标
+     性能：液态玻璃通过「半透色 + 顶部高光 + 多层阴影」模拟
+-->
+<view class="login-page anim-page" style="padding-top: {{statusBarHeight + 16}}px;">
+
+  <!-- ============================================================
+       1. 顶部品牌区：渐变 logo + 品牌名 + 光感光晕呼吸
+       ============================================================ -->
+  <view class="brand anim-fade-down">
+    <!-- 光感光晕：4s 呼吸循环（ambient 环境光） -->
+    <view class="brand__halo"></view>
+    <view class="brand__halo brand__halo--2"></view>
+
+    <view class="brand__logo-wrap">
+      <image
+        class="brand__logo"
+        src="/assets/brand/logo-mark.svg"
+        mode="aspectFit"
+      />
+    </view>
+    <view class="brand__name">校园易物</view>
+    <view class="brand__slogan">二手交易 · 校园生活</view>
+    <view class="brand__tagline">让闲置流动起来</view>
+  </view>
+
+  <!-- ============================================================
+       2. 后端连接警告（玻璃感卡片 + 橘色高亮）
+       ============================================================ -->
+  <view
+    wx:if="{{!backendOk}}"
+    class="backend-warn card-glass anim-fade-down"
+    style="animation-delay: 80ms;"
+  >
+    <view class="warn-badge">
+      <view class="warn-badge__dot"></view>
+    </view>
+    <view class="warn-text">
+      <view class="warn-title">后端未连接</view>
+      <view class="warn-hint">{{backendHint}}</view>
+      <view class="warn-actions">
+        <view
+          class="warn-btn press-scale"
+          hover-class="press-scale-active"
+          bindtap="checkBackend"
+        >重新检测</view>
+        <view
+          class="warn-btn warn-btn--primary press-scale"
+          hover-class="press-scale-active"
+          bindtap="goHome"
+        >返回首页</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       3. 登录卡片：液态玻璃 + 入场动画
+       ============================================================ -->
+  <view class="login-card card-glass anim-card-in">
+
+    <!-- 顶部柔光带（玻璃"光顶"） -->
+    <view class="login-card__shine"></view>
+
+    <!-- 3.1 登录 / 注册 Tab 切换（胶囊滑动指示器） -->
+    <view class="login-tabs">
+      <!-- 胶囊指示器：使用 left 位移绝对定位，Spring 弹性滑动 -->
+      <view
+        class="login-tabs__indicator {{isRegister ? 'login-tabs__indicator--right' : ''}}"
+      ></view>
+      <view
+        class="login-tab {{!isRegister ? 'login-tab--active' : ''}}"
+        data-mode="login"
+        bindtap="onTabTap"
+        hover-class="press-scale-active"
+      >登录</view>
+      <view
+        class="login-tab {{isRegister ? 'login-tab--active' : ''}}"
+        data-mode="register"
+        bindtap="onTabTap"
+        hover-class="press-scale-active"
+      >注册</view>
+    </view>
+
+    <!-- 3.2 输入框：浮动标签 + 底部边框 + focus 状态高亮 -->
+    <view class="field {{focusField === 'username' ? 'field--focus' : ''}}">
+      <view class="field__label">账号</view>
+      <view class="field__input-wrap">
+        <input
+          class="field__input"
+          placeholder="请输入用户名"
+          placeholder-class="field__placeholder"
+          value="{{username}}"
+          bindinput="onUsername"
+          bindfocus="onFocusUsername"
+          bindblur="onBlurUsername"
+          maxlength="30"
+        />
+      </view>
+      <view class="field__line"></view>
+      <view class="field__line-active"></view>
+    </view>
+
+    <view class="field {{focusField === 'password' ? 'field--focus' : ''}}">
+      <view class="field__label">密码</view>
+      <view class="field__input-wrap">
+        <input
+          class="field__input"
+          placeholder="请输入密码"
+          placeholder-class="field__placeholder"
+          password="{{!showPassword}}"
+          value="{{password}}"
+          bindinput="onPassword"
+          bindfocus="onFocusPassword"
+          bindblur="onBlurPassword"
+          maxlength="40"
+        />
+        <view
+          class="field__toggle press-scale"
+          hover-class="press-scale-active"
+          bindtap="togglePasswordVisible"
+          aria-label="切换密码可见"
+        >
+          <view class="field__toggle-icon {{showPassword ? 'field__toggle-icon--on' : ''}}"></view>
+        </view>
+      </view>
+      <view class="field__line"></view>
+      <view class="field__line-active"></view>
+    </view>
+
+    <view wx:if="{{isRegister}}" class="field anim-fade field--nickname">
+      <view class="field__label">昵称</view>
+      <view class="field__input-wrap">
+        <input
+          class="field__input"
+          placeholder="请输入昵称（选填）"
+          placeholder-class="field__placeholder"
+          value="{{nickname}}"
+          bindinput="onNickname"
+          maxlength="20"
+        />
+      </view>
+      <view class="field__line"></view>
+      <view class="field__line-active"></view>
+    </view>
+
+    <!-- 3.3 协议勾选：玻璃感自定义 checkbox -->
+    <view class="agreement">
+      <view
+        class="checkbox {{agreed ? 'checkbox--checked' : ''}}"
+        bindtap="toggleAgreement"
+        hover-class="checkbox--active"
+        role="checkbox"
+        aria-checked="{{agreed}}"
+        aria-label="同意用户协议与隐私政策"
+      >
+        <view class="checkbox__box">
+          <view class="checkbox__check"></view>
+        </view>
+        <view class="checkbox__label">
+          <text>我已阅读并同意</text>
+          <text class="checkbox__link" catchtap="onOpenAgreementDetail" data-type="user">《用户协议》</text>
+          <text>与</text>
+          <text class="checkbox__link" catchtap="onOpenAgreementDetail" data-type="privacy">《隐私政策》</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 3.4 提交按钮：主色渐变 + Spring 按下 + 加载态 -->
+    <button
+      class="primary-btn"
+      hover-class="primary-btn--active"
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+      bindtap="onSubmitTap"
+    >
+      <text wx:if="{{!submitting}}">{{isRegister ? '注 册' : '登 录'}}</text>
+    </button>
+
+    <!-- 3.5 测试账号提示 -->
+    <view class="login-tip text-tertiary-text">测试账号 zhangsan / 123456（需先启动后端）</view>
+
+    <!-- 3.6 分割线 -->
+    <view class="login-divider">
+      <view class="login-divider__line"></view>
+      <view class="login-divider__text">其他登录方式</view>
+      <view class="login-divider__line"></view>
+    </view>
+
+    <!-- 3.7 第三方登录图标区（纯 SVG，无 emoji） -->
+    <view class="third-party">
+      <view
+        class="third-party__btn third-party__btn--wechat press-scale"
+        hover-class="third-party__btn--active"
+        bindtap="onThirdParty"
+        data-type="wechat"
+        aria-label="微信登录"
+      >
+        <view class="third-party__icon third-party__icon--wechat">
+          <view class="icon-wechat"></view>
+        </view>
+      </view>
+      <view
+        class="third-party__btn third-party__btn--qq press-scale"
+        hover-class="third-party__btn--active"
+        bindtap="onThirdParty"
+        data-type="qq"
+        aria-label="QQ 登录"
+      >
+        <view class="third-party__icon third-party__icon--qq">
+          <view class="icon-qq"></view>
+        </view>
+      </view>
+      <view
+        class="third-party__btn third-party__btn--phone press-scale"
+        hover-class="third-party__btn--active"
+        bindtap="onThirdParty"
+        data-type="phone"
+        aria-label="手机号登录"
+      >
+        <view class="third-party__icon third-party__icon--phone">
+          <view class="icon-phone"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全区 -->
+  <view class="safe-area-bottom-spacer"></view>
+
+  <!-- ============================================================
+       4. 协议同意弹窗（液态玻璃 + 风格统一 + Spring 弹入动画）
+       - 灰色登录按钮点按时唤起
+       - 用户点击"同意并继续"：自动勾选 + 继续提交
+       - 用户点击"暂不同意"或遮罩：关闭弹窗
+       - 完整协议链接走 .checkbox__link 同一逻辑
+       ============================================================ -->
+  <view
+    wx:if="{{agreementModalVisible}}"
+    class="agreement-modal-mask"
+    bindtap="onAgreementModalMaskTap"
+  >
+    <view
+      class="agreement-modal card-glass anim-modal-in"
+      catchtap="noop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="agreement-modal-title"
+    >
+      <!-- 顶部柔光带（和登录卡一致） -->
+      <view class="agreement-modal__shine"></view>
+
+      <!-- 关闭按钮（右上角 X） -->
+      <view
+        class="agreement-modal__close press-scale"
+        hover-class="press-scale-active"
+        bindtap="onAgreementModalCancel"
+        aria-label="关闭弹窗"
+        role="button"
+      >
+        <view class="agreement-modal__close-icon"></view>
+      </view>
+
+      <!-- 头部：图标 + 标题 + 副标题 -->
+      <view class="agreement-modal__header">
+        <view class="agreement-modal__icon">
+          <view class="agreement-modal__icon-ring"></view>
+          <view class="agreement-modal__icon-shield"></view>
+        </view>
+        <view id="agreement-modal-title" class="agreement-modal__title">服务协议与隐私政策</view>
+        <view class="agreement-modal__subtitle">校园易物承诺保护你的个人信息安全</view>
+      </view>
+
+      <!-- 正文：两个协议概要 + 完整链接 -->
+      <view class="agreement-modal__body">
+        <view class="agreement-modal__item">
+          <view class="agreement-modal__item-title">
+            <view class="agreement-modal__dot agreement-modal__dot--user"></view>
+            <text>《用户协议》</text>
+          </view>
+          <view class="agreement-modal__item-text">
+            在使用校园易物前，请仔细阅读用户协议。协议涵盖账号管理、交易规范、信用规则及争议处理等内容，将保障你作为用户的合法权益。
+          </view>
+          <view
+            class="agreement-modal__link press-scale"
+            hover-class="press-scale-active"
+            catchtap="onOpenAgreementDetail"
+            data-type="user"
+          >查看完整协议 →</view>
+        </view>
+
+        <view class="agreement-modal__divider"></view>
+
+        <view class="agreement-modal__item">
+          <view class="agreement-modal__item-title">
+            <view class="agreement-modal__dot agreement-modal__dot--privacy"></view>
+            <text>《隐私政策》</text>
+          </view>
+          <view class="agreement-modal__item-text">
+            我们重视你的隐私。本政策说明校园易物如何收集、使用、存储与共享你的个人信息，以及你如何行使隐私权利。
+          </view>
+          <view
+            class="agreement-modal__link press-scale"
+            hover-class="press-scale-active"
+            catchtap="onOpenAgreementDetail"
+            data-type="privacy"
+          >查看完整协议 →</view>
+        </view>
+      </view>
+
+      <!-- 底部双按钮 -->
+      <view class="agreement-modal__footer">
+        <view
+          class="agreement-modal__btn agreement-modal__btn--secondary press-scale"
+          hover-class="press-scale-active"
+          bindtap="onAgreementModalCancel"
+          role="button"
+        >暂不同意</view>
+        <view
+          class="agreement-modal__btn agreement-modal__btn--primary press-scale"
+          hover-class="press-scale-active"
+          bindtap="onAgreementModalConfirm"
+          role="button"
+        >同意并继续</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       5. 完整协议详情弹窗（带滚动 + 风格统一）
+          - 由"查看完整协议 →"链接触发
+          - 显示完整的章节化协议文本
+          - 点遮罩 / 关闭按钮 / "我已知晓"按钮关闭
+       ============================================================ -->
+  <view
+    wx:if="{{agreementDetailVisible}}"
+    class="agreement-detail-mask"
+    bindtap="onCloseAgreementDetail"
+  >
+    <view
+      class="agreement-detail card-glass anim-modal-in"
+      catchtap="noop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="agreement-detail-title"
+    >
+      <!-- 顶部柔光带 -->
+      <view class="agreement-detail__shine"></view>
+
+      <!-- 关闭按钮 -->
+      <view
+        class="agreement-detail__close press-scale"
+        hover-class="press-scale-active"
+        bindtap="onCloseAgreementDetail"
+        aria-label="关闭"
+        role="button"
+      >
+        <view class="agreement-detail__close-icon"></view>
+      </view>
+
+      <!-- 头部：标题 + 更新时间 -->
+      <view class="agreement-detail__header">
+        <view id="agreement-detail-title" class="agreement-detail__title">
+          《{{currentAgreement.title}}》
+        </view>
+        <view class="agreement-detail__meta">
+          <text>最后更新：{{currentAgreement.updatedAt}}</text>
+        </view>
+      </view>
+
+      <!-- 正文：滚动显示完整章节 -->
+      <scroll-view
+        class="agreement-detail__body"
+        scroll-y="{{true}}"
+        enhanced="{{true}}"
+        show-scrollbar="{{false}}"
+      >
+        <block wx:for="{{currentAgreement.sections}}" wx:key="title" wx:for-item="sec">
+          <view class="agreement-detail__section">
+            <view class="agreement-detail__section-title">{{sec.title}}</view>
+            <block wx:for="{{sec.paragraphs}}" wx:key="*this" wx:for-item="p">
+              <view class="agreement-detail__paragraph">{{p}}</view>
+            </block>
+          </view>
+        </block>
+        <!-- 底部安全区占位，避免最后一行被按钮遮住 -->
+        <view class="agreement-detail__footer-spacer"></view>
+      </scroll-view>
+
+      <!-- 底部"我已知晓"按钮 -->
+      <view class="agreement-detail__footer">
+        <view
+          class="agreement-detail__btn press-scale"
+          hover-class="press-scale-active"
+          bindtap="onCloseAgreementDetail"
+          role="button"
+        >我已知晓</view>
+      </view>
+    </view>
+  </view>
+</view>

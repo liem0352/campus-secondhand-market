@@ -1,0 +1,260 @@
+<!--
+  我的钱包 —— 校园易物 v5
+  --------------------------------------------------------------------
+  设计原则（融合设计系统 v4 + ui-ux-pro-max）：
+    1. Hero 余额卡：橘色渐变 + 3 层光感光晕（呼吸）+ 顶部柔光带 + 玻璃感内嵌高光
+    2. 数据统计：3 列玻璃感卡（累计收入 / 累计支出 / 信用分）
+    3. 操作入口：3 项玻璃感列表（交易明细 / 绑定银行卡 / 账户充值）
+    4. 交易筛选 Tab：全部 / 收入 / 支出（胶囊滑动指示器）
+    5. 交易列表：左侧图标 + 中间标题 + 右侧金额（绿色收入 / 红色支出）
+    6. 密码弹窗：玻璃感弹窗 + Spring 入场 + 错误抖动
+    7. 严格使用 var(--*) design token；无 emoji；触达目标 ≥ 88rpx
+-->
+<view class="wallet-page">
+
+  <!-- ========== 顶部安全区占位（沉浸式 Hero） ========== -->
+  <view class="wallet-safe-top" style="height: {{statusBarHeight}}px;"></view>
+
+  <!-- ========== 余额 Hero 卡片（Liquid Glass + 光感） ========== -->
+  <view class="balance-card anim-hero-shimmer">
+    <!-- 装饰光晕层（3 层呼吸光感） -->
+    <view class="balance-card__halo balance-card__halo--1"></view>
+    <view class="balance-card__halo balance-card__halo--2"></view>
+    <view class="balance-card__halo balance-card__halo--3"></view>
+
+    <!-- 顶部柔光带（玻璃折光） -->
+    <view class="balance-card__shine"></view>
+
+    <!-- 卡片内容 -->
+    <view class="balance-card__inner">
+      <view class="balance-card__label">
+        <image class="balance-card__label-icon" src="/assets/icons/wallet.svg" mode="aspectFit" />
+        <text>可用余额（元）</text>
+      </view>
+
+      <view class="balance-card__amount">
+        <text class="balance-card__currency">¥</text>
+        <text class="balance-card__value anim-number-pop">{{balance.balance}}</text>
+      </view>
+
+      <view class="balance-card__meta">
+        <view class="balance-card__meta-item">
+          <text class="balance-card__meta-num">{{balance.frozen}}</text>
+          <text class="balance-card__meta-label">冻结金额</text>
+        </view>
+        <view class="balance-card__meta-divider"></view>
+        <view class="balance-card__meta-item">
+          <text class="balance-card__meta-num">{{balance.credit_score}}</text>
+          <text class="balance-card__meta-label">信用分</text>
+        </view>
+      </view>
+
+      <view class="balance-card__actions">
+        <view
+          class="balance-card__btn balance-card__btn--primary press-spring-fast"
+          bindtap="onRecharge"
+          aria-label="充值"
+        >
+          <image class="balance-card__btn-icon" src="/assets/icons/plus.svg" mode="aspectFit" />
+          <text>充值</text>
+        </view>
+        <view
+          class="balance-card__btn balance-card__btn--ghost press-spring-fast"
+          bindtap="onWithdraw"
+          aria-label="提现"
+        >
+          <image class="balance-card__btn-icon" src="/assets/icons/upload.svg" mode="aspectFit" />
+          <text>提现</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 数据统计（3 列玻璃感卡） ========== -->
+  <view class="stat-grid">
+    <view class="stat-grid__item anim-stagger-in" style="--stagger-delay: 80ms;">
+      <text class="stat-grid__num stat-grid__num--in">+{{balance.total_in}}</text>
+      <text class="stat-grid__label">累计收入</text>
+    </view>
+    <view class="stat-grid__divider"></view>
+    <view class="stat-grid__item anim-stagger-in" style="--stagger-delay: 160ms;">
+      <text class="stat-grid__num stat-grid__num--out">-{{balance.total_out}}</text>
+      <text class="stat-grid__label">累计支出</text>
+    </view>
+    <view class="stat-grid__divider"></view>
+    <view class="stat-grid__item anim-stagger-in" style="--stagger-delay: 240ms;">
+      <text class="stat-grid__num stat-grid__num--credit">{{balance.credit_score}}</text>
+      <text class="stat-grid__label">信用分</text>
+    </view>
+  </view>
+
+  <!-- ========== 功能列表（玻璃感） ========== -->
+  <view class="action-list anim-stagger-in" style="--stagger-delay: 320ms;">
+    <view
+      class="action-list__item"
+      bindtap="onTransactions"
+      hover-class="action-list__item--pressed"
+      aria-label="交易明细"
+    >
+      <view class="action-list__icon action-list__icon--orange">
+        <image src="/assets/icons/list.svg" mode="aspectFit" />
+      </view>
+      <view class="action-list__body">
+        <text class="action-list__title">交易明细</text>
+        <text class="action-list__desc">查看全部记录</text>
+      </view>
+      <image class="action-list__arrow" src="/assets/icons/arrow-right.svg" mode="aspectFit" />
+    </view>
+
+    <view
+      class="action-list__item"
+      bindtap="onBindCard"
+      hover-class="action-list__item--pressed"
+      aria-label="绑定银行卡"
+    >
+      <view class="action-list__icon action-list__icon--blue">
+        <image src="/assets/icons/credit-card.svg" mode="aspectFit" />
+      </view>
+      <view class="action-list__body">
+        <text class="action-list__title">绑定银行卡</text>
+        <text class="action-list__desc">用于提现到账</text>
+      </view>
+      <image class="action-list__arrow" src="/assets/icons/arrow-right.svg" mode="aspectFit" />
+    </view>
+
+    <view
+      class="action-list__item"
+      bindtap="onRecharge"
+      hover-class="action-list__item--pressed"
+      aria-label="账户充值"
+    >
+      <view class="action-list__icon action-list__icon--gold">
+        <image src="/assets/icons/wallet.svg" mode="aspectFit" />
+      </view>
+      <view class="action-list__body">
+        <text class="action-list__title">账户充值</text>
+        <text class="action-list__desc">即时到账</text>
+      </view>
+      <image class="action-list__arrow" src="/assets/icons/arrow-right.svg" mode="aspectFit" />
+    </view>
+  </view>
+
+  <!-- ========== 交易明细（带筛选 Tab） ========== -->
+  <view class="tx-section anim-stagger-in" style="--stagger-delay: 400ms;">
+    <view class="tx-section__header">
+      <text class="tx-section__title">最近交易</text>
+      <text class="tx-section__more" bindtap="onTransactions">查看全部</text>
+    </view>
+
+    <!-- 筛选 Tab（胶囊滑动指示器） -->
+    <view class="tx-tab">
+      <view class="tx-tab__indicator" style="transform: translateX({{tabIndicatorX}});"></view>
+      <view
+        class="tx-tab__item {{txTab === 'all' ? 'tx-tab__item--active' : ''}}"
+        data-tab="all"
+        bindtap="onTabChange"
+      >全部</view>
+      <view
+        class="tx-tab__item {{txTab === 'in' ? 'tx-tab__item--active' : ''}}"
+        data-tab="in"
+        bindtap="onTabChange"
+      >收入</view>
+      <view
+        class="tx-tab__item {{txTab === 'out' ? 'tx-tab__item--active' : ''}}"
+        data-tab="out"
+        bindtap="onTabChange"
+      >支出</view>
+    </view>
+
+    <!-- 交易列表 -->
+    <view class="tx-list">
+      <view
+        wx:for="{{filteredTransactions}}"
+        wx:key="id"
+        class="tx-list__item anim-stagger-in"
+        style="--stagger-delay: {{index * 40}}ms;"
+      >
+        <view class="tx-list__icon tx-list__icon--{{item.type}}">
+          <image
+            src="{{item.type === 'in' ? '/assets/icons/arrow-down.svg' : '/assets/icons/upload.svg'}}"
+            mode="aspectFit"
+          />
+        </view>
+        <view class="tx-list__body">
+          <text class="tx-list__title">{{item.title}}</text>
+          <text class="tx-list__time">{{item.time}}</text>
+        </view>
+        <view class="tx-list__amount tx-list__amount--{{item.type}}">
+          {{item.type === 'in' ? '+' : '-'}}{{item.amount}}
+        </view>
+      </view>
+
+      <!-- 空态 -->
+      <view wx:if="{{filteredTransactions.length === 0}}" class="tx-list__empty">
+        <image class="tx-list__empty-icon" src="/assets/icons/empty.svg" mode="aspectFit" />
+        <text class="tx-list__empty-text">暂无{{txTab === 'in' ? '收入' : (txTab === 'out' ? '支出' : '交易')}}记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 密码弹窗（玻璃感 + Spring 入场） ========== -->
+  <view wx:if="{{showPasswordDialog}}" class="pwd-mask" catchtap="onCloseDialog">
+    <view class="pwd-dialog anim-scale-in" catchtap="">
+      <view class="pwd-dialog__header">
+        <text class="pwd-dialog__title">
+          {{pwdAction === 'recharge' ? '账户充值' : '申请提现'}}
+        </text>
+        <view class="pwd-dialog__close" bindtap="onCloseDialog" aria-label="关闭">
+          <image src="/assets/icons/close.svg" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view class="pwd-dialog__amount-display">
+        <text class="pwd-dialog__amount-label">金额（元）</text>
+        <view class="pwd-dialog__amount-value {{pwdError ? 'anim-shake' : ''}}">
+          <text class="pwd-dialog__amount-currency">¥</text>
+          <text class="pwd-dialog__amount-num">{{pwdAmount || '0'}}</text>
+        </view>
+      </view>
+
+      <view class="pwd-dialog__row">
+        <text class="pwd-dialog__label">金额（元）</text>
+        <input
+          class="pwd-dialog__input"
+          type="digit"
+          value="{{pwdAmount}}"
+          bindinput="onPwdAmountChange"
+          placeholder="请输入金额"
+        />
+      </view>
+
+      <view class="pwd-dialog__row">
+        <text class="pwd-dialog__label">支付密码</text>
+        <input
+          class="pwd-dialog__input pwd-dialog__input--pwd"
+          type="number"
+          password="{{true}}"
+          maxlength="6"
+          value="{{pwdInput}}"
+          bindinput="onPwdInputChange"
+          placeholder="请输入6位支付密码"
+        />
+      </view>
+
+      <view wx:if="{{pwdError}}" class="pwd-dialog__error anim-shake">{{pwdError}}</view>
+
+      <view class="pwd-dialog__hint">演示：任意6位数字均可通过</view>
+
+      <view class="pwd-dialog__actions">
+        <view
+          class="pwd-dialog__btn pwd-dialog__btn--cancel press-spring-fast"
+          bindtap="onCloseDialog"
+        >取消</view>
+        <view
+          class="pwd-dialog__btn pwd-dialog__btn--confirm press-spring-fast"
+          bindtap="onConfirmDialog"
+        >确认</view>
+      </view>
+    </view>
+  </view>
+</view>

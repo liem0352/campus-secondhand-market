@@ -1,0 +1,14 @@
+{
+  "navigationBarTitleText": "分类",
+  "navigationBarBackgroundColor": "#F5F5F7",
+  "navigationBarTextStyle": "black",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#F5F5F7",
+  "backgroundTextStyle": "dark",
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "product-card": "/components/product-card/product-card",
+    "empty-state": "/components/empty-state/empty-state",
+    "error-state": "/components/error-state/error-state"
+  }
+}

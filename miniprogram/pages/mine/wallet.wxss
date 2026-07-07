@@ -1,0 +1,722 @@
+/* wallet.wxss —— 我的钱包 v5
+ * --------------------------------------------------------------------
+ * 设计语言（融合设计系统 v4）：
+ *   - Apple Liquid Glass：半透 + 顶部高光 + 多层阴影 + 边缘内发光
+ *   - MD3 Expressive：35 种形状系统 + Spring 弹性
+ *   - OriginOS 6：四大光效（环境光 / 弥散光 / 增强光 / 边缘光）
+ *   - STRAY_洋葱 动效：Spring 弹性物理 + 光感反馈
+ *
+ * 规范：
+ *   - 严格使用 var(--*) design token，严禁硬编码 hex / 字号 / 间距
+ *   - 严禁 emoji 图标
+ *   - 触达目标 ≥ 88rpx（Apple HIG 44pt）
+ *   - 支持 prefers-reduced-motion
+ */
+
+/* ====================================================================
+ * 页面容器（暖白渐变底）
+ * ==================================================================== */
+.wallet-page {
+  min-height: 100vh;
+  background: var(--gradient-page);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 60rpx);
+}
+
+.wallet-safe-top {
+  width: 100%;
+}
+
+/* ====================================================================
+ * 余额 Hero 卡片（Liquid Glass + 光感）
+ * ==================================================================== */
+.balance-card {
+  position: relative;
+  margin: var(--space-3) var(--space-3) var(--space-4);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-warm);
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-orange-inset), var(--shadow-primary-lg);
+  overflow: hidden;
+}
+
+/* 3 层光感光晕（呼吸） */
+.balance-card__halo {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  pointer-events: none;
+  filter: blur(24rpx);
+}
+
+.balance-card__halo--1 {
+  width: 240rpx;
+  height: 240rpx;
+  top: -80rpx;
+  right: -60rpx;
+  background: rgba(255, 255, 255, 0.25);
+  animation: breathe 6s var(--ease-in-out) infinite;
+}
+
+.balance-card__halo--2 {
+  width: 180rpx;
+  height: 180rpx;
+  bottom: -60rpx;
+  left: -40rpx;
+  background: rgba(255, 255, 255, 0.18);
+  animation: breathe 7.5s var(--ease-in-out) infinite;
+  animation-delay: -2s;
+}
+
+.balance-card__halo--3 {
+  width: 120rpx;
+  height: 120rpx;
+  top: 40%;
+  right: 30%;
+  background: rgba(255, 255, 255, 0.15);
+  animation: breathe 5s var(--ease-in-out) infinite;
+  animation-delay: -1s;
+}
+
+/* 顶部柔光带（玻璃折光） */
+.balance-card__shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%);
+  pointer-events: none;
+}
+
+.balance-card__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* 标签 */
+.balance-card__label {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+  letter-spacing: 0.5rpx;
+}
+
+.balance-card__label-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: var(--space-1);
+  opacity: 0.9;
+}
+
+/* 金额 */
+.balance-card__amount {
+  display: flex;
+  align-items: baseline;
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-5);
+  font-weight: var(--font-weight-bold);
+}
+
+.balance-card__currency {
+  font-size: var(--font-size-lg);
+  margin-right: var(--space-1);
+  font-weight: var(--font-weight-medium);
+}
+
+.balance-card__value {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-tight);
+  letter-spacing: 1rpx;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 元信息（冻结 / 信用分） */
+.balance-card__meta {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.balance-card__meta-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.balance-card__meta-num {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-card__meta-label {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+.balance-card__meta-divider {
+  width: 2rpx;
+  height: 48rpx;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 操作按钮 */
+.balance-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.balance-card__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.5rpx;
+}
+
+.balance-card__btn--primary {
+  background: var(--color-bg-card);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.balance-card__btn--ghost {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--color-text-on-primary);
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
+}
+
+.balance-card__btn-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: var(--space-1);
+}
+
+.balance-card__btn--primary .balance-card__btn-icon {
+  filter: brightness(0) saturate(100%) invert(47%) sepia(89%) saturate(2476%) hue-rotate(338deg) brightness(101%) contrast(101%);
+}
+
+.balance-card__btn--ghost .balance-card__btn-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* ====================================================================
+ * 数据统计（3 列玻璃感卡）
+ * ==================================================================== */
+.stat-grid {
+  display: flex;
+  align-items: center;
+  background: var(--glass-bg-light-3);
+  margin: 0 var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) 0;
+  border: var(--glass-border-light);
+  box-shadow: var(--shadow-glass-md);
+  backdrop-filter: blur(20rpx);
+}
+
+.stat-grid__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-grid__divider {
+  width: 2rpx;
+  height: 64rpx;
+  background: var(--color-bg-divider);
+}
+
+.stat-grid__num {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-1);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-grid__num--in {
+  color: var(--color-success);
+}
+
+.stat-grid__num--out {
+  color: var(--color-error);
+}
+
+.stat-grid__num--credit {
+  color: var(--color-primary);
+}
+
+.stat-grid__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ====================================================================
+ * 功能列表（玻璃感）
+ * ==================================================================== */
+.action-list {
+  background: var(--glass-bg-light-3);
+  margin: 0 var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: var(--glass-border-light);
+  box-shadow: var(--shadow-glass-sm);
+}
+
+.action-list__item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-4);
+  border-bottom: 2rpx solid var(--color-bg-divider-light, rgba(0, 0, 0, 0.04));
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.action-list__item:last-child {
+  border-bottom: none;
+}
+
+.action-list__item--pressed {
+  background-color: var(--color-bg-hover);
+}
+
+.action-list__icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--space-3);
+  flex-shrink: 0;
+}
+
+.action-list__icon--orange {
+  background: var(--color-primary-soft);
+}
+
+.action-list__icon--blue {
+  background: var(--info-100, #B8DBFF);
+}
+
+.action-list__icon--gold {
+  background: var(--amber-100, #FFEDC4);
+}
+
+.action-list__icon image {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.action-list__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-list__title {
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.action-list__desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: 2rpx;
+}
+
+.action-list__arrow {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+/* ====================================================================
+ * 交易明细区
+ * ==================================================================== */
+.tx-section {
+  margin: 0 var(--space-3);
+  background: var(--glass-bg-light-3);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border: var(--glass-border-light);
+  box-shadow: var(--shadow-glass-sm);
+}
+
+.tx-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.tx-section__title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.tx-section__more {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  min-height: 88rpx;
+  line-height: 88rpx;
+  padding: 0 var(--space-2);
+}
+
+/* ---------- 筛选 Tab（胶囊滑动指示器） ---------- */
+.tx-tab {
+  position: relative;
+  display: flex;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-pill);
+  padding: 4rpx;
+  margin-bottom: var(--space-3);
+  height: 64rpx;
+}
+
+.tx-tab__indicator {
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  width: calc((100% - 8rpx) / 3);
+  height: calc(100% - 8rpx);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-spring-default) var(--ease-magicos-capsule);
+}
+
+.tx-tab__item {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.tx-tab__item--active {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------- 交易列表 ---------- */
+.tx-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tx-list__item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 2rpx solid var(--color-bg-divider-light, rgba(0, 0, 0, 0.04));
+}
+
+.tx-list__item:last-child {
+  border-bottom: none;
+}
+
+.tx-list__icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: var(--radius-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--space-3);
+  flex-shrink: 0;
+}
+
+.tx-list__icon--in {
+  background: var(--color-success-soft);
+}
+
+.tx-list__icon--out {
+  background: var(--color-error-soft);
+}
+
+.tx-list__icon image {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.tx-list__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tx-list__title {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: 2rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tx-list__time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.tx-list__amount {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.5rpx;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.tx-list__amount--in {
+  color: var(--color-success);
+}
+
+.tx-list__amount--out {
+  color: var(--color-error);
+}
+
+/* 空态 */
+.tx-list__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-8) 0;
+}
+
+.tx-list__empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.4;
+  margin-bottom: var(--space-3);
+}
+
+.tx-list__empty-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* ====================================================================
+ * 密码弹窗（玻璃感 + Spring 入场）
+ * ==================================================================== */
+.pwd-mask {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg-mask-strong);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-6);
+  animation: fade-in var(--duration-fast) var(--ease-out) both;
+}
+
+.pwd-dialog {
+  width: 100%;
+  max-width: 560rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  box-shadow: var(--shadow-xl);
+  border: var(--glass-border-light);
+}
+
+.pwd-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.pwd-dialog__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.pwd-dialog__close {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-circle);
+  background: var(--color-bg-section);
+}
+
+.pwd-dialog__close image {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.6;
+}
+
+/* 金额展示 */
+.pwd-dialog__amount-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-4) 0;
+  margin-bottom: var(--space-3);
+  background: var(--color-bg-section);
+  border-radius: var(--radius-md);
+}
+
+.pwd-dialog__amount-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-1);
+}
+
+.pwd-dialog__amount-value {
+  display: flex;
+  align-items: baseline;
+  color: var(--color-primary);
+}
+
+.pwd-dialog__amount-currency {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  margin-right: var(--space-1);
+}
+
+.pwd-dialog__amount-num {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 输入行 */
+.pwd-dialog__row {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 2rpx solid var(--color-bg-divider);
+  margin-bottom: var(--space-2);
+}
+
+.pwd-dialog__label {
+  width: 160rpx;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.pwd-dialog__input {
+  flex: 1;
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  text-align: right;
+  font-weight: var(--font-weight-medium);
+}
+
+.pwd-dialog__input--pwd {
+  letter-spacing: 8rpx;
+}
+
+.pwd-dialog__error {
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+  margin: var(--space-1) 0;
+  text-align: center;
+}
+
+.pwd-dialog__hint {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs);
+  text-align: center;
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+/* 操作按钮 */
+.pwd-dialog__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.pwd-dialog__btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: var(--radius-pill);
+  text-align: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pwd-dialog__btn--cancel {
+  background: var(--color-bg-section);
+  color: var(--color-text-primary);
+}
+
+.pwd-dialog__btn--confirm {
+  background: var(--gradient-warm);
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-orange-inset), var(--shadow-primary-sm);
+}
+
+/* ====================================================================
+ * 抖动动画（错误反馈）
+ * ==================================================================== */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8rpx); }
+  40%      { transform: translateX(8rpx); }
+  60%      { transform: translateX(-6rpx); }
+  80%      { transform: translateX(6rpx); }
+}
+
+.anim-shake {
+  animation: shake var(--duration-base) var(--ease-in-out);
+}
+
+/* ====================================================================
+ * 减动效偏好
+ * ==================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .balance-card__halo--1,
+  .balance-card__halo--2,
+  .balance-card__halo--3 {
+    animation: none;
+  }
+  .anim-shake,
+  .anim-hero-shimmer,
+  .anim-stagger-in,
+  .anim-scale-in,
+  .anim-number-pop {
+    animation: none;
+  }
+  .tx-tab__indicator {
+    transition: none;
+  }
+}

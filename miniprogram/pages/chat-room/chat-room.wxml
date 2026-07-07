@@ -1,0 +1,89 @@
+<!-- pages/chat-room/chat-room.wxml
+     聊天详情页：融合 fusion-ui-design v2
+     - One UI 9 渐变擦除入场（消息列表容器）
+     - MD3 Expressive 弹性入场（每条消息）
+     - OriginOS 6 AI 光晕脉冲（AI 头像）
+     - iOS 26 Liquid Glass 折射层（消息气泡）
+     - ColorOS 16 干脆利落（发送按钮）
+     - MagicOS 10 灵动胶囊曲线（消息气泡形变）
+     - AI 消息气泡使用渐变 + 增强光
+     - 减弱动效偏好：使用错落延迟 inline 变量控制 -->
+<view class="chat-page" style="padding-bottom: {{keyboardHeight}}px;">
+
+  <!-- 顶部对方信息条：液态玻璃材质 -->
+  <view class="chat-header glass-light-soft">
+    <image class="avatar avatar-sm" src="{{peer.avatar}}" wx:if="{{peer.avatar}}"></image>
+    <view class="avatar avatar-sm avatar-placeholder text-primary-color text-bold" wx:else>
+      {{peer.initials}}
+    </view>
+    <view class="chat-header-info">
+      <text class="chat-header-name text-base text-bold">{{peer.username}}</text>
+      <text class="chat-header-product text-tertiary-text text-xs" wx:if="{{product && product.title}}">
+        {{product.title}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 消息流：One UI 9 渐变擦除入场 -->
+  <scroll-view
+    class="chat-messages anim-oneui-reveal"
+    scroll-y="true"
+    scroll-into-view="{{lastMsgId}}"
+    enhanced="true"
+    show-scrollbar="{{false}}"
+    upper-threshold="50"
+    lower-threshold="50">
+
+    <view class="msg-list">
+      <view wx:for="{{messages}}"
+            wx:key="id"
+            id="msg-{{item.id}}"
+            class="msg msg-{{item.is_mine ? 'mine' : 'theirs'}} anim-m3-spatial-in anim-stagger-in spring-magicos-capsule"
+            style="--stagger-delay: {{item.stagger_delay}}ms;">
+        <!-- 头像（对方显示；AI 标识触发 AI 光晕脉冲） -->
+        <view class="msg-avatar-wrap {{item.is_ai ? 'anim-ai-pulse' : ''}}">
+          <image class="msg-avatar"
+                 src="{{item.sender.avatar}}"
+                 wx:if="{{!item.is_mine && item.sender.avatar}}"></image>
+          <view class="msg-avatar msg-avatar-placeholder text-secondary-text text-xs"
+                wx:elif="{{!item.is_mine}}">{{item.sender.initials}}</view>
+        </view>
+
+        <view class="msg-col">
+          <view class="msg-time text-tertiary-text text-xs">{{item.time_text}}</view>
+          <!-- 消息气泡：iOS 26 Liquid Glass 折射层 + AI 渐变 + 增强光 -->
+          <view class="msg-bubble liquid-refract {{item.is_mine ? 'msg-bubble-mine' : 'msg-bubble-theirs'}} {{item.is_ai ? 'msg-bubble-ai' : ''}} {{item.failed ? 'msg-bubble-failed' : ''}}"
+                bindtap="{{item.failed ? 'onRetry' : ''}}"
+                data-id="{{item.id}}">
+            <text class="msg-content text-base">{{item.content}}</text>
+            <text class="msg-state text-xs" wx:if="{{item.pending}}">发送中</text>
+            <text class="msg-state text-xs" wx:elif="{{item.failed}}" bindtap="onRetry" data-id="{{item.id}}">重试</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空态 -->
+      <view class="chat-empty text-tertiary-text text-sm" wx:if="{{!loading && messages.length === 0}}">
+        暂无消息，说点什么吧
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部输入区：液态玻璃（glass-light-soft） -->
+  <view class="chat-input safe-area-bottom glass-light-soft">
+    <input class="chat-input-field"
+           value="{{inputValue}}"
+           bindinput="onInput"
+           bindconfirm="onSend"
+           confirm-type="send"
+           placeholder="说点什么..."
+           placeholder-class="chat-input-placeholder"
+           adjust-position="{{true}}"
+           hold-keyboard="{{true}}" />
+    <!-- 发送按钮：spring-coloros（ColorOS 16 干脆利落） -->
+    <button class="btn btn-primary chat-send-btn spring-coloros"
+            bindtap="onSend"
+            disabled="{{!inputValue || sending}}"
+            hover-class="btn-active">发送</button>
+  </view>
+</view>

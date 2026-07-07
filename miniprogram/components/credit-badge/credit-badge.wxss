@@ -1,0 +1,348 @@
+/* components/credit-badge/credit-badge.wxss
+   ============================================================
+   信用分徽章 —— 校园易物 v5（融合 fusion-ui-design v2）
+   ------------------------------------------------------------
+   设计要点（v4 保留）：
+   1. 液态玻璃胶囊：渐变色 + 半透 + 顶部高光 + 多层阴影
+   2. 三档等级配色：
+      - high(90+): 绿色渐变 (#2F9E54 → #07C160)
+      - mid(60-89): 蓝色渐变（#2F80ED → #6FB1FF）
+      - low(<60): 橙色渐变（#E89414 → #FFA500）
+   3. 数字使用 SF Pro Display（font-family display）
+   4. 数字使用 tabular-nums，避免滚动时宽度抖动
+   5. 顶部高光：inset 顶部白色高光，模拟玻璃折光
+   6. 三种 size：sm(80x40) / md(120x56) / lg(96x96 圆形)
+   ------------------------------------------------------------
+   v5 升级（fusion-ui-design v2）：
+   1. MD3 Expressive 弹性入场：anim-m3-spatial-in（容器由 app.wxss 提供）
+      来自 fusion-ui-design Part 22.4 Material 3 Expressive Spatial Motion
+   2. iOS 26 Liquid Glass 折射层：cb__refract（多层 inset + 顶/底高光）
+      来自 fusion-ui-design Part 22.2 iOS 26 Liquid Glass 折射
+      通过 --liquid-refract-top / --liquid-refract-prism / --liquid-edge-glow
+   3. OriginOS 6 增强光：cb__enhanced（按下时中心点高亮）
+      来自 fusion-ui-design Part 22.9 OriginOS 6 增强光
+      通过 --light-enhanced-center
+   4. iOS 26 玻璃形变：spring-ios-morph（容器 transition）
+      来自 fusion-ui-design Part 22.2 iOS 26 Liquid Glass 形变
+   5. MD3 Expressive 默认 spring：spring-m3-default（容器 transition）
+      来自 fusion-ui-design Part 22.4 MD3 Expressive
+   6. ColorOS 16 充电岛能量波：anim-charge-wave（high 等级光晕脉冲）
+      来自 fusion-ui-design Part 22.7 ColorOS 16 充电岛
+   7. 减弱动效偏好：@media (prefers-reduced-motion: reduce)
+   ============================================================ */
+
+/* ============== Token（等级颜色，覆盖 app 提供的色板） ============== */
+.cb {
+  /* 等级颜色变量（默认 mid） */
+  --cb-color-1: var(--color-primary);   /* mid 占位用蓝 */
+  --cb-color-2: var(--color-primary);
+  --cb-color-glow: rgba(255, 107, 53, 0.22);
+  /* 内部使用的液态玻璃色（半透明白色高光） */
+  --cb-glass-top: rgba(255, 255, 255, 0.4);
+  --cb-glass-bottom: rgba(0, 0, 0, 0.1);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  /* 注意：弹放入场由 .anim-m3-spatial-in 工具类提供（MD3 Expressive） */
+  /* 注意：玻璃形变 + MD3 默认 spring 由 WXML 端工具类提供 */
+  cursor: pointer;
+}
+
+/* 等级颜色（high/mid/low） */
+.cb--high {
+  --cb-color-1: #2F9E54;
+  --cb-color-2: #07C160;
+  --cb-color-glow: rgba(7, 193, 96, 0.32);
+}
+.cb--mid {
+  --cb-color-1: #2F80ED;
+  --cb-color-2: #6FB1FF;
+  --cb-color-glow: rgba(47, 128, 237, 0.32);
+}
+.cb--low {
+  --cb-color-1: #E89414;
+  --cb-color-2: #FFA500;
+  --cb-color-glow: rgba(255, 165, 0, 0.32);
+}
+
+/* 渐变 + 玻璃感底色 */
+.cb--high, .cb--mid, .cb--low {
+  background: linear-gradient(135deg, var(--cb-color-1) 0%, var(--cb-color-2) 100%);
+  box-shadow:
+    inset 0 2rpx 0 var(--cb-glass-top),
+    inset 0 -1rpx 0 var(--cb-glass-bottom),
+    0 4rpx 12rpx var(--cb-color-glow);
+}
+
+/* ============== 形状 ============== */
+.cb--shape-pill    { border-radius: var(--radius-pill); }
+.cb--shape-circle  { border-radius: var(--radius-circle); padding: 0; }
+.cb--shape-rounded { border-radius: var(--radius-md); }
+
+/* ============== 顶部高光条（v4 液态玻璃细节，保留） ============== */
+.cb__shine {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* ==============================================================
+ * v5 新增：iOS 26 Liquid Glass 折射层（cb__refract）
+ * 来自 fusion-ui-design Part 22.2 iOS 26 Liquid Glass 折射
+ * 通过多层 inset 阴影 + 顶/底高光 模拟光学折射
+ * 等级差异：高信用分用 prism 强化、mid 适中、low 轻量
+ * ============================================================== */
+.cb__refract {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 2;
+  /* 默认基础折射（mid / low） */
+  box-shadow: var(--liquid-refract-top);
+  opacity: 1;
+  transition: box-shadow var(--duration-spring-base) var(--ease-ios-glass-morph);
+}
+
+/* high 等级：使用 prism 强化（多层 inset + 顶/底高光） */
+.cb--high .cb__refract {
+  box-shadow: var(--liquid-refract-prism);
+}
+
+/* mid 等级：标准 prism */
+.cb--mid .cb__refract {
+  box-shadow: var(--liquid-refract-prism);
+}
+
+/* low 等级：轻量折射（仅顶部高光，避免过度炫光） */
+.cb--low .cb__refract {
+  box-shadow: var(--liquid-refract-top);
+  opacity: 0.92;
+}
+
+/* ==============================================================
+ * v5 新增：OriginOS 6 增强光层（cb__enhanced）
+ * 来自 fusion-ui-design Part 22.9 OriginOS 6 增强光
+ * 默认隐藏，按下时（hover-class="cb--pressed"）中心点高亮
+ * 通过径向渐变模拟"按下时中心点聚焦"的光感
+ * ============================================================== */
+.cb__enhanced {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 3;
+  opacity: 0;
+  background: radial-gradient(circle at center,
+                              rgba(255, 255, 255, 0.55) 0%,
+                              rgba(255, 255, 255, 0.2) 35%,
+                              rgba(255, 255, 255, 0) 70%);
+  /* OriginOS 6 增强光：按下时中心点亮起 */
+  transition: opacity var(--duration-spring-base) var(--ease-origin-spring);
+}
+
+/* 按下时（hover-class 触发）显示 OriginOS 6 中心点高亮 */
+.cb--pressed .cb__enhanced,
+.cb--pressed.cb--high .cb__enhanced,
+.cb--pressed.cb--mid .cb__enhanced,
+.cb--pressed.cb--low .cb__enhanced {
+  opacity: 1;
+  box-shadow: var(--light-enhanced-center);
+}
+
+/* ==============================================================
+ * v5 新增：高信用分光晕脉冲（cb__pulse + anim-charge-wave）
+ * 来自 fusion-ui-design Part 22.7 ColorOS 16 充电岛能量
+ * 仅 high 等级启用，模拟"充电完成"的能量波扩散
+ * ============================================================== */
+.cb__pulse {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 24%;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(ellipse at center,
+                              rgba(255, 255, 255, 0.7) 0%,
+                              rgba(255, 255, 255, 0.3) 50%,
+                              rgba(255, 255, 255, 0) 100%);
+  filter: blur(2rpx);
+  pointer-events: none;
+  z-index: 0;
+  /* transform-origin 由 .anim-charge-wave 工具类设为 bottom center */
+}
+
+/* 显式标记 high 等级需要 pulse，避免 mid/low 误带 class 时仍渲染脉冲 */
+.cb--pulse-on .cb__pulse {
+  display: block;
+}
+.cb--pulse-off .cb__pulse {
+  display: none;
+}
+
+/* ============== 尺寸 ============== */
+.cb--size-sm {
+  min-width: 80rpx;
+  height: 40rpx;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+}
+.cb--size-md {
+  min-width: 120rpx;
+  height: 56rpx;
+  padding: 0 var(--space-3);
+}
+.cb--size-lg {
+  width: 96rpx;
+  height: 96rpx;
+  padding: 0;
+  border-radius: var(--radius-circle);
+}
+.cb--size-lg.cb--shape-pill { width: auto; min-width: 96rpx; padding: 0 var(--space-4); }
+
+/* ============== 主体（数字 + 文案） ============== */
+.cb__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  position: relative;
+  z-index: 4; /* 高于折射 / 增强光 / 脉冲层 */
+}
+
+.cb__score {
+  font-weight: var(--font-weight-extrabold);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  letter-spacing: 0.5rpx;
+  line-height: 1;
+}
+
+.cb__label {
+  margin-top: 4rpx;
+  opacity: 0.95;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  line-height: 1;
+}
+
+/* ============== 等级图标 ============== */
+.cb__icon {
+  width: 28rpx;
+  height: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 4; /* 高于折射 / 增强光 / 脉冲层 */
+  flex-shrink: 0;
+}
+.cb--size-sm .cb__icon { width: 22rpx; height: 22rpx; }
+.cb--size-lg .cb__icon { width: 36rpx; height: 36rpx; }
+
+/* 盾牌（high） */
+.icon-shield {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.icon-shield__body {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 90%;
+  background: var(--color-text-inverse);
+  clip-path: polygon(50% 0, 100% 18%, 100% 60%, 50% 100%, 0 60%, 0 18%);
+  filter: drop-shadow(0 1rpx 1rpx rgba(0, 0, 0, 0.18));
+}
+.icon-shield__check {
+  position: absolute;
+  top: 38%; left: 50%;
+  width: 35%;
+  height: 50%;
+  border-right: 4rpx solid var(--cb-color-1);
+  border-bottom: 4rpx solid var(--cb-color-1);
+  transform: translate(-50%, -50%) rotate(45deg);
+  z-index: 1;
+}
+.cb--size-sm .icon-shield__check {
+  border-right-width: 3rpx;
+  border-bottom-width: 3rpx;
+}
+
+/* 星星（mid） */
+.icon-star {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.icon-star__core {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  background: var(--color-text-inverse);
+  clip-path: polygon(
+    50% 0%, 61% 35%, 98% 35%, 68% 57%,
+    79% 91%, 50% 70%, 21% 91%, 32% 57%,
+    2% 35%, 39% 35%
+  );
+  filter: drop-shadow(0 1rpx 1rpx rgba(0, 0, 0, 0.15));
+}
+
+/* 圆点（low） */
+.icon-dot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.icon-dot__inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  background: var(--color-text-inverse);
+  border-radius: var(--radius-circle);
+  box-shadow: 0 0 0 2rpx var(--color-text-inverse);
+}
+
+/* ============== 减弱动效偏好（v5 强化） ==============
+ * 来自 fusion-ui-design 全局规范：尊重用户系统级偏好
+ * 入场、光晕脉冲、增强光、形变过渡全部降级为 none / instant
+ * ============================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .cb,
+  .cb__refract,
+  .cb__enhanced,
+  .cb__pulse {
+    animation: none !important;
+    transition: none !important;
+  }
+  .cb--pressed .cb__enhanced {
+    opacity: 1; /* 保留按下视觉，但无过渡 */
+  }
+  .cb__pulse {
+    display: none !important; /* 脉冲禁用 */
+  }
+}

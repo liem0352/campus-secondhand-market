@@ -1,0 +1,77 @@
+<!--
+  components/credit-badge
+  ============================================================
+  信用分徽章组件 —— 校园易物 v5（融合 fusion-ui-design v2）
+  ------------------------------------------------------------
+  设计语言：Apple Liquid Glass（iOS 26） + MD3 Expressive
+            + OriginOS 6 增强光 + ColorOS 16 充电岛
+  升级点（v5）：
+    1. 徽章容器加 anim-m3-spatial-in（MD3 Expressive 弹性入场）
+    2. 容器过渡使用 spring-ios-morph（iOS 26 玻璃形变）
+       + spring-m3-default（MD3 Expressive 默认）
+    3. iOS 26 Liquid Glass 折射层 cb__refract（多层 inset + 顶/底高光）
+    4. OriginOS 6 增强光 cb__enhanced（按下时中心点高亮）
+    5. 高信用分(high)光晕脉冲 cb__pulse（ColorOS 16 充电岛能量）
+    6. 不同等级（high/mid/low）应用不同折射层 class
+    7. 支持 prefers-reduced-motion
+    8. 可选 pulse 开关属性
+  ============================================================
+  Props:
+    score         {number}   信用分（0-100），默认 80
+    level         {string}   显式等级 high|mid|low，为空时按 score 推断
+    size          {string}   sm | md | lg，默认 md
+    showLabel     {boolean}  是否显示内部等级文案，默认 true
+    showIcon      {boolean}  是否显示左侧等级图标，默认 true
+    shape         {string}   pill(默认) | circle | rounded
+    pulse         {boolean}  是否启用高信用分光晕脉冲（high 等级），默认 true
+  Event:
+    - 无（纯展示组件）
+-->
+<view
+  class="cb anim-m3-spatial-in spring-ios-morph spring-m3-default {{levelClass}} {{sizeClass}} {{shapeClass}} {{pulseClass}}"
+  style="{{badgeStyle}}"
+  hover-class="cb--pressed"
+  hover-stay-time="80"
+  aria-label="信用分{{displayScore}},{{levelText}}"
+>
+  <!-- 顶部高光条（液态玻璃细节 v4 保留） -->
+  <view class="cb__shine"></view>
+
+  <!-- iOS 26 Liquid Glass 折射层（多层 inset + 顶/底高光） -->
+  <view class="cb__refract"></view>
+
+  <!-- OriginOS 6 增强光层（按下时中心点高亮） -->
+  <view class="cb__enhanced"></view>
+
+  <!-- 高信用分光晕脉冲层（ColorOS 16 充电岛能量） -->
+  <view wx:if="{{showPulse}}" class="cb__pulse anim-charge-wave"></view>
+
+  <!-- 左侧等级图标（纯 CSS，禁用 emoji） -->
+  <block wx:if="{{showIcon}}">
+    <view class="cb__icon" wx:if="{{finalLevel === 'high'}}">
+      <!-- 盾牌 -->
+      <view class="icon-shield">
+        <view class="icon-shield__body"></view>
+        <view class="icon-shield__check"></view>
+      </view>
+    </view>
+    <view class="cb__icon" wx:elif="{{finalLevel === 'mid'}}">
+      <!-- 星星 -->
+      <view class="icon-star">
+        <view class="icon-star__core"></view>
+      </view>
+    </view>
+    <view class="cb__icon" wx:else>
+      <!-- 圆点 -->
+      <view class="icon-dot">
+        <view class="icon-dot__inner"></view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 数字 + 等级文案 -->
+  <view class="cb__body">
+    <view class="cb__score" style="{{scoreStyle}}">{{displayScore}}</view>
+    <view wx:if="{{showLabel && size !== 'lg'}}" class="cb__label" style="{{labelStyle}}">信用{{levelText}}</view>
+  </view>
+</view>

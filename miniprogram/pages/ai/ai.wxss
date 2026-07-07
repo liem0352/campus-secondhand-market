@@ -1,0 +1,823 @@
+/* pages/ai/ai.wxss — AI 智能助手（融合 fusion-ui-design v2）
+ * --------------------------------------------------------------------
+ * 主题色：暖橙品牌色（与项目全局同步），所有数值通过 var(--*) 引用 design token
+ * 融合体系：22.9 OriginOS 6 AI 动效 + 22.13 MagicOS 10 一镜到底
+ *        + 22.2 iOS 26 Liquid Glass + 22.7 ColorOS 16 干脆利落
+ *        + Material 3 Expressive 弹性入场
+ *
+ * 新增动效（均带来源注释）：
+ *   - anim-ai-pulse          ：OriginOS 6 AI 光晕脉冲（app.wxss 已定义）
+ *   - anim-ai-thinking       ：OriginOS 6 AI 思考呼吸光晕（app.wxss 已定义）
+ *   - anim-seamless          ：MagicOS 10 一镜到底形变（app.wxss 已定义）
+ *   - anim-m3-spatial-in     ：MD3 Expressive 弹性入场（app.wxss 已定义）
+ *   - spring-coloros         ：ColorOS 16 干脆利落（app.wxss 已定义）
+ *   - spring-magicos-seamless：一镜到底过渡曲线（app.wxss 已定义）
+ *   - gyro-light             ：OriginOS 6 陀螺仪光影（app.wxss 已定义）
+ *   - glass-light-soft       ：iOS 26 Liquid Glass 浅玻璃（app.wxss 已定义）
+ *   - welcome-refract        ：iOS 26 Liquid Glass 折射层（**本页新增**）
+ *   - ai-thinking-glow       ：OriginOS 6 AI 思考光晕自定义增强（**本页新增**）
+ *   - reduced-motion 支持     ：减动效偏好
+ */
+
+.ai-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  /* 暖橙渐变背景：来自 --gradient-page token（app.wxss 1.10） */
+  background: var(--gradient-page);
+  padding-bottom: 0;
+}
+
+/* ====================================================================
+ * 1. 自定义导航栏（橘色渐变 + 玻璃高光）
+ * ==================================================================== */
+.custom-nav {
+  background: var(--gradient-warm);
+  position: relative;
+  z-index: var(--z-fixed);
+  box-shadow: var(--shadow-primary-sm);
+  /* iOS 26 Liquid Glass 顶部高光（折射层效果） */
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.18);
+}
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-3);
+  position: relative;
+}
+.nav-btn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-circle);
+  background: rgba(255, 255, 255, 0.15);
+  transition: background var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+/* 按下反馈：spring-coloros（ColorOS 16 干脆利落） */
+.nav-btn-press {
+  transition: transform var(--duration-spring-quick) var(--ease-coloros-quick),
+              background var(--duration-fast) var(--ease-out);
+}
+.nav-btn-press:active {
+  transform: scale(0.92);
+}
+.nav-btn-hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+/* 返回箭头：CSS 画一个左箭头 */
+.nav-back-arrow {
+  width: 20rpx;
+  height: 20rpx;
+  border-left: 4rpx solid #ffffff;
+  border-bottom: 4rpx solid #ffffff;
+  transform: rotate(45deg) translate(2rpx, 2rpx);
+  margin-left: 6rpx;
+}
+/* 菜单：3 个小圆点 */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+}
+.nav-menu-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: var(--radius-circle);
+  background: #ffffff;
+}
+/* 标题（AI 标识 + 文字） */
+.nav-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  color: var(--color-text-inverse);
+}
+/* 导航栏 AI 小光球：叠加 anim-ai-pulse 持续脉冲 */
+.nav-title-orb {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: var(--radius-circle);
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  border: 1rpx solid rgba(255, 255, 255, 0.4);
+  color: var(--color-text-inverse);
+  position: relative;
+}
+.nav-title-text {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 1rpx;
+}
+
+/* ====================================================================
+ * 2. 顶部欢迎卡片（MagicOS 10 一镜到底 + OriginOS 6 陀螺仪光影 + iOS 26 折射层）
+ * ==================================================================== */
+.welcome {
+  margin: var(--space-3) var(--space-3) var(--space-2);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  background: var(--gradient-warm);
+  border-radius: var(--radius-md);
+  /* iOS 26 Liquid Glass 主色玻璃阴影（多光感层叠） */
+  box-shadow:
+    var(--light-edge-top),
+    var(--shadow-primary-md);
+  color: var(--color-text-inverse);
+  position: relative;
+  overflow: hidden;
+  /* 一镜到底曲线：spring-magicos-seamless（MagicOS 10，app.wxss 1.7.1） */
+  transition: all var(--duration-spring-base) var(--ease-magicos-seamless);
+}
+
+/* 欢迎卡片背景圆形高光（仿 OriginOS 6 弥散光） */
+.welcome::before {
+  content: '';
+  position: absolute;
+  right: -60rpx;
+  top: -60rpx;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: var(--radius-circle);
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+/* 陀螺仪光影层（OriginOS 6 独家，app.wxss 1.8.1） */
+.welcome-gyro {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  z-index: 0;
+}
+
+/* iOS 26 Liquid Glass 折射层（**本页新增**）
+ * 通过顶部 1px 白色高光 + 底部 1px 深色阴影模拟光学折射 */
+.welcome-refract {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: var(--liquid-refract-prism);
+  z-index: 0;
+}
+
+.welcome-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  position: relative;
+  z-index: 1;
+}
+
+/* AI 头像外壳：内部 orb 持续脉冲 + 文字头像 */
+.welcome-avatar-wrap {
+  position: relative;
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
+}
+/* 光晕外壳（anim-ai-pulse 来自 app.wxss 1.7.4） */
+.welcome-avatar-orb {
+  position: absolute;
+  top: -4rpx;
+  left: -4rpx;
+  right: -4rpx;
+  bottom: -4rpx;
+  border-radius: var(--radius-circle);
+  background: rgba(255, 255, 255, 0.18);
+  z-index: 0;
+}
+.welcome-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-circle);
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-name {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+}
+.welcome-sub {
+  font-size: var(--font-size-xs);
+  opacity: 0.85;
+  margin-top: 4rpx;
+}
+.welcome-desc {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  opacity: 0.95;
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+  position: relative;
+  z-index: 1;
+}
+.quick-title {
+  font-size: var(--font-size-sm);
+  opacity: 0.85;
+  margin-bottom: var(--space-2);
+  position: relative;
+  z-index: 1;
+}
+.quick-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  position: relative;
+  z-index: 1;
+}
+.quick-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 10rpx var(--space-3);
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-tight);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  transition: background var(--duration-fast) var(--ease-out);
+  color: var(--color-text-inverse);
+}
+.quick-chip:active {
+  background: rgba(255, 255, 255, 0.32);
+}
+.quick-emoji {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  background: rgba(255, 255, 255, 0.35);
+  padding: 2rpx var(--space-1);
+  border-radius: var(--radius-xs);
+  letter-spacing: 1rpx;
+  color: var(--color-text-inverse);
+}
+
+/* ====================================================================
+ * 3. 聊天区（MD3 Expressive 弹性入场 + AI 思考光晕）
+ * ==================================================================== */
+.chat-box {
+  flex: 1;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  box-sizing: border-box;
+  min-height: 0;
+}
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: var(--space-3);
+  gap: var(--space-2);
+}
+/* 错落入场：与 .anim-m3-spatial-in 组合使用，--stagger-delay 由 WXML 内联传入
+ * 用更具体的选择器（0,0,2,0）确保 animation-delay 覆盖 app.wxss 里的 shorthand 默认 0s */
+.msg-row.anim-m3-spatial-in {
+  animation-delay: var(--stagger-delay, 0ms);
+}
+.msg-user {
+  flex-direction: row-reverse;
+}
+
+/* 头像外壳（包裹光晕 + 文字头像） */
+.avatar-wrap {
+  position: relative;
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
+}
+/* AI 头像光晕层：默认 anim-ai-pulse，思考时 anim-ai-thinking */
+.avatar-orb {
+  position: absolute;
+  top: -6rpx;
+  left: -6rpx;
+  right: -6rpx;
+  bottom: -6rpx;
+  border-radius: var(--radius-circle);
+  background: rgba(99, 102, 241, 0.15);
+  z-index: 0;
+}
+
+/* 头像 */
+.avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-circle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+/* AI 头像：橘色渐变（品牌色） */
+.avatar-ai {
+  background: var(--gradient-warm-soft);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-primary-sm);
+}
+/* 用户头像：中性白底 + 橘色文字 */
+.avatar-user {
+  background: var(--gradient-cream);
+  color: var(--color-primary);
+  border: 2rpx solid var(--color-primary);
+}
+
+/* 气泡外层（用于包裹 + 操作按钮） */
+.bubble-wrap {
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+}
+.msg-user .bubble-wrap {
+  align-items: flex-end;
+}
+
+/* 气泡 */
+.bubble {
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-base);
+  line-height: var(--line-height-loose);
+  word-break: break-word;
+  white-space: pre-wrap;
+  position: relative;
+  box-shadow: var(--shadow-xs);
+  /* spring-magicos-seamless：一镜到底曲线（MagicOS 10，app.wxss 1.7.1） */
+  transition: all var(--duration-spring-base) var(--ease-magicos-seamless);
+}
+.bubble-ai {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border-top-left-radius: 4rpx;
+}
+.bubble-user {
+  background: var(--gradient-warm);
+  color: var(--color-text-inverse);
+  border-top-right-radius: 4rpx;
+  box-shadow: var(--shadow-primary-sm);
+}
+.bubble-text {
+  font-size: var(--font-size-base);
+  display: block;
+}
+.bubble-time {
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-1);
+  opacity: 0.6;
+  display: block;
+}
+.bubble-user .bubble-time {
+  color: var(--color-text-inverse);
+  opacity: 0.7;
+  text-align: right;
+}
+.bubble-ai .bubble-time {
+  color: var(--color-text-tertiary);
+  text-align: left;
+}
+
+/* AI 气泡下方的操作按钮 */
+.bubble-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  padding: 0 4rpx;
+}
+.bubble-action {
+  padding: 4rpx var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  background: var(--color-info-soft);
+  color: var(--color-primary);
+  line-height: 1.6;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+.bubble-action-hover {
+  background: rgba(255, 107, 53, 0.18);
+}
+.bubble-action-danger {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+}
+.bubble-action-danger.bubble-action-hover {
+  background: rgba(255, 77, 79, 0.18);
+}
+
+/* 打字动画 */
+.bubble-typing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  min-height: 64rpx;
+}
+.bubble-typing .dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: var(--radius-circle);
+  background: var(--color-primary);
+  opacity: 0.5;
+  /* AI 思考状态的点状呼吸：与 ai-thinking 协调 */
+  animation: dot-bounce 1.4s infinite ease-in-out both;
+}
+.bubble-typing .dot:nth-child(1) { animation-delay: -0.32s; }
+.bubble-typing .dot:nth-child(2) { animation-delay: -0.16s; }
+.bubble-typing .dot:nth-child(3) { animation-delay: 0; }
+
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ====================================================================
+ * 4. OriginOS 6 AI 思考光晕自定义增强（**本页新增**）
+ * --------------------------------------------------------------------
+ * 来源：Part 22.9 OriginOS 6 AI 动效
+ * 说明：在 .anim-ai-thinking 基础上，叠加"紫色能量环"以强化
+ *       "AI 正在思考"的视觉暗示（基于 --ai-thinking token）。
+ * ==================================================================== */
+.ai-thinking-glow {
+  position: relative;
+}
+.ai-thinking-glow::before {
+  content: '';
+  position: absolute;
+  top: -12rpx;
+  left: -12rpx;
+  right: -12rpx;
+  bottom: -12rpx;
+  border-radius: var(--radius-circle);
+  background: radial-gradient(
+    circle,
+    var(--ai-thinking) 0%,
+    rgba(99, 102, 241, 0) 70%
+  );
+  animation: ai-thinking-halo 1.6s var(--ease-in-out) infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes ai-thinking-halo {
+  0%, 100% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+}
+
+/* ====================================================================
+ * 5. 空状态
+ * ==================================================================== */
+.chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-20) 0;
+}
+/* 空状态外层光晕（anim-ai-pulse 持续脉冲） */
+.chat-empty-orb {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: var(--radius-circle);
+  background: radial-gradient(circle, var(--ai-thinking) 0%, rgba(99, 102, 241, 0) 70%);
+  margin-bottom: var(--space-2);
+  position: relative;
+}
+.chat-empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: var(--radius-circle);
+  background: var(--gradient-warm-soft);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-3);
+  margin-top: -100rpx;
+  box-shadow: var(--shadow-primary-md);
+  position: relative;
+  z-index: 1;
+}
+.chat-empty-text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-tertiary);
+}
+
+/* ====================================================================
+ * 6. 底部输入栏（iOS 26 Liquid Glass + ColorOS 16 干脆利落）
+ * ==================================================================== */
+.input-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  /* glass-light-soft 来自 app.wxss 1.9 + 1.9.2（iOS 26 液态玻璃浅版） */
+  background: var(--glass-bg-light-2);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.4);
+  /* iOS 26 Liquid Glass 折射层（增强） */
+  box-shadow:
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1rpx 0 rgba(0, 0, 0, 0.04),
+    0 -8rpx 24rpx rgba(0, 0, 0, 0.06);
+  /* spring-magicos-seamless 一镜到底曲线 */
+  transition: all var(--duration-spring-base) var(--ease-magicos-seamless);
+}
+.input-extra {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-soft);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.input-extra-hover {
+  background: var(--color-primary-soft);
+}
+.input-extra-icon {
+  width: 32rpx;
+  height: 32rpx;
+  line-height: 1;
+  color: var(--color-primary); /* SVG 用 currentColor 继承 */
+}
+.input-extra-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  margin-top: 2rpx;
+  line-height: 1;
+  font-weight: var(--font-weight-medium);
+}
+.input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-3);
+  min-height: 72rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.5);
+  /* iOS 26 Liquid Glass 顶部高光（模拟折射） */
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.8);
+  transition: all var(--duration-spring-base) var(--ease-magicos-seamless);
+}
+.input-wrap:focus-within {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--light-edge);
+}
+.input-field {
+  flex: 1;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background: transparent;
+  height: 72rpx;
+  line-height: 72rpx;
+}
+.input-placeholder {
+  color: var(--color-text-disabled);
+  font-size: var(--font-size-base);
+}
+.input-clear {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: var(--radius-circle);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin-left: var(--space-1);
+  color: var(--color-text-inverse);
+}
+.input-clear-icon {
+  width: 22rpx;
+  height: 22rpx;
+}
+/* 发送按钮：spring-coloros（ColorOS 16 干脆利落，app.wxss 1.7.4） */
+.send-btn {
+  margin: 0;
+  font-size: var(--font-size-base);
+  padding: 0 var(--space-4);
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-warm);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-orange-inset), var(--shadow-primary-sm);
+  flex-shrink: 0;
+  letter-spacing: 2rpx;
+  /* spring-coloros 干脆利落：短 duration + 强 spring */
+  transition: transform var(--duration-spring-quick) var(--ease-coloros-quick),
+              box-shadow var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+.send-btn:active {
+  transform: scale(0.94);
+  background: var(--color-primary-pressed);
+  box-shadow: var(--shadow-orange-inset), var(--shadow-primary-md);
+}
+.send-btn[disabled] {
+  background: #ffd0bd;
+  color: var(--color-text-inverse);
+  box-shadow: none;
+}
+
+/* ====================================================================
+ * 7. 长按操作弹层（ActionSheet）
+ * ==================================================================== */
+.action-sheet-mask,
+.menu-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-bg-mask);
+  z-index: var(--z-modal-backdrop);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fade-in var(--duration-fast) var(--ease-out);
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.action-sheet {
+  width: 100%;
+  background: var(--color-bg-section);
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+  padding: var(--space-2) 0 var(--space-5);
+  /* spring-magicos-seamless 一镜到底曲线（MagicOS 10） */
+  animation: slide-up var(--duration-spring-base) var(--ease-magicos-seamless);
+  padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.action-sheet-title {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  padding: var(--space-3) 0 var(--space-2);
+  letter-spacing: 2rpx;
+}
+.action-sheet-item {
+  background: var(--color-bg-card);
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  border-bottom: 1rpx solid var(--border-color-light);
+  text-align: center;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+.action-sheet-item:active {
+  background: var(--color-bg-hover);
+}
+.action-sheet-danger {
+  color: var(--color-error);
+}
+.action-sheet-cancel {
+  margin-top: var(--space-2);
+  background: var(--color-bg-card);
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ====================================================================
+ * 8. 顶部菜单弹层
+ * ==================================================================== */
+.menu-popup {
+  position: absolute;
+  top: 120rpx;
+  right: var(--space-3);
+  background: rgba(30, 30, 30, 0.92);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) 0;
+  min-width: 220rpx;
+  box-shadow: var(--shadow-lg);
+  /* 一镜到底曲线（短动画） */
+  animation: pop-in var(--duration-fast) var(--ease-magicos-seamless);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-tight);
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.08);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+.menu-item-icon {
+  display: inline-block;
+  width: 32rpx;
+  height: 32rpx;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+.menu-item-danger {
+  color: #ff7875;
+}
+.menu-item-danger .menu-item-icon {
+  color: #ff7875;
+}
+
+/* ====================================================================
+ * 9. 减弱动效偏好（prefers-reduced-motion）支持
+ * --------------------------------------------------------------------
+ * 来源：fusion-ui-design Part 22 全体系通用无障碍规范
+ * 开启系统"减少动效"时，所有持续动画退化为瞬时、过渡退化为 0。
+ * 说明：WXSS 编译器对 * 通用选择器支持有限（与 ::before/::after 组合
+ *       会抛 unexpected token `*`），改用显式组件列表覆盖。
+ * ==================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  /* 覆盖 .ai-page 下所有常用组件及伪元素，关闭持续动画/过渡 */
+  .ai-page view,
+  .ai-page text,
+  .ai-page image,
+  .ai-page button,
+  .ai-page scroll-view,
+  .ai-page input,
+  .ai-page textarea,
+  .ai-page icon,
+  .ai-page swiper,
+  .ai-page swiper-item,
+  .ai-page progress,
+  .ai-page switch,
+  .ai-page slider,
+  .ai-page view::before,
+  .ai-page view::after,
+  .ai-page text::before,
+  .ai-page text::after,
+  .ai-page button::before,
+  .ai-page button::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* 显式停止 AI 系列动画的视觉提示 */
+  .anim-ai-pulse,
+  .anim-ai-thinking,
+  .gyro-light,
+  .chat-empty-orb {
+    animation: none !important;
+    box-shadow: none !important;
+  }
+}

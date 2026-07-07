@@ -1,0 +1,210 @@
+<!--
+  pages/category/category.wxml
+  校园易物 · 分类页（v6 重构）
+  --------------------------------------------------------------------
+  v6 重构要点（解决 v5 的"乱"）：
+    1. 信息层级简化为 4 层：搜索 → L1 侧栏 → L2 胶囊条 → 商品瀑布流
+    2. 移除冗余 Hero banner（与 L1 选中态信息重复）
+    3. L2 从 3 列宫格改为横向滚动胶囊条（与商品瀑布流形成「筛选 → 内容」层次）
+    4. 选中态颜色分离：
+       - L1 选中：主色渐变填充 + 白字（强主色）
+       - L2 选中：主色软背景 + 主色文字（弱主色）
+       两者不再同时使用强主色，避免视觉冲突
+    5. 排序栏简化：移到 L2 条右侧，形成「筛选 + 排序」一行
+    6. 保留：stagger 动效、空/错状态、aria-live、prefers-reduced-motion
+    7. 严格使用 design token (var(--*))，无 emoji 图标
+-->
+<view class="page cat-page">
+
+  <!-- ========== 屏幕阅读器播报区域（aria-live polite） ========== -->
+  <view class="cat-sr-only" aria-live="polite" aria-atomic="true">{{ariaAnnounce}}</view>
+
+  <!-- ========== 第 1 层：顶部 sticky 玻璃感搜索栏 ========== -->
+  <view class="cat-search" hover-class="cat-search--pressed" bindtap="onTapSearch" aria-label="搜索商品">
+    <image class="cat-search__icon" src="/assets/icons/search.svg" mode="aspectFit" />
+    <text class="cat-search__placeholder">搜教材、数码、服饰等好物</text>
+    <view class="cat-search__mic" catchtap="onTapVoice" hover-class="cat-search__mic--pressed" aria-label="语音搜索">
+      <image class="cat-search__mic-img" src="/assets/icons/mic.svg" mode="aspectFit" />
+    </view>
+  </view>
+
+  <view class="cat-body">
+
+    <!-- ========== 第 2 层：左侧一级分类（强主色选中态） ========== -->
+    <scroll-view
+      class="cat-left"
+      scroll-y="{{true}}"
+      enhanced="{{true}}"
+      show-scrollbar="{{false}}"
+    >
+      <view
+        wx:for="{{level1}}"
+        wx:key="id"
+        class="cat-left__item cat-left__anim {{selectedL1.id === item.id ? 'cat-left__item--active' : ''}}"
+        data-item="{{item}}"
+        bindtap="onTapLevel1"
+        hover-class="cat-left__item--pressed"
+        hover-stay-time="80"
+        style="--l1-stagger: {{index * 60}}ms"
+        aria-label="{{item.name}} 分类"
+        role="tab"
+        aria-selected="{{selectedL1.id === item.id}}"
+      >
+        <view class="cat-left__icon-wrap">
+          <image class="cat-left__icon" src="{{item.icon}}" mode="aspectFit" />
+        </view>
+        <text class="cat-left__text">{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- ========== 第 3 + 4 层：右侧内容（L2 胶囊条 + 商品瀑布流） ========== -->
+    <scroll-view
+      class="cat-right"
+      scroll-y="{{true}}"
+      enhanced="{{true}}"
+      show-scrollbar="{{false}}"
+    >
+
+      <!-- 切换时复用的水平滑动容器：每次 L1 切换重新触发 keyframe -->
+      <view class="cat-slide" wx:key="{{selectedL1.id}}">
+
+        <!-- 第 3 层：L2 横向滚动胶囊条 + 排序（同一行） -->
+        <view class="cat-filter">
+          <scroll-view
+            class="cat-filter__scroll"
+            scroll-x="{{true}}"
+            enhanced="{{true}}"
+            show-scrollbar="{{false}}"
+          >
+            <view class="cat-filter__bar">
+              <view
+                class="cat-filter__chip cat-filter__anim {{selectedL2.id === null ? 'cat-filter__chip--active' : ''}}"
+                data-item="{{ALL}}"
+                bindtap="onTapLevel2"
+                hover-class="cat-filter__chip--pressed"
+                hover-stay-time="80"
+                style="--sub-stagger: 0ms"
+                aria-label="全部"
+                role="tab"
+                aria-selected="{{selectedL2.id === null}}"
+              >全部</view>
+              <view
+                wx:for="{{level2}}"
+                wx:key="id"
+                class="cat-filter__chip cat-filter__anim {{selectedL2.id === item.id ? 'cat-filter__chip--active' : ''}}"
+                data-item="{{item}}"
+                bindtap="onTapLevel2"
+                hover-class="cat-filter__chip--pressed"
+                hover-stay-time="80"
+                style="--sub-stagger: {{(index + 1) * 50}}ms"
+                aria-label="{{item.name}}"
+                role="tab"
+                aria-selected="{{selectedL2.id === item.id}}"
+              >{{item.name}}</view>
+            </view>
+          </scroll-view>
+
+          <!-- 排序按钮（与 L2 同行，右侧固定） -->
+          <view
+            class="cat-filter__sort"
+            hover-class="cat-filter__sort--pressed"
+            bindtap="onTapSort"
+            aria-label="排序：{{currentSortLabel}}"
+          >
+            <text class="cat-filter__sort-text">{{currentSortLabel}}</text>
+            <image class="cat-filter__sort-icon" src="/assets/icons/arrow-down.svg" mode="aspectFit" />
+          </view>
+        </view>
+
+        <!-- 第 4 层：商品瀑布流（双列 + stagger） -->
+        <view class="cat-grid">
+          <block wx:if="{{!products.length && loading}}">
+            <view class="cat-grid__col">
+              <view class="skeleton" wx:for="{{[1,2,3]}}" wx:key="*this"></view>
+            </view>
+            <view class="cat-grid__col">
+              <view class="skeleton skeleton--alt" wx:for="{{[1,2,3]}}" wx:key="*this"></view>
+            </view>
+          </block>
+
+          <block wx:elif="{{products.length}}">
+            <view class="cat-grid__col">
+              <view
+                wx:for="{{products}}"
+                wx:for-item="left"
+                wx:for-index="i"
+                wx:key="id"
+                class="cat-grid__item pcard__anim"
+                wx:if="{{i % 2 === 0}}"
+                style="--pcard-stagger: {{(i/2) * 40}}ms"
+              >
+                <product-card
+                  product="{{left}}"
+                  layout="waterfall"
+                  bind:tap="onTapProduct"
+                  bind:favorite="onFavoriteProduct"
+                  bind:longpress="onLongPressProduct"
+                />
+              </view>
+            </view>
+            <view class="cat-grid__col">
+              <view
+                wx:for="{{products}}"
+                wx:for-item="right"
+                wx:for-index="i"
+                wx:key="id"
+                class="cat-grid__item pcard__anim"
+                wx:if="{{i % 2 === 1}}"
+                style="--pcard-stagger: {{((i-1)/2) * 40 + 20}}ms"
+              >
+                <product-card
+                  product="{{right}}"
+                  layout="waterfall"
+                  bind:tap="onTapProduct"
+                  bind:favorite="onFavoriteProduct"
+                  bind:longpress="onLongPressProduct"
+                />
+              </view>
+            </view>
+          </block>
+
+          <!-- 错误状态 -->
+          <view wx:elif="{{error}}" class="cat-state cat-state--error">
+            <image class="cat-state__icon" src="/assets/icons/status-error.svg" mode="aspectFit" />
+            <text class="cat-state__title">加载失败</text>
+            <text class="cat-state__desc">{{errorMsg || '请检查网络后重试'}}</text>
+            <view class="btn btn-primary cat-state__btn" bindtap="onRetry" hover-class="btn-primary--active" aria-label="重新加载">重新加载</view>
+          </view>
+
+          <!-- 空状态 -->
+          <view wx:elif="{{isEmpty}}" class="cat-state">
+            <empty-state
+              icon="box"
+              title="该分类下暂无商品"
+              description="切换其他分类试试"
+              action-text="刷新"
+              bind:action="onRetry"
+            />
+          </view>
+        </view>
+
+        <!-- 底部加载状态 -->
+        <view class="cat-footer">
+          <view wx:if="{{loading && products.length}}" class="cat-footer__loading">
+            <view class="cat-footer__dot"></view>
+            <view class="cat-footer__dot"></view>
+            <view class="cat-footer__dot"></view>
+            <text class="ml-2 text-tertiary-text text-sm">加载中…</text>
+          </view>
+          <view wx:elif="{{!hasMore && products.length}}" class="cat-footer__end">
+            <view class="cat-footer__line"></view>
+            <text class="text-tertiary-text text-sm">— 没有更多了 —</text>
+            <view class="cat-footer__line"></view>
+          </view>
+        </view>
+
+      </view>
+    </scroll-view>
+
+  </view>
+</view>

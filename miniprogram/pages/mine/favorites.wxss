@@ -1,0 +1,67 @@
+/* 我的收藏页样式 —— 校园易物 */
+.favs-page {
+  min-height: 100vh;
+  background: var(--color-bg-page, #F5F5F7);
+  padding-bottom: 32rpx;
+}
+
+.favs-header {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin: 24rpx;
+  padding: 24rpx;
+  background: linear-gradient(120deg, #FFF1E8 0%, #FFE0CC 100%);
+  border-radius: 16rpx;
+}
+
+.favs-header__icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: rgba(255, 107, 53, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.favs-header__icon image {
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.favs-header__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.favs-header__title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--color-text-primary, #1F2937);
+}
+
+.favs-header__sub {
+  font-size: 24rpx;
+  color: var(--color-text-secondary, #6B7280);
+}
+
+.favs-list {
+  padding: 0 24rpx;
+}
+
+.skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.loading-more {
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--color-text-tertiary, #9CA3AF);
+  padding: 32rpx 0;
+}

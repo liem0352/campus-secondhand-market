@@ -1,0 +1,82 @@
+<!--
+  components/skeleton-card
+  ============================================================
+  卡片骨架屏组件 —— 校园易物 v5
+  ------------------------------------------------------------
+  设计语言：fusion-ui-design v2
+    - Part 22.7 Pixel UI / Material 3 Expressive（弹性空间入场）
+    - Part 22.12 One UI 9 Now Bar（渐变擦除进入）
+    - 融合 OriginOS 6 空间光感（多色暖橙到琥珀 shimmer）
+    - 融合 ColorOS 16 干脆利落（spring-coloros-quick 曲线）
+  ------------------------------------------------------------
+  升级点：
+    1. 每个 .sk-item 加 anim-m3-spatial-in（MD3 Expressive 弹性入场）
+    2. 每个 .sk-item 加 anim-oneui-reveal（One UI 9 渐变擦除进入）
+    3. 错落（stagger）通过 --stagger-delay CSS 变量逐项延迟
+    4. 顶部高光条 .sk-item__shine 单独加 anim-oneui-reveal 形成"光带擦除"效果
+    5. shimmer 多色扫光（暖橙 → 琥珀），曲线改用 spring-coloros-quick
+    6. 兼容 prefers-reduced-motion：减弱动效
+  ------------------------------------------------------------
+  Props:
+    count         {number}  渲染卡片数，默认 4
+    layout        {string}  布局：waterfall | list | block，默认 list
+    shape         {string}  形状：card | row | block，默认 card
+    gap           {number}  卡片间距 rpx，默认 24
+    showCover     {boolean} 是否显示封面占位（layout=waterfall 时强制 true）
+    showFooter    {boolean} 是否显示底部行（价格+元数据）
+    shimmer       {boolean} 是否启用 shimmer 动效，默认 true
+    stagger       {number}  错落动画延迟基数（ms），默认 60
+  Slot:
+    - 无（纯展示组件）
+-->
+<view class="sk-wrap {{layoutClass}}">
+  <view
+    wx:for="{{rows}}"
+    wx:key="*this"
+    class="sk-item anim-m3-spatial-in anim-oneui-reveal {{shapeClass}} {{shimmer ? 'sk-item--shimmer' : ''}}"
+    style="--stagger-delay: {{item.delay}}ms;"
+  >
+    <!-- 顶部高光条（液态玻璃细节 + One UI 9 渐变擦除，光带从左向右擦入） -->
+    <view
+      class="sk-item__shine anim-oneui-reveal"
+      style="--stagger-delay: {{item.delay + 60}}ms;"
+    ></view>
+
+    <block wx:if="{{layout === 'waterfall'}}">
+      <!-- 瀑布流大图卡 -->
+      <view class="sk-item__cover sk-shimmer" style="--stagger-delay: {{item.delay + 100}}ms;"></view>
+      <view class="sk-item__body">
+        <view class="sk-item__title sk-shimmer" style="--stagger-delay: {{item.delay + 140}}ms;"></view>
+        <view class="sk-item__line sk-item__line--mid sk-shimmer" style="--stagger-delay: {{item.delay + 180}}ms;"></view>
+        <view wx:if="{{showFooter}}" class="sk-item__footer">
+          <view class="sk-item__price sk-shimmer" style="--stagger-delay: {{item.delay + 220}}ms;"></view>
+          <view class="sk-item__meta sk-shimmer" style="--stagger-delay: {{item.delay + 260}}ms;"></view>
+        </view>
+      </view>
+    </block>
+
+    <block wx:elif="{{layout === 'block'}}">
+      <!-- 纯文本块（无封面） -->
+      <view class="sk-item__body">
+        <view class="sk-item__title sk-item__title--lg sk-shimmer" style="--stagger-delay: {{item.delay + 100}}ms;"></view>
+        <view class="sk-item__line sk-shimmer" style="--stagger-delay: {{item.delay + 140}}ms;"></view>
+        <view class="sk-item__line sk-item__line--mid sk-shimmer" style="--stagger-delay: {{item.delay + 180}}ms;"></view>
+        <view class="sk-item__line sk-item__line--short sk-shimmer" style="--stagger-delay: {{item.delay + 220}}ms;"></view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <!-- list 横排卡（默认） -->
+      <view wx:if="{{showCover}}" class="sk-item__cover sk-shimmer" style="--stagger-delay: {{item.delay + 100}}ms;"></view>
+      <view class="sk-item__body">
+        <view class="sk-item__title sk-shimmer" style="--stagger-delay: {{item.delay + 140}}ms;"></view>
+        <view class="sk-item__line sk-item__line--mid sk-shimmer" style="--stagger-delay: {{item.delay + 180}}ms;"></view>
+        <view class="sk-item__line sk-item__line--short sk-shimmer" style="--stagger-delay: {{item.delay + 220}}ms;"></view>
+        <view wx:if="{{showFooter}}" class="sk-item__footer">
+          <view class="sk-item__price sk-shimmer" style="--stagger-delay: {{item.delay + 260}}ms;"></view>
+          <view class="sk-item__meta sk-shimmer" style="--stagger-delay: {{item.delay + 300}}ms;"></view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

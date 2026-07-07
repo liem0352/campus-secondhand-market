@@ -1,0 +1,72 @@
+<!-- 我的发布 / 我买到的 列表页 -->
+<view class="page-wrap myprods-page">
+  <view class="myprods-tabs card card-flat">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="myprods-tab {{activeTab === item.key ? 'myprods-tab--active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onTabChange"
+    >
+      <text>{{item.label}}</text>
+      <view wx:if="{{item.count}}" class="myprods-tab__badge">{{item.count}}</view>
+    </view>
+  </view>
+
+  <view class="myprods-list">
+    <block wx:if="{{loading && !list.length}}">
+      <view class="skeleton-wrap">
+        <skeleton-card wx:for="{{[0,1,2,3]}}" wx:key="*this"></skeleton-card>
+      </view>
+    </block>
+    <block wx:elif="{{error}}">
+      <error-state
+        title="加载失败"
+        description="{{errorMsg || '网络异常，请稍后重试'}}"
+        bind:retry="onRetry"
+      ></error-state>
+    </block>
+    <block wx:elif="{{!list.length}}">
+      <empty-state
+        title="{{emptyText}}"
+        description="去发布你的第一件闲置吧"
+        action-text="去发布"
+        bind:action="onGoPublish"
+      ></empty-state>
+    </block>
+    <block wx:else>
+      <view
+        wx:for="{{list}}"
+        wx:key="id"
+        class="myprods-item card card-flat"
+        data-id="{{item.id}}"
+        bindtap="onTapItem"
+      >
+        <image
+          class="myprods-item__cover"
+          src="{{item.cover || (item.images && item.images[0] && item.images[0].image_url) || '/assets/icons/image.png'}}"
+          mode="aspectFill"
+        ></image>
+        <view class="myprods-item__body">
+          <view class="myprods-item__title line-clamp-2">{{item.title}}</view>
+          <view class="myprods-item__meta">
+            <text class="myprods-item__price">¥{{item.price}}</text>
+            <text class="myprods-item__status status-badge {{statusClass(item.status)}}">{{statusText(item.status)}}</text>
+          </view>
+          <view class="myprods-item__sub">
+            <text wx:if="{{item.school}}">{{item.school}}</text>
+            <text wx:if="{{item.view_count !== undefined}}">浏览 {{item.view_count}}</text>
+            <text wx:if="{{item.favorite_count !== undefined}}">❤ {{item.favorite_count}}</text>
+          </view>
+        </view>
+        <view class="myprods-item__actions" catchtap="noop">
+          <view wx:if="{{activeTab === 'on_sale'}}" class="myprods-item__action" data-id="{{item.id}}" data-act="off" bindtap="onActTap">下架</view>
+          <view wx:elif="{{activeTab === 'off_shelf'}}" class="myprods-item__action" data-id="{{item.id}}" data-act="on" bindtap="onActTap">重新上架</view>
+          <view class="myprods-item__action myprods-item__action--danger" data-id="{{item.id}}" data-act="del" bindtap="onActTap">删除</view>
+        </view>
+      </view>
+      <view wx:if="{{loadingMore}}" class="loading-more">加载中…</view>
+      <view wx:elif="{{!hasMore && list.length}}" class="loading-more">— 已加载全部 —</view>
+    </block>
+  </view>
+</view>

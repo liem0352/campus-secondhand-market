@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Tabbar 图标：发布（激活态）
+  尺寸：24x24 viewBox
+  颜色：#ffffff 白色（搭配 tab-bar 中间橘色圆环）
+  风格：购物袋 + 中心加号
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+     fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+  <line x1="3" y1="6" x2="21" y2="6"/>
+  <path d="M16 10a4 4 0 0 1-8 0"/>
+  <!-- 中心加号（橘色强调） -->
+  <line x1="12" y1="9" x2="12" y2="15" stroke="#FF6B35" stroke-width="2.5"/>
+  <line x1="9"  y1="12" x2="15" y2="12" stroke="#FF6B35" stroke-width="2.5"/>
+</svg>

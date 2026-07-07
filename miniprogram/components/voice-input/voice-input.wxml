@@ -1,0 +1,127 @@
+<!--
+  语音输入组件骨架 — 融合 fusion-ui-design v2
+  - MagicOS 10 灵动胶囊频谱岛（Part 22.13）
+  - OriginOS 6 AI 光晕脉冲（Part 22.9）
+  - ColorOS 16 充电岛能量（Part 22.10）
+  - MD3 Expressive 弹性曲线
+  状态机：idle / recording / recognizing / thinking / done
+-->
+<view class="voice-input {{disabled ? 'disabled' : ''}} anim-capsule-in">
+
+  <!-- 插件未就绪提示 -->
+  <view class="voice-hint warn" wx:if="{{!pluginReady}}">
+    <text>麦克风不可用：请登录 mp.weixin.qq.com -> 设置 -> 插件管理 -> 添加「微信同声传译」。或先用下方「文字智能记账」。</text>
+  </view>
+
+  <!-- 录音中：实时识别提示 + 频谱岛 -->
+  <view class="voice-hint recording-hint" wx:if="{{state === 'recording'}}">
+    <view class="pulse-dot"></view>
+    <text>松开结束 · {{recordSeconds}}s</text>
+    <text class="partial anim-m3-spatial-in" wx:if="{{partialText}}">{{partialText}}</text>
+  </view>
+
+  <!-- 短识别过渡态（onRecognize / onStop 之间） -->
+  <view class="voice-hint" wx:elif="{{state === 'recognizing'}}">
+    <text>识别中…</text>
+  </view>
+
+  <!-- AI 思考光晕（后端解析中） -->
+  <view class="voice-hint processing anim-ai-pulse" wx:elif="{{state === 'thinking'}}">
+    <text>AI 解析中…</text>
+  </view>
+
+  <!-- 错误态 -->
+  <view class="voice-hint error" wx:elif="{{state === 'error'}}">
+    <text>{{errorMessage}}</text>
+    <view class="btn-link" bindtap="onRetry">重新录制</view>
+  </view>
+
+  <!-- MagicOS 10 灵动胶囊频谱岛（Part 22.13） — 录音中显示 -->
+  <view
+    class="spectrum-island"
+    wx:if="{{state === 'recording' && pluginReady}}"
+    aria-label="语音频谱"
+  >
+    <view
+      class="spectrum-bar anim-spectrum anim-spectrum-1"
+      style="height: {{spectrumBars[0]}}%"
+    ></view>
+    <view
+      class="spectrum-bar anim-spectrum anim-spectrum-2"
+      style="height: {{spectrumBars[1]}}%"
+    ></view>
+    <view
+      class="spectrum-bar anim-spectrum anim-spectrum-3"
+      style="height: {{spectrumBars[2]}}%"
+    ></view>
+    <view
+      class="spectrum-bar anim-spectrum anim-spectrum-4"
+      style="height: {{spectrumBars[3]}}%"
+    ></view>
+    <view
+      class="spectrum-bar anim-spectrum anim-spectrum-5"
+      style="height: {{spectrumBars[4]}}%"
+    ></view>
+  </view>
+
+  <!-- 麦克风按钮：hold 模式（长按说话） -->
+  <view
+    wx:if="{{mode === 'hold' && pluginReady}}"
+    class="mic-btn spring-magicos-capsule {{state === 'recording' ? 'recording anim-charge-wave' : 'anim-ai-thinking'}}"
+    bindtouchstart="onTouchStart"
+    bindtouchend="onTouchEnd"
+    bindtouchcancel="onTouchEnd"
+  >
+    <!-- CSS 绘制麦克风（用户规则 5：严禁 emoji） -->
+    <view class="mic-icon" aria-hidden="true">
+      <view class="mic-cap"></view>
+      <view class="mic-stand"></view>
+      <view class="mic-base"></view>
+    </view>
+    <text class="mic-label">{{state === 'recording' ? '松开结束' : '按住说话'}}</text>
+  </view>
+
+  <!-- 麦克风按钮：tap 模式（点击切换） -->
+  <view
+    wx:elif="{{pluginReady}}"
+    class="mic-btn spring-magicos-capsule {{state === 'recording' ? 'recording anim-charge-wave' : 'anim-ai-thinking'}}"
+    bindtap="onTapMic"
+  >
+    <!-- CSS 绘制麦克风（用户规则 5：严禁 emoji） -->
+    <view class="mic-icon" aria-hidden="true">
+      <view class="mic-cap"></view>
+      <view class="mic-stand"></view>
+      <view class="mic-base"></view>
+    </view>
+    <text class="mic-label">{{state === 'recording' ? '点击结束' : '点击录音'}}</text>
+  </view>
+
+  <!-- 预览卡片：MD3 Expressive 弹性入场（anim-m3-spatial-in） -->
+  <view
+    class="preview-card spring-m3-spatial-default anim-m3-spatial-in"
+    wx:if="{{state === 'done' && preview}}"
+  >
+    <view class="preview-row">
+      <text class="label">识别</text>
+      <text class="value">{{preview.raw_text || finalText}}</text>
+    </view>
+    <view class="preview-row">
+      <text class="label">分类</text>
+      <text class="value">{{preview.category_icon}} {{preview.category_name}}</text>
+      <text class="confidence" wx:if="{{preview.confidence >= 0.85}}">高</text>
+      <text class="confidence warn" wx:elif="{{preview.confidence < 0.6}}">请核对</text>
+    </view>
+    <view class="preview-row">
+      <text class="label">金额</text>
+      <text class="value amount">{{preview.amount != null ? '¥' + preview.amount : '待补充'}}</text>
+    </view>
+    <view class="preview-row">
+      <text class="label">日期</text>
+      <text class="value">{{preview.expense_date}}</text>
+    </view>
+    <view class="preview-actions">
+      <view class="btn-outline" bindtap="onRetry">重新录制</view>
+    </view>
+  </view>
+
+</view>

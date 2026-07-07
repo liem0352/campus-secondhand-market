@@ -1,0 +1,157 @@
+<!-- pages/mine/settings.wxml
+     设置 —— 校园易物
+     ====================================================
+     结构：
+       1) 用户信息卡（头像、昵称、学校、学号）—— 点击进入编辑
+       2) 账号与安全
+       3) 通知设置（4 个开关）
+       4) 隐私设置（3 个开关）
+       5) 通用（清除缓存 / 评分 / 协议 / 关于 / 版本）
+       6) 退出登录 -->
+<view class="page-wrap settings-page">
+
+  <!-- ========== 1. 用户信息卡 ========== -->
+  <view class="settings-user card card-flat" bindtap="onEditProfile" hover-class="settings-user--hover" hover-stay-time="80">
+    <view class="settings-user__avatar">
+      <image src="{{userInfo.avatar || '/assets/icons/avatar.png'}}" mode="aspectFill"></image>
+    </view>
+    <view class="settings-user__meta">
+      <view class="settings-user__name">
+        <text>{{userInfo.nickname || '未登录'}}</text>
+        <text wx:if="{{userInfo.is_verified}}" class="tag tag-success settings-user__tag">已认证</text>
+      </view>
+      <view class="settings-user__sub text-sm text-tertiary-text text-ellipsis">
+        <text>{{userInfo.school || '未填写学校'}}</text>
+        <text wx:if="{{userInfo.student_id}}"> · {{userInfo.student_id}}</text>
+      </view>
+    </view>
+    <image class="settings-user__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+  </view>
+
+  <!-- ========== 2. 账号与安全 ========== -->
+  <view class="settings-group">
+    <view class="settings-group__title">账号与安全</view>
+    <view class="settings-group__list card card-flat">
+      <view class="settings-row" bindtap="onEditNickname" hover-class="settings-row--hover">
+        <text class="settings-row__label">修改昵称</text>
+        <view class="settings-row__value text-tertiary-text text-sm">{{userInfo.nickname || '未设置'}}</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onEditSchool" hover-class="settings-row--hover">
+        <text class="settings-row__label">学校</text>
+        <view class="settings-row__value text-tertiary-text text-sm">{{userInfo.school || '未填写'}}</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onBindPhone" hover-class="settings-row--hover">
+        <text class="settings-row__label">手机绑定</text>
+        <view class="settings-row__value text-tertiary-text text-sm">{{userInfo.phoneMasked || '未绑定'}}</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onVerify" hover-class="settings-row--hover">
+        <text class="settings-row__label">校园认证</text>
+        <view class="settings-row__value text-tertiary-text text-sm">
+          {{userInfo.is_verified ? '已认证' : '未认证'}}
+        </view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onChangePassword" hover-class="settings-row--hover">
+        <text class="settings-row__label">修改密码</text>
+        <view class="settings-row__value text-tertiary-text text-sm">定期修改更安全</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 3. 通知设置 ========== -->
+  <view class="settings-group">
+    <view class="settings-group__title">通知设置</view>
+    <view class="settings-group__list card card-flat">
+      <view class="settings-row">
+        <text class="settings-row__label">订单消息</text>
+        <switch checked="{{notify.order}}" color="#FF6B35" bindchange="onToggleNotify" data-key="order"/>
+      </view>
+      <view class="settings-row">
+        <text class="settings-row__label">互动消息</text>
+        <switch checked="{{notify.social}}" color="#FF6B35" bindchange="onToggleNotify" data-key="social"/>
+      </view>
+      <view class="settings-row">
+        <text class="settings-row__label">系统通知</text>
+        <switch checked="{{notify.system}}" color="#FF6B35" bindchange="onToggleNotify" data-key="system"/>
+      </view>
+      <view class="settings-row">
+        <text class="settings-row__label">优惠推送</text>
+        <switch checked="{{notify.promo}}" color="#FF6B35" bindchange="onToggleNotify" data-key="promo"/>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 4. 隐私设置 ========== -->
+  <view class="settings-group">
+    <view class="settings-group__title">隐私设置</view>
+    <view class="settings-group__list card card-flat">
+      <view class="settings-row">
+        <view class="settings-row__col">
+          <text class="settings-row__label">仅学校内可见</text>
+          <text class="settings-row__sub text-xs text-tertiary-text">非本校用户看不到你的发布</text>
+        </view>
+        <switch checked="{{privacy.schoolOnly}}" color="#FF6B35" bindchange="onTogglePrivacy" data-key="schoolOnly"/>
+      </view>
+      <view class="settings-row">
+        <view class="settings-row__col">
+          <text class="settings-row__label">收藏数公开</text>
+          <text class="settings-row__sub text-xs text-tertiary-text">关闭后其他用户看不到你收藏的数量</text>
+        </view>
+        <switch checked="{{privacy.favCountPublic}}" color="#FF6B35" bindchange="onTogglePrivacy" data-key="favCountPublic"/>
+      </view>
+      <view class="settings-row">
+        <text class="settings-row__label">谁可以看我的发布</text>
+        <view class="settings-row__value text-tertiary-text text-sm">{{privacy.whoCanSeeLabel}}</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit" bindtap="onPickWhoCanSee"></image>
+      </view>
+      <view class="settings-row" bindtap="onBlacklist" hover-class="settings-row--hover">
+        <text class="settings-row__label">黑名单</text>
+        <view class="settings-row__value text-tertiary-text text-sm">{{blacklistCount}} 人</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 5. 通用 ========== -->
+  <view class="settings-group">
+    <view class="settings-group__title">通用</view>
+    <view class="settings-group__list card card-flat">
+      <view class="settings-row" bindtap="onClearCache" hover-class="settings-row--hover">
+        <text class="settings-row__label">清除缓存</text>
+        <view class="settings-row__value text-tertiary-text text-sm">{{cacheSize}}</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onRate" hover-class="settings-row--hover">
+        <text class="settings-row__label">给我们评分</text>
+        <view class="settings-row__value text-tertiary-text text-sm">前往小程序评分</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onUserAgreement" hover-class="settings-row--hover">
+        <text class="settings-row__label">用户协议</text>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onPrivacyPolicy" hover-class="settings-row--hover">
+        <text class="settings-row__label">隐私政策</text>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+      <view class="settings-row" bindtap="onAbout" hover-class="settings-row--hover">
+        <text class="settings-row__label">关于校园易物</text>
+        <view class="settings-row__value text-tertiary-text text-sm">v{{version}}</view>
+        <image class="settings-row__arrow" src="{{arrowIcon}}" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 6. 退出登录 ========== -->
+  <view wx:if="{{logged}}" class="settings-logout-wrap">
+    <button class="btn btn-ghost settings-logout-btn" hover-class="btn-active" bindtap="onLogout">退出登录</button>
+  </view>
+
+  <view class="settings-footer text-tertiary-text text-xs">
+    校园易物 v{{version}} · 让闲置流动起来
+  </view>
+</view>

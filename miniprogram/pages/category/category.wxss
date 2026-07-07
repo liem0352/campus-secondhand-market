@@ -1,0 +1,501 @@
+/* pages/category/category.wxss
+ * --------------------------------------------------------------------
+ * 校园易物 · 分类页样式（v6 重构）
+ * 设计语言：Apple Liquid Glass + MD3 Expressive + OriginOS 6 光感
+ *
+ * v6 重构核心：
+ *   1. 移除 .cat-hero* 样式（Hero banner 已删除）
+ *   2. 移除 .cat-sub* 宫格样式（改为 .cat-filter* 胶囊条）
+ *   3. 移除 .cat-title* 样式（排序合并到 L2 条右侧）
+ *   4. 选中态颜色分离：
+ *      - L1 选中：主色渐变填充 + 白字（强主色，明确"当前大类"）
+ *      - L2 选中：主色软背景 + 主色文字 + 主色边框（弱主色，明确"当前筛选"）
+ *      两者不再同时使用强主色，避免视觉冲突
+ *
+ * 全部数值通过 var(--*) 引用 design token（app.wxss）
+ * 严禁硬编码颜色 / 字号 / 间距；严禁使用 emoji 图标
+ */
+
+/* ============== 屏幕阅读器播报区（仅 aria-live，视觉隐藏） ============== */
+.cat-sr-only {
+  position: absolute;
+  width: 1rpx;
+  height: 1rpx;
+  padding: 0;
+  margin: -1rpx;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============== 页面容器 ============== */
+.cat-page {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
+}
+
+/* ============== 第 1 层：顶部 sticky 玻璃感搜索栏 ============== */
+.cat-search {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  margin: var(--space-2) var(--space-4);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  height: 80rpx;
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-glass-md);
+  backdrop-filter: blur(8rpx);
+  transition: transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.cat-search--pressed,
+.cat-search:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-primary-sm);
+}
+
+.cat-search__icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: var(--space-2);
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.cat-search__placeholder {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  line-height: 1;
+  letter-spacing: 0.5rpx;
+}
+
+.cat-search__mic {
+  flex-shrink: 0;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-circle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-soft);
+  transition: transform var(--duration-fast) var(--ease-spring),
+              background var(--duration-fast) var(--ease-out);
+}
+
+.cat-search__mic--pressed,
+.cat-search__mic:active {
+  transform: scale(0.9);
+  background: var(--color-primary);
+}
+
+.cat-search__mic--pressed .cat-search__mic-img,
+.cat-search__mic:active .cat-search__mic-img {
+  filter: brightness(0) invert(1);
+}
+
+.cat-search__mic-img {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.85;
+}
+
+/* ============== 主体 ============== */
+.cat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+}
+
+/* ============== 第 2 层：左侧一级分类栏（强主色选中态） ============== */
+.cat-left {
+  width: 200rpx;
+  flex-shrink: 0;
+  background: transparent;
+  padding: var(--space-2) 0;
+}
+
+.cat-left__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 144rpx;
+  padding: var(--space-2) var(--space-2);
+  margin: 0 var(--space-2) var(--space-1);
+  border-radius: var(--radius-lg);
+  transition: background var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.cat-left__item--pressed,
+.cat-left__item:active {
+  background: var(--color-primary-softer);
+  transform: scale(0.97);
+}
+
+.cat-left__icon-wrap {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-circle);
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glass-sm);
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.cat-left__icon {
+  width: 44rpx;
+  height: 44rpx;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast) var(--ease-out),
+              filter var(--duration-fast) var(--ease-out);
+}
+
+/* L1 选中态：主色渐变填充 + 白字（强主色） */
+.cat-left__item--active {
+  background: var(--gradient-warm);
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.6),
+    var(--shadow-primary-md);
+  transform: scale(1);
+}
+
+.cat-left__item--active .cat-left__icon-wrap {
+  background: rgba(255, 255, 255, 0.25);
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.6),
+    0 4rpx 12rpx rgba(204, 77, 34, 0.2);
+  transform: scale(1.05);
+}
+
+.cat-left__item--active .cat-left__icon {
+  opacity: 1;
+  filter: brightness(0) invert(1); /* SVG 反色为白 */
+}
+
+.cat-left__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+  text-align: center;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.cat-left__item--active .cat-left__text {
+  color: var(--color-text-on-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ============== 第 3 + 4 层：右侧内容 ============== */
+.cat-right {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-bg-page);
+  padding: 0 var(--space-3) var(--space-4);
+  overflow-anchor: none;
+}
+
+/* 切换时复用的水平滑动容器：每次 L1 切换重新触发 keyframe */
+.cat-slide {
+  animation: cat-slide-in var(--duration-slow) var(--ease-spring) both;
+}
+
+@keyframes cat-slide-in {
+  0%   { transform: translateX(40rpx); opacity: 0; }
+  100% { transform: translateX(0);     opacity: 1; }
+}
+
+/* ============== 第 3 层：L2 横向滚动胶囊条 + 排序 ============== */
+.cat-filter {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  background: var(--color-bg-page);
+}
+
+.cat-filter__scroll {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.cat-filter__bar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+/* L2 胶囊：默认玻璃感浅底 */
+.cat-filter__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 64rpx;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-glass-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.5rpx;
+  transition: all var(--duration-fast) var(--ease-spring);
+  white-space: nowrap;
+}
+
+/* L2 选中态：主色软背景 + 主色文字 + 主色边框（弱主色，与 L1 强主色区分） */
+.cat-filter__chip--active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 2rpx solid var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.6),
+    var(--shadow-primary-sm);
+}
+
+.cat-filter__chip--pressed,
+.cat-filter__chip:active {
+  transform: scale(0.95);
+  opacity: 0.85;
+}
+
+/* 排序按钮（与 L2 同行，右侧固定，触控热区 ≥ 88rpx） */
+.cat-filter__sort {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: var(--space-2) var(--space-2);
+  min-height: 64rpx;
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-glass-sm);
+  flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease-spring);
+  box-sizing: border-box;
+}
+
+.cat-filter__sort--pressed,
+.cat-filter__sort:active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  transform: scale(0.96);
+}
+
+.cat-filter__sort-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  line-height: 1;
+  font-weight: var(--font-weight-medium);
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-filter__sort-icon {
+  width: 20rpx;
+  height: 20rpx;
+  opacity: 0.7;
+}
+
+/* ============== 第 4 层：商品瀑布流 ============== */
+.cat-grid {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cat-grid__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cat-grid__item {
+  width: 100%;
+  margin-bottom: var(--space-3);
+}
+
+/* ============== 骨架屏 ============== */
+.skeleton {
+  width: 100%;
+  height: 360rpx;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg,
+    var(--color-bg-section) 0%,
+    var(--color-bg-hover) 50%,
+    var(--color-bg-section) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shine 1.4s var(--ease-in-out) infinite;
+  margin-bottom: var(--space-3);
+}
+
+.skeleton--alt {
+  height: 440rpx;
+}
+
+@keyframes skeleton-shine {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ============== 空 / 错误状态 ============== */
+.cat-state {
+  width: 100%;
+  padding: var(--space-12) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cat-state__icon {
+  width: 200rpx;
+  height: 200rpx;
+  opacity: 0.85;
+  margin-bottom: var(--space-4);
+}
+
+.cat-state__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.cat-state__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+  line-height: var(--line-height-base);
+  margin-bottom: var(--space-4);
+}
+
+.cat-state__btn {
+  min-width: 280rpx;
+}
+
+/* ============== 底部加载状态 ============== */
+.cat-footer {
+  padding: var(--space-4) var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80rpx;
+}
+
+.cat-footer__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.cat-footer__dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--color-primary);
+  opacity: 0.4;
+  animation: cat-dot 1.2s var(--ease-in-out) infinite;
+}
+
+.cat-footer__dot:nth-child(2) { animation-delay: 0.15s; }
+.cat-footer__dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes cat-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1);   opacity: 1;   }
+}
+
+.cat-footer__end {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-3);
+}
+
+.cat-footer__line {
+  flex: 1;
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent 0%, var(--color-bg-divider) 50%, transparent 100%);
+}
+
+/* ====================================================================
+ * 装饰 / 动效 增强
+ * ==================================================================== */
+
+/* 左侧一级分类：错落微动效（stagger 0-300ms） */
+.cat-left__anim {
+  animation: cat-left-pop 0.4s var(--ease-spring) both;
+  animation-delay: var(--l1-stagger, 0ms);
+}
+
+@keyframes cat-left-pop {
+  0%   { transform: translateX(-12rpx); opacity: 0; }
+  100% { transform: translateX(0);      opacity: 1; }
+}
+
+/* 二级分类胶囊：错落微动效（stagger 0-300ms） */
+.cat-sub__anim {
+  animation: cat-sub-rise 0.4s var(--ease-spring) both;
+  animation-delay: var(--sub-stagger, 0ms);
+}
+
+@keyframes cat-sub-rise {
+  0%   { transform: translateY(8rpx); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+/* 商品卡片：交错入场（左列早于右列 20ms，row 40ms） */
+.pcard__anim {
+  animation: pcard-rise 0.45s var(--ease-spring) both;
+  animation-delay: var(--pcard-stagger, 0ms);
+}
+
+@keyframes pcard-rise {
+  0%   { transform: translateY(24rpx); opacity: 0; }
+  100% { transform: translateY(0);     opacity: 1; }
+}
+
+/* ====================================================================
+ * 可访问性：尊重 prefers-reduced-motion
+ * ==================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .cat-left__anim,
+  .cat-filter__anim,
+  .pcard__anim,
+  .cat-slide,
+  .cat-footer__dot {
+    animation: none !important;
+  }
+}

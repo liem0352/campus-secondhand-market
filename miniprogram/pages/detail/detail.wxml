@@ -1,0 +1,426 @@
+<!-- pages/detail/detail.wxml
+     商品详情页 v3 —— 校园易物（融合设计系统重构版）
+     ===========================================================
+     设计语言：Apple Liquid Glass + MD3 Expressive + OriginOS 6 空间光学
+     设计要点：
+       01 顶部自定义导航栏（透明 -> 滚动时变玻璃感，毛玻璃 + 高光 + 阴影）
+       02 主图轮播（aspect-ratio 1:1 + 玻璃感指示器 + 左上/右上玻璃按钮）
+       03 价格区（大字号 48rpx+ 渐变 + 玻璃感原价 chip + 浏览/同城 meta）
+       04 标题 + 描述卡（液态玻璃 + 多层光影）
+       05 信任保障区（玻璃感 3 列 + 图标芯片）
+       06 卖家卡（玻璃感 + 信用分徽章 + 关注按钮）
+       07 用户评价（玻璃感评分 + 列表 + 查看全部）
+       08 相似推荐（横滑 + product-card 复用）
+       09 价格趋势（玻璃卡 + 7 日柱状图 + 依次"长出"动效）
+       10 同校在售（横滑 + 玻璃卡）
+       11 底部 CTA Bar（玻璃感 + 收藏/分享/私聊议价/我想要）
+       12 入场动画（页面从右滑入 + 内容按 stagger 渐入）
+       13 图片预览（长按图片大图浏览，wx.previewImage）
+
+     全部颜色 / 字号 / 间距 / 圆角 / 阴影 / 动效走 app.wxss 的 design token
+     所有图标使用 SVG（无 emoji） -->
+<view
+  class="page-wrap detail-page {{entryClass}}"
+  style="padding-top: {{safeTopPx}}"
+  wx:if="{{!loading}}"
+>
+  <block wx:if="{{product}}">
+
+    <!-- ========== 1. 顶部自定义导航栏（透明 -> 滚动时变玻璃感） ========== -->
+    <view
+      class="detail-nav {{navScrolled ? 'detail-nav--scrolled' : ''}}"
+      style="padding-top: {{safeTopPx}}"
+    >
+      <view class="detail-nav__inner">
+        <view class="detail-nav__btn detail-nav__btn--glass press-spring" bindtap="onNavBack" hover-class="detail-nav__btn--pressed" aria-role="button" aria-label="返回">
+          <image class="detail-nav__icon" src="{{iconArrowLeft}}" mode="aspectFit"></image>
+        </view>
+        <view class="detail-nav__title text-base text-semibold {{navScrolled ? 'detail-nav__title--dark' : ''}}">
+          {{navTitle}}
+        </view>
+        <view class="detail-nav__right">
+          <view class="detail-nav__btn detail-nav__btn--glass press-spring" bindtap="onShare" hover-class="detail-nav__btn--pressed" aria-role="button" aria-label="分享">
+            <image class="detail-nav__icon" src="{{iconShare}}" mode="aspectFit"></image>
+          </view>
+          <view class="detail-nav__btn detail-nav__btn--glass press-spring" bindtap="onReport" hover-class="detail-nav__btn--pressed" aria-role="button" aria-label="举报">
+            <image class="detail-nav__icon" src="{{iconMore}}" mode="aspectFit"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 2. 主图轮播（1:1 + 玻璃感指示器 + 渐入动画） ========== -->
+    <view class="banner-wrap detail-banner__anim">
+      <swiper
+        class="banner"
+        indicator-dots="{{false}}"
+        autoplay="{{images.length > 1}}"
+        interval="3500"
+        duration="500"
+        circular="{{images.length > 1}}"
+        bindchange="onSwiperChange"
+      >
+        <swiper-item wx:for="{{images}}" wx:key="image_url" bindtap="onPreviewImage" data-index="{{index}}" bindlongpress="onPreviewImage" data-index="{{index}}">
+          <image class="banner-img" src="{{item.image_url}}" mode="aspectFill" lazy-load="true"></image>
+        </swiper-item>
+        <swiper-item wx:if="{{images.length === 0}}">
+          <view class="banner-placeholder flex-center">{{sellerInitials}}</view>
+        </swiper-item>
+      </swiper>
+      <!-- 玻璃感指示器 -->
+      <view class="banner-indicator" wx:if="{{images.length > 1}}">
+        <view class="banner-indicator__track">
+          <view
+            wx:for="{{images}}"
+            wx:key="*this"
+            wx:for-item="i"
+            class="banner-indicator__dot {{swiperIndex === index ? 'banner-indicator__dot--active' : ''}}"
+          ></view>
+        </view>
+        <view class="banner-indicator__counter">
+          <text class="text-xs text-semibold">{{swiperIndex + 1}}/{{images.length}}</text>
+        </view>
+      </view>
+      <!-- 右上角热度徽标（玻璃 chip） -->
+      <view class="detail-banner__badge detail-banner__badge--anim" wx:if="{{product.view_count}}">
+        <view class="detail-banner__badge-dot"></view>
+        <text class="detail-banner__badge-eye">实时热度</text>
+        <text class="detail-banner__badge-num">{{product.view_count || 0}}</text>
+      </view>
+    </view>
+
+    <!-- ========== 3. 价格区（光感渐变 + 玻璃 chip） ========== -->
+    <view class="price-section detail-section__anim">
+      <view class="price-section__ambient"></view>
+      <view class="price-row">
+        <view class="price-main-wrap">
+          <text class="price-currency text-lg text-bold">¥</text>
+          <text class="price-main">{{product.price}}</text>
+        </view>
+        <view class="price-original-chip" wx:if="{{product.original_price}}">
+          <text class="price-original-chip__label text-xs">原价</text>
+          <text class="price-original-chip__val text-sm">¥{{product.original_price}}</text>
+        </view>
+        <view class="price-discount" wx:if="{{product.original_price}}">
+          <text class="text-xs text-bold">{{discountText}}</text>
+        </view>
+        <view class="tag tag-info ml-auto" wx:if="{{product.status && product.status !== 'on_sale'}}">
+          {{product.status === 'pending' ? '已被想要' : product.status === 'sold' ? '已售出' : '已下架'}}
+        </view>
+      </view>
+      <view class="price-meta">
+        <view class="price-meta-pill">
+          <view class="price-meta-pill__dot"></view>
+          <text class="text-xs">同城交易</text>
+        </view>
+        <view class="price-meta-pill">
+          <text class="text-xs">{{conditionText}}</text>
+        </view>
+        <view class="price-meta-pill">
+          <text class="text-xs">{{product.view_count || 0}} 浏览</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 4. 标题 + 标签（玻璃卡） ========== -->
+    <view class="title-section card card-glass detail-section__anim detail-section__anim--2">
+      <view class="title-section__highlight"></view>
+      <text class="title-text text-lg text-bold">{{product.title}}</text>
+      <view class="tag-list" wx:if="{{tags.length}}">
+        <text
+          class="tag tag-primary tag__anim"
+          wx:for="{{tags}}"
+          wx:key="*this"
+          style="--tag-stagger: {{index * 60}}ms"
+        >{{item}}</text>
+      </view>
+    </view>
+
+    <!-- ========== 5. 商品描述（玻璃卡） ========== -->
+    <view class="description-card card card-glass detail-section__anim detail-section__anim--3">
+      <view class="card-title-row">
+        <text class="card-title text-base text-semibold">商品描述</text>
+        <text class="card-meta text-tertiary-text text-xs">来自{{product.seller.school || schoolText}}</text>
+      </view>
+      <text class="description-text text-base text-loose">{{product.description}}</text>
+      <view class="meta-row">
+        <view class="meta-item">
+          <text class="meta-label text-tertiary-text text-xs">成色</text>
+          <text class="meta-value text-sm text-semibold">{{conditionText}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label text-tertiary-text text-xs">分类</text>
+          <text class="meta-value text-sm text-semibold">{{product.category.name || '其他'}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label text-tertiary-text text-xs">发布时间</text>
+          <text class="meta-value text-sm text-semibold">{{createdAtText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 6. 信任保障区（玻璃 3 列） ========== -->
+    <view class="trust-bar card card-glass detail-section__anim detail-section__anim--4">
+      <view class="trust-bar__highlight"></view>
+      <view class="trust-item">
+        <view class="trust-icon" style="background: rgba(255, 107, 53, 0.12);">
+          <image class="trust-img" src="/assets/icons/medal.svg" mode="aspectFit" />
+        </view>
+        <view class="trust-text">
+          <text class="trust-title text-sm text-semibold">校园认证</text>
+          <text class="trust-desc text-tertiary-text text-xs">买卖双方需校园身份认证</text>
+        </view>
+      </view>
+      <view class="trust-divider"></view>
+      <view class="trust-item">
+        <view class="trust-icon" style="background: rgba(7, 193, 96, 0.12);">
+          <image class="trust-img" src="/assets/icons/check.svg" mode="aspectFit" />
+        </view>
+        <view class="trust-text">
+          <text class="trust-title text-sm text-semibold">担保交易</text>
+          <text class="trust-desc text-tertiary-text text-xs">平台担保 资金安全</text>
+        </view>
+      </view>
+      <view class="trust-divider"></view>
+      <view class="trust-item">
+        <view class="trust-icon" style="background: rgba(124, 58, 237, 0.12);">
+          <image class="trust-img" src="/assets/icons/clock.svg" mode="aspectFit" />
+        </view>
+        <view class="trust-text">
+          <text class="trust-title text-sm text-semibold">7天可退</text>
+          <text class="trust-desc text-tertiary-text text-xs">描述不符支持退货</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 7. 卖家卡（玻璃感 + 信用分） ========== -->
+    <view class="seller-card card card-glass detail-section__anim detail-section__anim--5">
+      <view class="seller-card__highlight"></view>
+      <image
+        class="avatar"
+        src="{{product.seller.avatar || ''}}"
+        wx:if="{{product.seller.avatar}}"
+      ></image>
+      <view class="avatar avatar-placeholder text-primary-color text-bold" wx:else>{{sellerInitials}}</view>
+      <view class="seller-meta flex-1">
+        <view class="seller-name text-base text-bold">{{product.seller.username}}</view>
+        <view class="seller-school text-tertiary-text text-xs">{{product.seller.school || '校园用户'}}</view>
+      </view>
+      <credit-badge score="{{product.seller.credit_score}}" size="md"></credit-badge>
+      <button
+        class="btn btn-glass btn-sm ml-3 press-spring {{isFollowed ? 'btn-active' : ''}}"
+        bindtap="onFollowSeller"
+        hover-class="btn-active"
+        aria-label="{{isFollowed ? '已关注，点击取消' : '关注卖家'}}"
+      >{{isFollowed ? '已关注' : '关注'}}</button>
+    </view>
+
+    <!-- ========== 8. 用户评价（玻璃卡） ========== -->
+    <view
+      class="reviews-section card card-glass detail-section__anim detail-section__anim--6"
+      wx:if="{{reviews.length || reviewCount}}"
+    >
+      <view class="reviews-section__highlight"></view>
+      <view class="card-head">
+        <view class="card-head-left">
+          <text class="card-title text-base text-semibold">用户评价</text>
+          <view class="rating-summary" wx:if="{{reviewCount}}">
+            <text class="rating-num text-lg text-bold text-primary-color">{{reviewAvg}}</text>
+            <view class="rating-stars">
+              <text
+                wx:for="{{[1,2,3,4,5]}}"
+                wx:key="*this"
+                class="rating-star {{item <= reviewAvg ? 'rating-star--on' : ''}}"
+              >*</text>
+            </view>
+            <text class="rating-count text-tertiary-text text-xs">共 {{reviewCount}} 条</text>
+          </view>
+        </view>
+        <text
+          class="card-link text-tertiary-text text-sm"
+          bindtap="onViewAllReviews"
+          wx:if="{{showAllReviews}}"
+        >查看全部</text>
+      </view>
+
+      <view class="reviews-list" wx:if="{{reviews.length}}">
+        <view class="review-item" wx:for="{{reviews}}" wx:key="id">
+          <view class="review-avatar" wx:if="{{!item.reviewer.avatar}}">{{item.reviewer.initials || 'U'}}</view>
+          <image class="review-avatar" wx:else src="{{item.reviewer.avatar}}" mode="aspectFill"></image>
+          <view class="review-body">
+            <view class="review-meta">
+              <text class="review-name text-sm text-semibold">{{item.reviewer.username}}</text>
+              <view class="review-stars">
+                <text
+                  wx:for="{{[1,2,3,4,5]}}"
+                  wx:for-item="s"
+                  wx:key="*this"
+                  class="review-star {{s <= item.rating ? 'review-star--on' : ''}}"
+                >*</text>
+              </view>
+              <text class="review-time text-tertiary-text text-xs">{{item.created_at_text}}</text>
+            </view>
+            <text class="review-content text-sm text-loose">{{item.content}}</text>
+            <view class="review-tag-row" wx:if="{{item.tags && item.tags.length}}">
+              <text class="review-tag text-xs" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="t">{{t}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="reviews-empty text-tertiary-text text-sm" wx:else>
+        暂无评价，期待第一位买家
+      </view>
+    </view>
+
+    <!-- ========== 9. 价格趋势（玻璃卡 + 7 日柱状图） ========== -->
+    <view class="price-trend card card-glass" wx:if="{{priceTrend.max}}">
+      <view class="price-trend__highlight"></view>
+      <view class="card-head">
+        <view class="card-head-left">
+          <text class="card-title text-base text-semibold">价格参考</text>
+          <text class="text-tertiary-text text-xs">同类商品近 30 天</text>
+        </view>
+        <view class="price-trend__avg">
+          <text class="text-tertiary-text text-xs">均价</text>
+          <text class="price-trend__avg-val text-base text-bold">¥{{priceTrend.avg}}</text>
+        </view>
+      </view>
+      <view class="price-trend__chart">
+        <view
+          wx:for="{{priceTrend.points}}"
+          wx:key="idx"
+          class="price-trend__bar-wrap"
+        >
+          <view
+            class="price-trend__bar"
+            style="{{item.barStyle}}"
+          ></view>
+          <text class="price-trend__label text-tertiary-text text-xs">{{item.label}}</text>
+        </view>
+      </view>
+      <view class="price-trend__meta">
+        <view class="price-trend__tag">
+          <text class="text-xs">当前价</text>
+          <text class="text-base text-bold text-primary-color">¥{{product.price}}</text>
+        </view>
+        <view class="price-trend__tag">
+          <text class="text-xs">最低</text>
+          <text class="text-base text-bold text-success-color">¥{{priceTrend.min}}</text>
+        </view>
+        <view class="price-trend__tag">
+          <text class="text-xs">最高</text>
+          <text class="text-base text-bold text-error-color">¥{{priceTrend.max}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 10. 相似推荐（横滑 + product-card 复用） ========== -->
+    <view class="similar-section" wx:if="{{similarProducts.length}}">
+      <view class="section-head">
+        <view class="section-bar"></view>
+        <text class="section-title text-base text-semibold">看了又看 · 相似推荐</text>
+        <text class="section-meta text-tertiary-text text-xs">共 {{similarProducts.length}} 件</text>
+      </view>
+      <scroll-view class="similar-scroll" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+        <view class="similar-inner">
+          <view
+            class="similar-card"
+            wx:for="{{similarProducts}}"
+            wx:key="id"
+            data-id="{{item.id}}"
+            bindtap="onTapSimilar"
+            hover-class="similar-card--pressed"
+          >
+            <image
+              class="similar-cover"
+              src="{{item.cover || item.image_url || '/assets/products/p4_4.jpg'}}"
+              mode="aspectFill"
+              lazy-load="true"
+            ></image>
+            <view class="similar-body">
+              <text class="similar-name text-sm text-ellipsis">{{item.title}}</text>
+              <view class="similar-foot">
+                <text class="similar-price text-sm text-bold">¥{{item.price}}</text>
+                <text class="similar-views text-tertiary-text text-xs">{{item.view_count || 0}} 浏览</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- ========== 11. 同校在售 ========== -->
+    <view class="same-school" wx:if="{{sameSchool.length}}">
+      <view class="section-head">
+        <view class="section-bar"></view>
+        <text class="section-title text-base text-semibold">同校在售</text>
+        <text class="section-meta text-tertiary-text text-xs">来自 {{schoolText}} 的好物</text>
+      </view>
+      <view class="same-school__list">
+        <view
+          wx:for="{{sameSchool}}"
+          wx:key="id"
+          class="same-school__item"
+          data-id="{{item.id}}"
+          bindtap="onTapSimilar"
+          hover-class="same-school__item--pressed"
+          wx:if="{{index < 3}}"
+        >
+          <image
+            class="same-school__cover"
+            src="{{item.cover || '/assets/products/p4_4.jpg'}}"
+            mode="aspectFill"
+            lazy-load="true"
+          ></image>
+          <view class="same-school__body">
+            <text class="same-school__name text-sm text-ellipsis">{{item.title}}</text>
+            <view class="same-school__foot">
+              <text class="same-school__price text-sm text-bold">¥{{item.price}}</text>
+              <text class="text-tertiary-text text-xs">{{item.seller.school || schoolText}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 12. 举报入口 ========== -->
+    <view class="report-link text-tertiary-text text-sm" bindtap="onReport">举报商品</view>
+
+    <!-- ========== 13. 底部留白 ========== -->
+    <view class="bottom-spacer"></view>
+
+  </block>
+
+  <!-- 加载 / 错误态 -->
+  <view class="empty-state flex-center" wx:else>
+    <text class="text-tertiary-text">商品加载失败</text>
+  </view>
+
+  <!-- ========== 14. 底部固定 CTA（液态玻璃） ========== -->
+  <view class="cta-bar safe-area-bottom">
+    <view class="cta-bar__highlight"></view>
+    <view class="cta-icon-btn press-spring" bindtap="onFavorite" hover-class="btn-active" hover-stay-time="80">
+      <view class="cta-icon-btn__circle {{isFavorite ? 'cta-icon-btn__circle--active' : ''}}">
+        <image class="cta-icon" src="{{isFavorite ? iconFavoriteOn : iconFavorite}}" mode="aspectFit"></image>
+      </view>
+      <text class="cta-icon-text text-xs">{{isFavorite ? '已收藏' : '收藏'}}</text>
+    </view>
+    <view class="cta-icon-btn press-spring" bindtap="onShare" hover-class="btn-active" hover-stay-time="80">
+      <view class="cta-icon-btn__circle">
+        <image class="cta-icon" src="{{iconShare}}" mode="aspectFit"></image>
+      </view>
+      <text class="cta-icon-text text-xs">分享</text>
+    </view>
+    <button class="btn btn-secondary cta-btn-half press-spring" bindtap="onChat" hover-class="btn-active">私聊议价</button>
+    <button class="btn btn-primary cta-btn-half press-spring" bindtap="onWant" hover-class="btn-active">立即购买</button>
+  </view>
+</view>
+
+<!-- 全屏加载占位 -->
+<view class="loading-mask flex-center" wx:if="{{loading}}">
+  <view class="loading-card card card-glass">
+    <view class="loading-spinner"></view>
+    <text class="text-secondary-text text-sm">加载中…</text>
+  </view>
+</view>

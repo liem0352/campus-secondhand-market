@@ -1,0 +1,133 @@
+<!-- pages/search/search.wxml
+     搜索页：实时搜索 + 历史记录 + 热门搜索
+     设计：玻璃感搜索框 + tag chips + 瀑布流结果
+-->
+<view class="search-page">
+  <!-- 顶部安全区 -->
+  <view class="safe-area-top" style="height: {{statusBarHeight}}px;"></view>
+
+  <!-- 搜索栏（带返回 + 输入 + 清空 + 搜索按钮） -->
+  <view class="search-bar">
+    <view class="search-bar__back" bindtap="onTapBack" hover-class="press-scale-active" aria-label="返回">
+      <image class="search-bar__back-icon" src="/assets/icons/arrow-left.png" mode="aspectFit" />
+    </view>
+    <view class="search-bar__input-wrap">
+      <image class="search-bar__icon" src="/assets/icons/search.png" mode="aspectFit" />
+      <input
+        class="search-bar__input"
+        type="text"
+        value="{{keyword}}"
+        placeholder="搜商品 / 搜学校 / 搜卖家…"
+        placeholder-class="search-bar__placeholder"
+        focus="{{autoFocus}}"
+        confirm-type="search"
+        bindinput="onInputChange"
+        bindconfirm="onTapSearch"
+        aria-label="搜索输入框"
+      />
+      <view wx:if="{{keyword}}" class="search-bar__clear" bindtap="onTapClear" hover-class="press-scale-active" aria-label="清空">
+        <image class="search-bar__clear-icon" src="/assets/icons/close.png" mode="aspectFit" />
+      </view>
+    </view>
+    <view class="search-bar__btn" bindtap="onTapSearch" hover-class="press-scale-active" aria-label="搜索">
+      <text>搜索</text>
+    </view>
+  </view>
+
+  <!-- 默认态：历史 + 热门 -->
+  <block wx:if="{{!searched}}">
+    <!-- 历史搜索 -->
+    <view wx:if="{{historyList.length}}" class="section">
+      <view class="section__head">
+        <text class="section__title">历史搜索</text>
+        <view class="section__action" bindtap="onTapClearHistory" hover-class="press-scale-active">
+          <image class="section__action-icon" src="/assets/icons/delete.png" mode="aspectFit" />
+          <text>清空</text>
+        </view>
+      </view>
+      <view class="tag-list">
+        <view
+          wx:for="{{historyList}}"
+          wx:key="*this"
+          class="tag-list__item"
+          bindtap="onTapHistoryTag"
+          data-keyword="{{item}}"
+          hover-class="press-scale-active"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 热门搜索 -->
+    <view class="section">
+      <view class="section__head">
+        <text class="section__title">热门搜索</text>
+        <view class="section__action">
+          <image class="section__action-icon" src="/assets/icons/flame.png" mode="aspectFit" />
+          <text>实时排行</text>
+        </view>
+      </view>
+      <view class="tag-list">
+        <view
+          wx:for="{{hotList}}"
+          wx:key="*this"
+          class="tag-list__item tag-list__item--hot"
+          bindtap="onTapHistoryTag"
+          data-keyword="{{item}}"
+          hover-class="press-scale-active"
+        >
+          <text class="tag-list__rank">{{index + 1}}</text>
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 搜索结果态 -->
+  <block wx:else>
+    <!-- 结果统计 + 排序 -->
+    <view class="result-head">
+      <text class="result-head__count">共找到 <text class="result-head__num">{{total}}</text> 件相关商品</text>
+      <view class="result-head__sort" bindtap="onToggleSort" hover-class="press-scale-active" aria-label="切换排序">
+        <image class="result-head__sort-icon" src="/assets/icons/filter.png" mode="aspectFit" />
+        <text>{{sortLabel}}</text>
+        <image class="result-head__sort-arrow" src="/assets/icons/arrow-down.png" mode="aspectFit" />
+      </view>
+    </view>
+
+    <!-- 结果列表 -->
+    <view wx:if="{{results.length}}" class="result-list">
+      <view
+        wx:for="{{results}}"
+        wx:key="id"
+        class="result-list__item"
+      >
+        <product-card
+          product="{{item}}"
+          bind:tap="onTapProduct"
+          bind:favorite="onFavoriteProduct"
+          bind:longpress="onLongPressProduct"
+        />
+      </view>
+      <view class="result-list__loading" wx:if="{{loading}}">
+        <text>加载中…</text>
+      </view>
+      <view class="result-list__nomore" wx:elif="{{!hasMore}}">
+        <text>已经到底了</text>
+      </view>
+    </view>
+
+    <!-- 空结果 -->
+    <view wx:else>
+      <empty-state
+        wx:if="{{!loading}}"
+        icon="search"
+        title="没有找到相关商品"
+        desc="换个关键词试试，或浏览全部分类"
+        primaryText="浏览全部分类"
+        bind:tapprimary="onTapGoCategory"
+      />
+    </view>
+  </block>
+</view>

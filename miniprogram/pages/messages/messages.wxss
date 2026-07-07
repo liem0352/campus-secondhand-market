@@ -1,0 +1,591 @@
+/* pages/messages/messages.wxss
+ * 消息中心样式 —— 校园易物
+ * --------------------------------------------------------------------
+ * v2 升级（2026-06）：融合 fusion-ui-design v2（Part 22.12 One UI 9 Now Bar +
+ *                            Part 22.9 OriginOS 6 错落入场 + Part 22.2 iOS 26 Liquid Glass）
+ *
+ * 设计要点：
+ *   1) 严格使用 var(--*) token
+ *   2) 顶部 Now Bar 通知条：One UI 9 风格，渐变擦除进入
+ *   3) 4 大类用圆形彩色 icon（品牌色 + 语义色）
+ *   4) 列表卡片：左 icon + 中 文本（标题+正文+摘要）+ 右 红点
+ *      采用 glass-light-soft 液态玻璃软卡（iOS 26 折射层 + 顶部高光）
+ *   5) 未读项加左侧 4rpx 橘色边 + 未读红点 anim-pulse 脉冲
+ *   6) 错落入场：每条消息用 --stagger-delay 变量控制入场延迟
+ *   7) 长按操作：spring-coloros 干脆利落反馈
+ *   8) tab 栏：底部小滑块 + 选中态橘色文字
+ *   9) 减动效偏好支持：prefers-reduced-motion: reduce 时关闭所有动效
+ *
+ * 来源体系对照：
+ *   - Part 22.12 One UI 9 Now Bar（三星通知胶囊 + 渐变擦除进入）
+ *   - Part 22.9  OriginOS 6 错落列表（stagger-delay + 弹性入场）
+ *   - Part 22.2  iOS 26 Liquid Glass 折射层（多层 inset 高光 + 玻璃阴影）
+ *   - Part 22.7  ColorOS 16 干脆利落 spring（长按操作反馈）
+ */
+
+/* ============== 页面基础 ============== */
+.msg-page {
+  min-height: 100vh;
+  padding-bottom: var(--space-10);
+}
+
+/* ====================================================================
+ * Now Bar 通知条（One UI 9 风格）
+ * --------------------------------------------------------------
+ * 来源：fusion-ui-design v2 Part 22.12 One UI 9 Now Bar
+ * 关键 token：
+ *   - --nowbar-width / --nowbar-height（三星 Now Bar 尺寸）
+ *   - --oneui-bg-light-3（One UI 9 快捷面板 75% 透明）
+ *   - --oneui-blur-3：blur(40rpx) saturate(160%)（小程序不支持 backdrop-filter，
+ *                 通过半透色 + 顶部高光 + 玻璃阴影模拟）
+ *   - --ease-oneui-smooth：One UI 9 流畅轻快 spring
+ *   - .anim-oneui-reveal：clip-path 横向擦除进入（global 已定义）
+ * ==================================================================== */
+.msg-nowbar {
+  /* One UI 9 渐变背景：浅紫蓝渐变（系统通知风格） */
+  background: linear-gradient(135deg,
+    rgba(180, 196, 255, 0.72) 0%,
+    rgba(140, 160, 255, 0.78) 100%);
+  border-radius: var(--radius-md);
+  margin: var(--space-3) var(--space-3) 0;
+  padding: var(--space-3);
+  /* iOS 26 Liquid Glass 折射层：顶部白色高光 + 玻璃阴影 */
+  box-shadow: var(--liquid-refract-prism), var(--shadow-glass-md);
+  /* 顶部高光线 */
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--duration-spring-quick) var(--ease-oneui-smooth);
+}
+
+.msg-nowbar::before {
+  /* One UI 9 顶部高光线 */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.msg-nowbar:active {
+  transform: scale(0.99);
+}
+
+.msg-nowbar__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+  z-index: 1;
+}
+
+.msg-nowbar__icon {
+  flex-shrink: 0;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-base);
+  background: rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  /* One UI 9 边缘光：inset 高光 */
+  box-shadow: var(--light-edge-top);
+}
+
+.msg-nowbar__icon image {
+  width: 40rpx;
+  height: 40rpx;
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+}
+
+.msg-nowbar__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.msg-nowbar__title {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.5rpx;
+}
+
+.msg-nowbar__sub {
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+  line-height: 1.2;
+}
+
+.msg-nowbar__action {
+  flex-shrink: 0;
+  height: 56rpx;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ColorOS 16 干脆利落 spring（按下反馈） */
+  transition: transform var(--duration-spring-quick) var(--ease-coloros-quick),
+              opacity var(--duration-fast) var(--ease-out);
+  box-shadow: var(--shadow-primary-sm);
+}
+
+.msg-nowbar__action--hover,
+.msg-nowbar__action:active {
+  transform: scale(0.94);
+  opacity: 0.9;
+}
+
+.msg-nowbar__close {
+  flex-shrink: 0;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: var(--radius-circle);
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.msg-nowbar__close--hover,
+.msg-nowbar__close:active {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.msg-nowbar__close-line {
+  position: relative;
+  width: 20rpx;
+  height: 20rpx;
+}
+
+/* 关闭按钮用两条旋转的细线模拟 X 图标（不使用 emoji） */
+.msg-nowbar__close-line::before,
+.msg-nowbar__close-line::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2rpx;
+  background: var(--color-text-primary);
+  border-radius: 2rpx;
+}
+
+.msg-nowbar__close-line::before {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.msg-nowbar__close-line::after {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+/* ============== 顶部 4 大类入口 ============== */
+.msg-cats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: var(--space-4) var(--space-3);
+  margin: var(--space-3);
+}
+
+.msg-cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+  /* spring-oneui 替换原 transition：One UI 9 流畅轻快 */
+  transition: transform var(--duration-spring-default) var(--ease-oneui-smooth);
+}
+
+.msg-cat--hover {
+  transform: scale(0.96);
+}
+
+.msg-cat__icon {
+  position: relative;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: var(--radius-circle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 8rpx 内边距留给图标呼吸 */
+  padding: var(--space-2);
+  /* iOS 26 顶部高光（玻璃感） */
+  box-shadow: var(--light-edge-top);
+}
+
+.msg-cat__icon image {
+  width: 56rpx;
+  height: 56rpx;
+  /* 把图标反色显示（PNG 为黑色），适配彩色背景 */
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.msg-cat__badge {
+  position: absolute;
+  top: -4rpx;
+  right: -8rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+  font-size: 20rpx;
+  line-height: 32rpx;
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 0 0 4rpx var(--color-bg-card);
+  /* anim-pulse：来自 global，pulse 关键帧持续脉冲 */
+}
+
+.msg-cat__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+/* ============== 分类 Tab 栏 ============== */
+.msg-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-bg-page);
+  padding: var(--space-2) 0;
+  white-space: nowrap;
+}
+
+.msg-tabs__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+}
+
+.msg-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 12rpx 24rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-card);
+  /* spring-oneui：One UI 9 流畅轻快 spring（替换原 all transition） */
+  transition: transform var(--duration-spring-default) var(--ease-oneui-smooth),
+              background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-base) var(--ease-out);
+}
+
+.msg-tab--hover {
+  transform: scale(0.96);
+}
+
+.msg-tab--active {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-primary-sm);
+}
+
+.msg-tab__dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: var(--radius-circle);
+  background: var(--color-error);
+  /* anim-pulse：来自 global，关键帧 pulse 持续脉冲 */
+}
+
+/* ============== 通知列表 ============== */
+.msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+/* 消息卡片：液态玻璃软卡（iOS 26 风格）
+ * glass-light-soft：global 中定义的液态玻璃工具类
+ *  组合：半透白 + 顶部高光 + 玻璃阴影
+ *  配合 card-glass 圆角卡片
+ */
+.msg-item {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  /* 卡片默认无左侧边，unread 时加 */
+  border-left: 4rpx solid transparent;
+  /* anim-m3-spatial-in 来自 global；stagger-delay 由 style 注入 */
+  /* 卡片默认 transition：spring-oneui 流畅轻快 */
+  transition:
+    transform var(--duration-spring-default) var(--ease-oneui-smooth),
+    box-shadow var(--duration-base) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+
+.msg-item--unread {
+  border-left-color: var(--color-primary);
+  /* 未读态：暖橙浅色叠加 + 玻璃高光 */
+  background: linear-gradient(135deg,
+    var(--color-primary-softer) 0%,
+    rgba(255, 255, 255, 0.85) 100%);
+}
+
+.msg-item--hover {
+  transform: scale(0.99);
+  box-shadow: var(--shadow-md);
+}
+
+.msg-item__icon {
+  flex-shrink: 0;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx;
+  /* iOS 26 顶部高光（玻璃感） */
+  box-shadow: var(--light-edge-top);
+}
+
+.msg-item__icon image {
+  width: 48rpx;
+  height: 48rpx;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.msg-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  padding-right: 16rpx;
+}
+
+.msg-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.msg-item__title {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-primary);
+}
+
+.msg-item__time {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.msg-item__content {
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+/* ============== 摘要卡片（订单/商品类） ============== */
+.msg-item__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 6rpx;
+  padding: var(--space-2);
+  background: var(--color-bg-page);
+  border-radius: var(--radius-base);
+}
+
+.msg-item__summary-cover {
+  flex-shrink: 0;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-section);
+}
+
+.msg-item__summary-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.msg-item__summary-title {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.msg-item__summary-price {
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ============== 右侧未读红点 ============== */
+.msg-item__dot {
+  position: absolute;
+  top: 28rpx;
+  right: 16rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: var(--radius-circle);
+  background: var(--color-error);
+  box-shadow: 0 0 0 4rpx var(--glass-bg-light-2);
+  /* anim-pulse：来自 global，关键帧 pulse 持续脉冲 */
+}
+
+/* ============== 长按操作区（ColorOS 16 风格） ==============
+ * 来源：fusion-ui-design v2 Part 22.7 ColorOS 16 干脆利落 spring
+ * 行为：长按消息项时滑动出现两个操作按钮（标为已读 / 删除）
+ * 动效：spring-coloros 提供 280ms / damping=0.6 / stiffness=800 的干脆过渡
+ */
+.msg-item__actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  /* 半透黑背景：iOS 26 Liquid Glass 风格 */
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.55) 30%,
+    rgba(0, 0, 0, 0.75) 100%);
+  border-top-right-radius: var(--radius-base);
+  border-bottom-right-radius: var(--radius-base);
+  /* 顶部高光（液态玻璃） */
+  box-shadow: var(--liquid-refract-top);
+  /* spring-coloros：ColorOS 16 干脆利落 spring */
+  animation: msg-actions-in var(--duration-spring-quick) var(--ease-coloros-quick) both;
+}
+
+@keyframes msg-actions-in {
+  /* spring-coloros 入场：右侧滑入 + 弹性 */
+  0%   { transform: translateX(100%); opacity: 0; }
+  60%  { transform: translateX(-4rpx); opacity: 1; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+.msg-item__action {
+  flex-shrink: 0;
+  height: 56rpx;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-base);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* spring-coloros：ColorOS 16 干脆利落 spring */
+  transition: transform var(--duration-spring-quick) var(--ease-coloros-quick),
+              opacity var(--duration-fast) var(--ease-out);
+}
+
+.msg-item__action--hover,
+.msg-item__action:active {
+  transform: scale(0.92);
+  opacity: 0.85;
+}
+
+.msg-item__action--danger {
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+}
+
+/* ============== 列表底部 ============== */
+.msg-list__end {
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+/* ============== 空态 / 加载态 ============== */
+.msg-empty,
+.msg-loading {
+  flex-direction: column;
+  padding: var(--space-12) var(--space-3);
+}
+
+.empty-icon {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: var(--radius-circle);
+  background: var(--color-bg-section);
+  color: var(--color-text-tertiary);
+  font-size: 64rpx;
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-title {
+  color: var(--color-text-primary);
+}
+
+.empty-sub {
+  text-align: center;
+}
+
+/* ====================================================================
+ * 减弱动效偏好（prefers-reduced-motion）
+ * --------------------------------------------------------------
+ * 来源：fusion-ui-design v2 全局减动效支持（app.wxss 已有 @media 全局规则）
+ * 此处为页面级增强：用户在系统层开启"减弱动效"时：
+ *   - 关闭 stagger 错落延迟（统一瞬时入场）
+ *   - 关闭 Now Bar 渐变擦除（直接显示）
+ *   - 关闭未读红点脉冲（静止状态）
+ *   - 关闭长按操作滑动入场（直接显示）
+ * 符合无障碍设计要求（WCAG 2.3.3 Animation from Interactions）
+ * ==================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  /* 错落延迟归零：所有消息项同时出现，避免视觉延迟引发眩晕 */
+  .msg-item {
+    animation-delay: 0ms !important;
+    --stagger-delay: 0ms !important;
+  }
+
+  /* Now Bar 关闭擦除动画 */
+  .msg-nowbar.anim-oneui-reveal {
+    animation: none !important;
+    clip-path: none !important;
+  }
+
+  /* 关闭脉冲（保持静态显示） */
+  .msg-item__dot.anim-pulse,
+  .msg-cat__badge.anim-pulse,
+  .msg-tab__dot.anim-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* 关闭长按操作滑入（直接显示） */
+  .msg-item__actions {
+    animation: none !important;
+    transform: none !important;
+  }
+}

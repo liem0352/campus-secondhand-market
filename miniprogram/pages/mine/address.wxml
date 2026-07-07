@@ -1,0 +1,94 @@
+<!--
+  收货地址管理 —— 校园易物
+  设计原则（ui-ux-pro-max）：
+    - 顶部操作栏 + 列表 + 底部固定"新增"按钮
+    - 列表项：姓名 + 电话 + 地址 + 操作（编辑/删除/默认）
+    - 默认地址用主色 chip 标记
+    - 暗色模式：One UI 9 全链路
+-->
+<view class="address-page">
+  <view wx:if="{{list.length === 0 && !editing}}" class="empty">
+    <image class="empty__icon" src="/assets/icons/location.png" mode="aspectFit" />
+    <view class="empty__title">还没有添加地址</view>
+    <view class="empty__sub">添加收货地址，方便购买时使用</view>
+  </view>
+
+  <view wx:else class="address-list">
+    <view
+      wx:for="{{list}}"
+      wx:key="id"
+      class="address-card {{selectMode ? 'address-card--selectable' : ''}}"
+      bindtap="{{selectMode ? 'onSelectAddress' : ''}}"
+      data-id="{{item.id}}"
+      hover-class="press-scale-active"
+    >
+      <view class="address-card__row">
+        <text class="address-card__name">{{item.name}}</text>
+        <text class="address-card__phone">{{item.phone}}</text>
+        <view wx:if="{{item.isDefault}}" class="address-card__chip">默认</view>
+      </view>
+      <view class="address-card__addr">
+        {{item.school}} {{item.dorm}} {{item.detail}}
+      </view>
+      <view wx:if="{{!selectMode}}" class="address-card__actions">
+        <view class="address-card__action" catchtap="onToggleDefault" data-id="{{item.id}}" hover-class="press-scale-active">
+          <view class="address-card__check {{item.isDefault ? 'address-card__check--on' : ''}}"></view>
+          <text>默认地址</text>
+        </view>
+        <view class="address-card__action address-card__action--icon" catchtap="onEdit" data-id="{{item.id}}" hover-class="press-scale-active">
+          <image src="/assets/icons/edit.png" mode="aspectFit" />
+          <text>编辑</text>
+        </view>
+        <view class="address-card__action address-card__action--icon" catchtap="onDelete" data-id="{{item.id}}" hover-class="press-scale-active">
+          <image src="/assets/icons/delete.png" mode="aspectFit" />
+          <text>删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新增按钮（底部固定） -->
+  <view wx:if="{{!editing}}" class="add-bar">
+    <view class="add-bar__btn" bindtap="onAdd" hover-class="press-scale-active" aria-label="新增地址">
+      <image class="add-bar__icon" src="/assets/icons/plus.png" mode="aspectFit" />
+      <text>新增收货地址</text>
+    </view>
+  </view>
+
+  <!-- 编辑弹窗 -->
+  <view wx:if="{{editing}}" class="edit-mask" catchtap="onCancelEdit">
+    <view class="edit-dialog" catchtap="">
+      <view class="edit-dialog__title">
+        {{form.id ? '编辑地址' : '新增地址'}}
+      </view>
+      <view class="edit-dialog__row">
+        <text class="edit-dialog__label">姓名</text>
+        <input class="edit-dialog__input" data-key="name" value="{{form.name}}" bindinput="onFormInput" placeholder="请输入姓名" />
+      </view>
+      <view class="edit-dialog__row">
+        <text class="edit-dialog__label">手机号</text>
+        <input class="edit-dialog__input" type="number" maxlength="11" data-key="phone" value="{{form.phone}}" bindinput="onFormInput" placeholder="请输入手机号" />
+      </view>
+      <view class="edit-dialog__row">
+        <text class="edit-dialog__label">学校</text>
+        <input class="edit-dialog__input" data-key="school" value="{{form.school}}" bindinput="onFormInput" placeholder="如：华中科技大学" />
+      </view>
+      <view class="edit-dialog__row">
+        <text class="edit-dialog__label">宿舍</text>
+        <input class="edit-dialog__input" data-key="dorm" value="{{form.dorm}}" bindinput="onFormInput" placeholder="如：紫菘 5 栋" />
+      </view>
+      <view class="edit-dialog__row">
+        <text class="edit-dialog__label">门牌号</text>
+        <input class="edit-dialog__input" data-key="detail" value="{{form.detail}}" bindinput="onFormInput" placeholder="如：302 室" />
+      </view>
+      <view class="edit-dialog__toggle">
+        <text>设为默认地址</text>
+        <switch checked="{{form.isDefault}}" bindchange="onFormToggleDefault" color="#FF6B35" />
+      </view>
+      <view class="edit-dialog__actions">
+        <view class="edit-dialog__btn edit-dialog__btn--cancel" bindtap="onCancelEdit">取消</view>
+        <view class="edit-dialog__btn edit-dialog__btn--confirm" bindtap="onSave">保存</view>
+      </view>
+    </view>
+  </view>
+</view>

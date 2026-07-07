@@ -1,0 +1,144 @@
+<!-- pages/orders/orders.wxml
+     ================================================================
+     订单页 · 校园易物（Phase 4.0 · fusion-ui-design v2）
+     ================================================================
+     融合体系：
+       - Part 22.10 ColorOS 16 充电岛：进行中订单的能量波进度胶囊
+       - Part 22.9  OriginOS 6  空间玻璃：玻璃卡 + 弹性入场
+       - Part 22.2  iOS 26 Liquid Glass：折射层 + 高光带
+     结构：
+       1) 顶部 Tab 横向滚动（spring-coloros 干脆利落按下）
+       2) 订单卡片列表（glass-light-soft + anim-m3-spatial-in 弹性入场）
+       3) 进行中订单：充电岛能量波进度胶囊（anim-charge-wave）
+       4) 订单操作按钮（spring-magicos 灵动胶囊）
+       5) 列表错落入场（anim-stagger-in）
+       6) 空状态 + 加载提示
+     依赖：
+       - app.wxss 中已提供 .spring-* / .anim-* / .glass-* 工具类
+       - 减动效偏好自动走 prefers-reduced-motion
+-->
+<view class="page-wrap orders-page">
+
+  <!-- 1. 顶部 Tab（ColorOS 16 干脆利落 spring-coloros） -->
+  <scroll-view class="tab-bar spring-coloros" scroll-x enable-flex>
+    <block wx:for="{{tabs}}" wx:key="key">
+      <view
+        class="tab-item {{currentTab === index ? 'tab-item--active' : ''}} {{currentTab === index ? 'spring-oneui' : ''}}"
+        data-index="{{index}}"
+        hover-class="tab-item--hover"
+        bindtap="onTabChange"
+      >
+        <text class="tab-item__label">{{item.label}}</text>
+        <view wx:if="{{currentTab === index}}" class="tab-item__bar anim-m3-spatial-in"></view>
+      </view>
+    </block>
+  </scroll-view>
+
+  <!-- 2. 订单列表（错落入场 anim-stagger-in） -->
+  <view wx:if="{{orders.length > 0}}" class="order-list">
+    <block wx:for="{{orders}}" wx:key="id" wx:for-item="order">
+      <!-- 订单卡片：液态玻璃（glass-light-soft）+ MD3 Expressive 弹性入场（anim-m3-spatial-in） -->
+      <view
+        class="order-card glass-light-soft anim-m3-spatial-in anim-stagger-in {{order.statusClass}}"
+        style="--stagger-delay: {{index * 60}}ms;"
+        data-id="{{order.id}}"
+        bindtap="onCardTap"
+      >
+
+        <!-- 卡片头：订单号 + 状态徽章 -->
+        <view class="order-card__head">
+          <text class="order-card__no text-tertiary-text text-xs">订单号 {{order.order_no}}</text>
+          <view class="order-card__status" style="color: {{order.statusColor}}">
+            <text>{{order.statusLabel}}</text>
+            <text wx:if="{{order.role === 'seller'}}" class="order-card__role">（卖家）</text>
+            <text wx:elif="{{order.role === 'buyer'}}" class="order-card__role">（买家）</text>
+          </view>
+        </view>
+
+        <!-- 充电岛能量波进度胶囊（ColorOS 16 · 仅进行中订单展示） -->
+        <view wx:if="{{order.showProgress}}" class="charge-capsule">
+          <view class="charge-capsule__bar">
+            <view class="charge-capsule__fill anim-progress-fill" style="--p: {{order.progressPercent}}%;"></view>
+            <view class="charge-capsule__wave anim-charge-wave"></view>
+          </view>
+          <text class="charge-capsule__text">{{order.progressText}}</text>
+        </view>
+
+        <!-- 商品行：图 + 标题 + 价格 + 对方头像 -->
+        <view class="order-card__body">
+          <image
+            class="order-card__cover"
+            src="{{order.product.cover}}"
+            mode="aspectFill"
+            lazy-load="{{true}}"
+          ></image>
+          <view class="order-card__meta">
+            <view class="order-card__title text-ellipsis-2">{{order.product.title}}</view>
+            <view class="order-card__price">{{order.priceText}}</view>
+            <view class="order-card__counter">
+              <image
+                class="order-card__avatar"
+                src="{{order.counterpart.avatar || '/assets/icons/avatar.png'}}"
+                mode="aspectFill"
+              ></image>
+              <text class="order-card__counter-name text-secondary-text text-sm">
+                {{order.role === 'seller' ? '买家' : '卖家'}}：{{order.counterpart.nickname || '匿名'}}
+              </text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 步骤条：已申请 -> 已确认 -> 待取/待发 -> 已完成 -->
+        <view wx:if="{{order.status !== 'cancelled'}}" class="stepper">
+          <block wx:for="{{order.stepList}}" wx:key="key" wx:for-item="step">
+            <view class="stepper__item {{step.done ? 'stepper__item--done' : ''}} {{step.active ? 'stepper__item--active' : ''}} spring-m3-fast">
+              <view class="stepper__dot">
+                <image wx:if="{{step.done}}" class="stepper__icon" src="{{statusSuccessIcon}}" mode="aspectFit" />
+                <text wx:else class="stepper__num">{{index + 1}}</text>
+              </view>
+              <text class="stepper__label">{{step.label}}</text>
+            </view>
+            <view wx:if="{{index < order.stepList.length - 1}}" class="stepper__line {{order.stepList[index + 1].done ? 'stepper__line--done' : ''}}"></view>
+          </block>
+        </view>
+
+        <!-- 备注 -->
+        <view wx:if="{{order.remark}}" class="order-card__remark text-tertiary-text text-sm">
+          备注：{{order.remark}}
+        </view>
+
+        <!-- 操作栏（MagicOS 10 灵动胶囊 spring-magicos） -->
+        <view wx:if="{{order.actions.length > 0}}" class="order-card__actions">
+          <block wx:for="{{order.actions}}" wx:key="key" wx:for-item="act">
+            <button
+              class="order-card__btn spring-magicos {{act.type === 'primary' ? 'btn btn-primary' : 'btn btn-ghost'}}"
+              hover-class="btn-active"
+              data-id="{{order.id}}"
+              data-key="{{act.key}}"
+              bindtap="onActionTap"
+            >{{act.label}}</button>
+          </block>
+        </view>
+
+        <!-- 时间 -->
+        <view class="order-card__time text-tertiary-text text-xs">{{order.created_at}}</view>
+      </view>
+    </block>
+
+    <view class="list-footer">
+      <text wx:if="{{loading}}" class="text-tertiary-text text-sm">加载中…</text>
+      <text wx:elif="{{finished}}" class="text-tertiary-text text-sm">没有更多了</text>
+    </view>
+  </view>
+
+  <!-- 3. 空状态 -->
+  <view wx:else class="empty-state-wrap">
+    <empty-state
+      icon="order"
+      title="暂无订单"
+      description="去首页看看心仪的商品吧"
+      action-text="去逛逛"
+      bind:action="goHome"
+    />
+  </view>
+</view>

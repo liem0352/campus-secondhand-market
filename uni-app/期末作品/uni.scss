@@ -1,0 +1,137 @@
+/**
+ * 古诗文赏析 - 设计Token系统
+ * 融合传统中式美学与现代设计规范
+ * 色彩：墨色 + 宣纸 + 朱砂 + 赭石（反AI默认配色）
+ */
+
+/* ========== 品牌主色 ========== */
+$primary: #C0392B;           /* 朱砂红 - 主色 */
+$primary-light: #E74C3C;     /* 浅朱砂 */
+$primary-dark: #922B21;      /* 深朱砂 */
+$primary-bg: #FBEAE7;        /* 朱砂背景 */
+
+/* ========== 辅助色 ========== */
+$gold: #B8860B;              /* 赭石金 */
+$gold-light: #D4A017;        /* 浅金 */
+$jade: #2C5F4A;              /* 黛色绿 */
+$indigo: #2C3E50;            /* 靛蓝 */
+
+/* ========== 中性色阶（stone族，暖色调） ========== */
+$ink-black: #1A1A1A;         /* 墨色 */
+$ink-dark: #2D2D2D;          /* 深墨 */
+$ink-medium: #4A4A4A;        /* 中墨 */
+$ink-light: #6B6B6B;         /* 淡墨 */
+$ink-disabled: #9B9B9B;      /* 禁用墨 */
+
+/* ========== 背景色 ========== */
+$bg-rice: #F5F1E8;           /* 宣纸色 - 主背景 */
+$bg-rice-light: #FAF7F0;     /* 浅宣纸 */
+$bg-rice-dark: #EDE7D8;      /* 深宣纸 */
+$bg-card: #FFFFFF;           /* 卡片白 */
+$bg-overlay: rgba(245, 241, 232, 0.92); /* 毛玻璃背景 */
+
+/* ========== 边框色 ========== */
+$border-light: #E8E0D0;      /* 浅边框 */
+$border-default: #D4C9B5;    /* 默认边框 */
+$border-dark: #B8A88A;       /* 深边框 */
+
+/* ========== 文字颜色 ========== */
+$text-primary: #1A1A1A;      /* 主文字 */
+$text-secondary: #4A4A4A;    /* 次要文字 */
+$text-tertiary: #8B7355;     /* 辅助文字 */
+$text-placeholder: #B8A88A;  /* 占位文字 */
+$text-inverse: #FAF7F0;      /* 反色文字 */
+
+/* ========== 功能色 ========== */
+$success: #2C5F4A;           /* 成功-黛色 */
+$warning: #D4A017;           /* 警告-金色 */
+$error: #C0392B;             /* 错误-朱砂 */
+$info: #2C3E50;              /* 信息-靛蓝 */
+
+/* ========== 字号系统（M3 Expressive 阶梯） ========== */
+$font-display: 48rpx;        /* Display */
+$font-headline: 36rpx;       /* Headline */
+$font-title: 32rpx;          /* Title */
+$font-subtitle: 28rpx;       /* Subtitle */
+$font-body: 28rpx;           /* Body */
+$font-body-sm: 24rpx;        /* Small Body */
+$font-caption: 22rpx;        /* Caption */
+$font-label: 20rpx;          /* Label */
+
+/* ========== 间距系统（8dp栅格） ========== */
+$space-xs: 8rpx;             /* 4dp */
+$space-sm: 16rpx;            /* 8dp */
+$space-md: 24rpx;            /* 12dp */
+$space-lg: 32rpx;            /* 16dp */
+$space-xl: 48rpx;            /* 24dp */
+$space-2xl: 64rpx;           /* 32dp */
+
+/* ========== 圆角系统（M3 Expressive） ========== */
+$radius-sm: 8rpx;            /* 4dp */
+$radius-md: 16rpx;           /* 8dp */
+$radius-lg: 24rpx;           /* 12dp */
+$radius-xl: 32rpx;           /* 16dp */
+$radius-2xl: 48rpx;          /* 24dp */
+$radius-full: 999rpx;        /* 全圆 */
+
+/* ========== 阴影系统 ========== */
+$shadow-sm: 0 2rpx 8rpx rgba(26, 26, 26, 0.04);
+$shadow-md: 0 4rpx 16rpx rgba(26, 26, 26, 0.08);
+$shadow-lg: 0 8rpx 32rpx rgba(26, 26, 26, 0.12);
+$shadow-xl: 0 16rpx 48rpx rgba(26, 26, 26, 0.16);
+
+/* ========== 动效Token（Spring Physics） ========== */
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1);           /* 入场 */
+$ease-in: cubic-bezier(0.7, 0, 0.84, 0);            /* 离场 */
+$ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);       /* 状态切换 */
+$spring-expressive: cubic-bezier(0.38, 1.21, 0.22, 1.0); /* 弹性表达 */
+$spring-standard: cubic-bezier(0.27, 1.06, 0.18, 1.0);   /* 弹性标准 */
+
+$duration-fast: 150ms;        /* 快速微交互 */
+$duration-normal: 300ms;      /* 标准过渡 */
+$duration-slow: 500ms;        /* 场景切换 */
+
+/* ========== uni-app 内置变量覆盖 ========== */
+$uni-color-primary: $primary;
+$uni-color-success: $success;
+$uni-color-warning: $warning;
+$uni-color-error: $error;
+
+$uni-text-color: $text-primary;
+$uni-text-color-inverse: $text-inverse;
+$uni-text-color-grey: $text-tertiary;
+$uni-text-color-placeholder: $text-placeholder;
+$uni-text-color-disable: $ink-disabled;
+
+$uni-bg-color: $bg-card;
+$uni-bg-color-grey: $bg-rice;
+$uni-bg-color-hover: $bg-rice-dark;
+$uni-bg-color-mask: rgba(26, 26, 26, 0.5);
+
+$uni-border-color: $border-default;
+
+$uni-font-size-sm: $font-body-sm;
+$uni-font-size-base: $font-body;
+$uni-font-size-lg: $font-title;
+
+$uni-border-radius-sm: $radius-sm;
+$uni-border-radius-base: $radius-md;
+$uni-border-radius-lg: $radius-lg;
+$uni-border-radius-circle: 50%;
+
+$uni-spacing-row-sm: $space-xs;
+$uni-spacing-row-base: $space-sm;
+$uni-spacing-row-lg: $space-md;
+
+$uni-spacing-col-sm: $space-xs;
+$uni-spacing-col-base: $space-sm;
+$uni-spacing-col-lg: $space-md;
+
+$uni-opacity-disabled: 0.38;
+
+$uni-color-title: $text-primary;
+$uni-font-size-title: $font-title;
+$uni-color-subtitle: $text-secondary;
+$uni-font-size-subtitle: $font-subtitle;
+$uni-color-paragraph: $text-secondary;
+$uni-font-size-paragraph: $font-body;

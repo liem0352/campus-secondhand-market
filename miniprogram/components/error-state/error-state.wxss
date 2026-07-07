@@ -1,0 +1,515 @@
+/* components/error-state/error-state.wxss
+   ============================================================
+   错误状态组件 —— 校园易物 v5（fusion-ui-design v2）
+   ------------------------------------------------------------
+   设计要点：
+   1. 液态玻璃底座：半透白 + 顶部高光 + 多层阴影 + 内描边
+   2. iOS 26 Liquid Glass 折射层（--liquid-refract-prism）
+   3. 柔光圈：使用径向渐变 + filter: blur 模拟 OriginOS 环境光
+   4. 浮动动画：6s ease-in-out infinite 上下漂移
+   5. 错误类型颜色变量：--err-color / --err-color-soft
+   6. 按钮：液态玻璃 + Spring 弹性（--ease-spring），
+      触达 88rpx；按下时弥散光（--light-diffuse-strong）
+   7. 减少动效：@media (prefers-reduced-motion: reduce)
+   8. 新增动效来源：
+      - .anim-seamless              MagicOS 10 一镜到底
+      - .anim-liquid-shine          iOS 26 折射光斑
+      - .gyro-light                 OriginOS 6 陀螺仪光影
+      - .spring-coloros             ColorOS 16 干脆利落
+      - .spring-magicos-seamless    MagicOS 10 一镜到底曲线
+      - .err-stage__refract         iOS 26 折射层（--liquid-refract-prism）
+      - .err-btn--hover             OriginOS 6 弥散光（--light-diffuse-strong）
+   ============================================================ */
+
+/* ============== 容器 ============== */
+.err-wrap {
+  --err-color: var(--color-error);
+  --err-color-soft: var(--color-error-soft);
+  --err-glow: rgba(255, 77, 79, 0.22);
+  /* 一镜到底曲线 token（MagicOS 10），由 app.wxss 提供 */
+  --err-ease: var(--ease-magicos-seamless);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+  animation: err-fade-up var(--duration-slow) var(--err-ease) both;
+}
+.err-wrap--compact { padding: var(--space-8) var(--space-4); }
+
+/* ============== 类型颜色变体（每种 errorType 配色差异化） ============== */
+/* 网络错误：红色（柔红光） */
+.err-wrap--network {
+  --err-color: var(--color-error);
+  --err-color-soft: var(--color-error-soft);
+  --err-glow: rgba(255, 77, 79, 0.22);
+}
+/* 服务器错误：橙色（暖橙光） */
+.err-wrap--server {
+  --err-color: var(--color-warning);
+  --err-color-soft: var(--color-warning-soft);
+  --err-glow: rgba(255, 165, 0, 0.24);
+}
+/* 空数据：空镜蓝（静谧蓝） */
+.err-wrap--empty {
+  --err-color: #2F80ED;
+  --err-color-soft: rgba(47, 128, 237, 0.12);
+  --err-glow: rgba(47, 128, 237, 0.22);
+}
+/* 警告：琥珀色（危险琥珀） */
+.err-wrap--warning {
+  --err-color: #FF8A3D;
+  --err-color-soft: rgba(255, 138, 61, 0.14);
+  --err-glow: rgba(255, 138, 61, 0.24);
+}
+
+/* ============== 插画舞台（玻璃感底座 + 柔光圈 + 浮动） ============== */
+.err-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-6);
+  animation: err-float 6s var(--ease-in-out) infinite;
+}
+
+/* 外柔光圈（弥散光 —— OriginOS 6） */
+.err-stage__halo--outer {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160%; height: 160%;
+  background: radial-gradient(circle at 50% 50%, var(--err-glow) 0%, transparent 65%);
+  border-radius: var(--radius-circle);
+  pointer-events: none;
+  filter: blur(8rpx);
+  /* 弥散光在 iOS 26 / OriginOS 6 风格下使用柔和模糊 */
+  box-shadow: var(--light-diffuse);
+}
+
+/* 内柔光圈（环境光 —— OriginOS 6） */
+.err-stage__halo--inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%; height: 120%;
+  background: radial-gradient(circle at 50% 50%, var(--err-color-soft) 0%, transparent 70%);
+  border-radius: var(--radius-circle);
+  pointer-events: none;
+}
+
+/* 玻璃感底座（半透 + 顶部高光 + 多层阴影） */
+.err-stage__glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-circle);
+  box-shadow:
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1rpx 0 rgba(0, 0, 0, 0.04),
+    0 12rpx 32rpx rgba(0, 0, 0, 0.08),
+    0 2rpx 6rpx rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* 顶部高光（液态玻璃细节） */
+.err-stage__shine {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: var(--radius-circle) var(--radius-circle) 0 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* iOS 26 Liquid Glass 折射层（玻璃舞台）
+   来源：fusion-ui-design v2 --liquid-refract-prism
+   作用：在玻璃底座下层增加棱镜式折射边缘，模拟光线穿过液态玻璃的色散 */
+.err-stage__refract {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-circle);
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: var(--liquid-refract-prism);
+  /* 折射色散边缘（青蓝/暖橙极淡叠加） */
+  background:
+    linear-gradient(135deg,
+      rgba(120, 180, 255, 0.06) 0%,
+      transparent 35%,
+      transparent 65%,
+      rgba(255, 138, 61, 0.05) 100%);
+  mix-blend-mode: screen;
+}
+
+/* 通用插画容器（承载折射光斑 + 陀螺仪光影） */
+.illust {
+  position: relative;
+  width: 60%;
+  height: 60%;
+  z-index: 3;
+}
+
+/* ============== 插画1：警告三角（默认 warning） ============== */
+.illust-warn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.illust-warn__triangle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 60rpx solid transparent;
+  border-right: 60rpx solid transparent;
+  border-bottom: 104rpx solid var(--err-color-soft);
+}
+.illust-warn__triangle::before {
+  content: '';
+  position: absolute;
+  top: 6rpx; left: -60rpx;
+  width: 0; height: 0;
+  border-left: 60rpx solid transparent;
+  border-right: 60rpx solid transparent;
+  border-bottom: 100rpx solid var(--err-color);
+  z-index: 1;
+}
+.illust-warn__line {
+  position: absolute;
+  top: 50rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6rpx;
+  height: 30rpx;
+  background: var(--color-text-inverse);
+  border-radius: 3rpx;
+  z-index: 3;
+}
+.illust-warn__dot {
+  position: absolute;
+  top: 90rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8rpx; height: 8rpx;
+  background: var(--color-text-inverse);
+  border-radius: var(--radius-circle);
+  z-index: 3;
+}
+
+/* ============== 插画2：网络断开 ============== */
+.illust-network {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.illust-network__cloud {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120rpx;
+  height: 70rpx;
+  background: var(--err-color-soft);
+  border-radius: 60rpx 60rpx 60rpx 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.illust-network__cloud::before,
+.illust-network__cloud::after {
+  content: '';
+  position: absolute;
+  background: var(--err-color-soft);
+  border-radius: var(--radius-circle);
+}
+.illust-network__cloud::before {
+  width: 50rpx; height: 50rpx;
+  top: -20rpx; right: -10rpx;
+}
+.illust-network__cloud::after {
+  width: 40rpx; height: 40rpx;
+  top: -10rpx; right: 18rpx;
+}
+/* 划掉云朵的对角线（"X"效果） */
+.illust-network__slash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140rpx; height: 8rpx;
+  background: var(--err-color);
+  border-radius: 4rpx;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  z-index: 2;
+  box-shadow: 0 0 8rpx var(--err-glow);
+}
+.illust-network__dot {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  background: var(--err-color);
+  z-index: 1;
+}
+.illust-network__dot--1 { width: 10rpx; height: 10rpx; top: 70%; left: 25%; opacity: 0.6; }
+.illust-network__dot--2 { width: 8rpx;  height: 8rpx;  top: 80%; left: 55%; opacity: 0.4; }
+.illust-network__dot--3 { width: 6rpx;  height: 6rpx;  top: 75%; left: 75%; opacity: 0.3; }
+
+/* ============== 插画3：服务器错误 ============== */
+.illust-server {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.illust-server__tower {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90rpx;
+  height: 110rpx;
+  background: var(--err-color-soft);
+  border-radius: 12rpx 12rpx 8rpx 8rpx;
+  display: flex;
+  flex-direction: column;
+  padding: 10rpx 12rpx;
+  gap: 6rpx;
+  box-sizing: border-box;
+}
+.illust-server__slot {
+  width: 100%;
+  height: 14rpx;
+  background: var(--err-color);
+  border-radius: 4rpx;
+  opacity: 0.55;
+}
+.illust-server__base {
+  position: absolute;
+  bottom: -8rpx;
+  left: -10rpx;
+  right: -10rpx;
+  height: 10rpx;
+  background: var(--err-color);
+  border-radius: 4rpx;
+  opacity: 0.7;
+}
+/* 闪电符号（代表"出错"） */
+.illust-server__bolt {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 24rpx; height: 30rpx;
+  background: var(--err-color);
+  z-index: 2;
+  clip-path: polygon(45% 0, 0 60%, 35% 60%, 25% 100%, 100% 35%, 55% 35%, 65% 0);
+  filter: drop-shadow(0 0 4rpx var(--err-glow));
+}
+
+/* ============== 插画4：空数据 ============== */
+.illust-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.illust-empty__box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120rpx; height: 90rpx;
+}
+.illust-empty__lid {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 130rpx; height: 16rpx;
+  background: var(--err-color);
+  border-radius: 6rpx 6rpx 4rpx 4rpx;
+  opacity: 0.85;
+}
+.illust-empty__body {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 110rpx; height: 70rpx;
+  background: var(--err-color-soft);
+  border-radius: 6rpx 6rpx 8rpx 8rpx;
+  border: 2rpx solid var(--err-color);
+  border-top: none;
+  opacity: 0.9;
+}
+
+/* ============== 文案区 ============== */
+.err-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  /* 文案区也使用一镜到底曲线（spring-magicos-seamless 来源） */
+  transition: opacity var(--duration-spring-base) var(--ease-magicos-seamless);
+}
+.err-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-snug);
+  letter-spacing: 0.5rpx;
+}
+.err-desc {
+  font-size: var(--font-size-base);
+  color: var(--color-text-tertiary);
+  line-height: var(--line-height-base);
+  max-width: 600rpx;
+  word-break: break-word;
+}
+.err-code {
+  display: inline-flex;
+  align-items: center;
+  height: 36rpx;
+  padding: 0 var(--space-3);
+  margin-top: var(--space-1);
+  background: var(--err-color-soft);
+  color: var(--err-color);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-family-mono);
+  letter-spacing: 1rpx;
+}
+
+/* ============== 操作按钮（液态玻璃 + Spring） ============== */
+.err-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.err-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200rpx;
+  height: 88rpx;       /* 触达目标 ≥ 88rpx */
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  letter-spacing: 1rpx;
+  border: 2rpx solid transparent;
+  /* ColorOS 16 干脆利落 + MagicOS 10 一镜到底曲线（双曲线叠加） */
+  transition:
+    transform var(--duration-spring-quick) var(--ease-coloros-quick),
+    box-shadow var(--duration-spring-base) var(--ease-magicos-seamless),
+    background var(--duration-spring-base) var(--ease-coloros-quick);
+}
+.err-btn::after { border: none; }
+
+.err-btn--primary {
+  background: var(--gradient-warm);
+  color: var(--color-text-on-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    var(--shadow-orange-inset),
+    var(--shadow-primary-md);
+}
+.err-btn--home {
+  background: var(--glass-bg-light-3);
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-glass-md);
+}
+
+/* 按下时：OriginOS 6 弥散光（按下按钮时）
+   来源：fusion-ui-design v2 --light-diffuse-strong
+   作用：按下按钮瞬间，弥散光从中心向外扩散，模拟环境光晕 */
+.err-btn--hover {
+  transform: scale(0.96);
+  box-shadow:
+    var(--shadow-primary-md),
+    var(--light-diffuse-strong);
+}
+
+.err-btn__icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: var(--space-2);
+  position: relative;
+  flex-shrink: 0;
+}
+.err-btn__text { line-height: 1; }
+
+/* Home 图标（纯 CSS 小房子） */
+.err-btn__icon--home { width: 26rpx; height: 26rpx; }
+.home-icon__roof {
+  position: absolute;
+  top: 2rpx; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 13rpx solid transparent;
+  border-right: 13rpx solid transparent;
+  border-bottom: 12rpx solid currentColor;
+}
+.home-icon__body {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 18rpx; height: 12rpx;
+  background: currentColor;
+  border-radius: 2rpx 2rpx 0 0;
+}
+
+/* Retry 图标（圆环 + 箭头，纯 CSS） */
+.err-btn__icon--retry { width: 26rpx; height: 26rpx; }
+.retry-icon__arrow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20rpx; height: 20rpx;
+  border: 3rpx solid currentColor;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: var(--radius-circle);
+}
+.retry-icon__arrow::after {
+  content: '';
+  position: absolute;
+  top: -2rpx; right: -2rpx;
+  width: 0; height: 0;
+  border-left: 6rpx solid currentColor;
+  border-top: 4rpx solid transparent;
+  border-bottom: 4rpx solid transparent;
+}
+
+/* ============== 关键帧 ============== */
+@keyframes err-fade-up {
+  from { opacity: 0; transform: translateY(24rpx); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes err-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8rpx); }
+}
+
+/* ============== 减弱动效偏好（无障碍） ============== */
+@media (prefers-reduced-motion: reduce) {
+  .err-wrap,
+  .err-stage,
+  .err-stage__halo--outer,
+  .err-stage__halo--inner,
+  .illust-network__slash,
+  .err-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* 减弱动效时，撤销悬浮缩放以避免误触 */
+  .err-btn--hover { transform: none !important; box-shadow: var(--shadow-primary-md) !important; }
+}

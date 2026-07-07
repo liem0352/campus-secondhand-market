@@ -1,0 +1,221 @@
+/* components/skeleton-card/skeleton-card.wxss
+   ============================================================
+   卡片骨架屏 —— 校园易物 v5（fusion-ui-design v2）
+   ------------------------------------------------------------
+   设计语言：
+     1. MD3 Expressive（Pixel UI Part 22.7）
+        - .sk-item 使用 anim-m3-spatial-in 弹性空间入场
+        - 过渡使用 spring-m3-fast（快速空间）
+     2. One UI 9 Now Bar（Part 22.12）
+        - .sk-item / .sk-item__shine 使用 anim-oneui-reveal 渐变擦除
+        - 过渡使用 spring-oneui（流畅轻快）
+     3. ColorOS 16 干脆利落
+        - shimmer 动画曲线改为 spring-coloros-quick
+     4. OriginOS 6 空间光感
+        - shimmer 多色（暖橙 → 琥珀）渐变扫光
+     5. 无障碍
+        - @media (prefers-reduced-motion: reduce) 减弱动效
+   ============================================================ */
+
+/* ============== 容器 ============== */
+.sk-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);   /* 间距由 token 控制，外层可在父级再覆写 */
+  padding: var(--space-3);
+}
+
+.sk-wrap--waterfall {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.sk-wrap--block { gap: var(--space-3); }
+
+/* ============== 单卡：液态玻璃 + 顶部高光 ============== */
+/* spring-oneui 来源：One UI 9（流畅轻快），用于悬浮/按压过渡 */
+.sk-item {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--glass-bg-light-3);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-glass-sm);
+  overflow: hidden;
+  /* spring-oneui 过渡（One UI 9 流畅轻快） */
+  transition:
+    transform var(--duration-spring-fast) var(--ease-oneui-smooth),
+    box-shadow var(--duration-spring-fast) var(--ease-oneui-smooth);
+  /* 组合动画：MD3 Expressive 弹性入场（m3-spatial-in，0ms 起）
+     + One UI 9 渐变擦除（oneui-reveal，延迟 60ms 形成"光带擦入"层次）
+     错落由内联 --stagger-delay 控制。 */
+  animation:
+    m3-spatial-in var(--duration-spring-base) var(--ease-m3-spatial-fast) var(--stagger-delay, 0ms) both,
+    oneui-reveal var(--duration-spring-base) var(--ease-oneui-smooth) calc(var(--stagger-delay, 0ms) + 60ms) both;
+}
+
+/* 强制覆盖：WXML 端同时挂 anim-m3-spatial-in / anim-oneui-reveal 时，
+   使用上述组合动画，确保两个动效在同一个元素上协同工作。
+   来源：MD3 Expressive（m3-spatial-in）+ One UI 9 Now Bar（oneui-reveal） */
+.sk-item.anim-m3-spatial-in.anim-oneui-reveal {
+  animation:
+    m3-spatial-in var(--duration-spring-base) var(--ease-m3-spatial-fast) var(--stagger-delay, 0ms) both,
+    oneui-reveal var(--duration-spring-base) var(--ease-oneui-smooth) calc(var(--stagger-delay, 0ms) + 60ms) both;
+}
+
+/* 顶部高光条（One UI 9 Now Bar 渐变擦除，光带从左向右擦入） */
+.sk-item__shine {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  /* One UI 9 渐变擦除延迟入场（错落由 --stagger-delay 控制） */
+  animation: oneui-reveal var(--duration-spring-base) var(--ease-oneui-smooth) var(--stagger-delay, 0ms) both;
+}
+
+/* shape 变体 */
+.sk-item--row {
+  flex-direction: row;
+  padding: var(--space-3);
+}
+.sk-item--block {
+  flex-direction: column;
+  padding: var(--space-4);
+}
+
+/* ============== 瀑布流卡片样式 ============== */
+.sk-item--waterfall {
+  flex-direction: column;
+  padding: var(--space-2);
+  gap: var(--space-2);
+}
+
+/* ============== 各部位 ============== */
+.sk-item__cover {
+  width: 180rpx;
+  height: 180rpx;
+  flex-shrink: 0;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+.sk-item--waterfall .sk-item__cover {
+  width: 100%;
+  height: 280rpx;
+  border-radius: var(--radius-md);
+}
+.sk-item--block .sk-item__cover {
+  width: 100%;
+  height: 200rpx;
+  border-radius: var(--radius-md);
+}
+
+.sk-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 4rpx 0;
+}
+.sk-item--waterfall .sk-item__body { gap: var(--space-2); }
+.sk-item--block .sk-item__body { gap: var(--space-3); }
+
+.sk-item__title {
+  height: 32rpx;
+  width: 80%;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-section);
+}
+.sk-item__title--lg { width: 100%; height: 40rpx; }
+
+.sk-item__line {
+  height: 24rpx;
+  width: 100%;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-section);
+}
+.sk-item__line--mid    { width: 60%; }
+.sk-item__line--short  { width: 40%; }
+
+.sk-item__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: var(--space-2);
+  gap: var(--space-2);
+}
+.sk-item__price {
+  width: 120rpx;
+  height: 32rpx;
+  border-radius: var(--radius-xs);
+  background: var(--color-primary-soft);
+}
+.sk-item__meta {
+  width: 80rpx;
+  height: 24rpx;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-section);
+}
+
+/* ============== Shimmer 多色渐变扫光（光感设计） ============== */
+/* 曲线：spring-coloros-quick（ColorOS 16 干脆利落）
+   颜色：暖橙（color-primary-soft/softer）→ 琥珀（color-warning-soft）→ 灰
+   来源：OriginOS 6 空间光感 + ColorOS 16 干脆利落 */
+.sk-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-section) 0%,
+    var(--color-primary-softer) 25%,
+    var(--color-primary-soft) 50%,
+    var(--color-warning-soft) 75%,
+    var(--color-bg-section) 100%
+  );
+  background-size: 220% 100%;
+  /* spring-coloros-quick 曲线（ColorOS 16 干脆利落） */
+  animation: sk-shimmer 1.4s var(--ease-coloros-quick) infinite;
+  /* spring-m3-fast 过渡（MD3 Expressive 快速空间） */
+  transition:
+    background-color var(--duration-spring-fast) var(--ease-m3-spatial-fast),
+    opacity var(--duration-spring-fast) var(--ease-m3-spatial-fast);
+}
+
+/* shimmer 关键帧（位置从 100% → -120%，循环扫光） */
+@keyframes sk-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -120% 0; }
+}
+
+/* ============== 入场错落动画（保留旧 fade-up，兼容旧调用方） ============== */
+@keyframes sk-fade-up {
+  from { opacity: 0; transform: translateY(16rpx); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============== 减弱动效（无障碍 / prefers-reduced-motion） ============== */
+/* 关闭所有动效，仅保留静态骨架占位 */
+@media (prefers-reduced-motion: reduce) {
+  .sk-item,
+  .sk-item__shine,
+  .sk-shimmer {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* shimmer 退化为单色底，关闭光感扫光 */
+  .sk-shimmer {
+    background: var(--color-bg-section);
+  }
+  /* shine 退化为不可见，避免静止时高光遮挡内容 */
+  .sk-item__shine {
+    opacity: 0.6;
+  }
+}

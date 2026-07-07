@@ -1,0 +1,295 @@
+/* pages/chat-room/chat-room.wxss
+   聊天详情页 —— 全屏 flex 布局，固定顶/底
+   --------------------------------------------------------------------
+   融合 fusion-ui-design v2（Part 22.13 MagicOS 10 灵动胶囊 +
+   Part 22.9 OriginOS 6 AI 光晕 + Part 22.2 iOS 26 Liquid Glass）
+   所有颜色/字号/动效统一走 var(--*) token。
+   -------------------------------------------------------------------- */
+
+/* ============ 页面容器 ============ */
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg-page);
+  /* padding-bottom 由 inline style 根据键盘高度动态调整 */
+  transition: padding-bottom var(--duration-fast) var(--ease-out);
+}
+
+/* MagicOS 10 灵动胶囊曲线（spring-magicos-capsule）
+   动效来源：Part 22.13 MagicOS 10 灵动胶囊，damping=0.65, stiffness=450
+   用法：给任意元素追加 spring-magicos-capsule 类即可获得
+   transform / opacity / box-shadow 等属性的「胶囊弹性」过渡。 */
+.spring-magicos-capsule {
+  transition: transform var(--duration-spring-base) var(--ease-magicos-capsule),
+              opacity var(--duration-spring-base) var(--ease-magicos-capsule),
+              box-shadow var(--duration-spring-base) var(--ease-magicos-capsule);
+}
+
+/* ============ 顶部对方信息条（液态玻璃材质） ============ */
+.chat-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  /* 顶部高光：iOS 26 Liquid Glass 折射层（--liquid-refract-prism） */
+  box-shadow: var(--liquid-refract-prism), var(--shadow-sm);
+  z-index: 50;
+  flex-shrink: 0;
+  /* 动效来源：iOS 26 Liquid Glass 折射层（Part 22.2），弹性曲线用 --ease-magicos-capsule */
+  transition: box-shadow var(--duration-base) var(--ease-magicos-capsule);
+}
+.avatar-placeholder {
+  background: var(--color-primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-base);
+}
+.chat-header-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+.chat-header-name {
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+.chat-header-product {
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============ 消息流 ============ */
+/* 容器自身应用 anim-oneui-reveal（One UI 9 渐变擦除入场） */
+.chat-messages {
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+}
+.msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* 消息行：anim-m3-spatial-in（MD3 Expressive 弹性入场）
+   + anim-stagger-in（错落入场，由 inline --stagger-delay 控制）
+   + spring-magicos-capsule（MagicOS 10 灵动胶囊曲线） */
+.msg {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-2);
+  /* 动效来源：MD3 Expressive 弹性入场（Part 22.6）+ 错落延迟（Part 22.11） */
+  /* 灵动胶囊曲线：damping=0.65, stiffness=450 */
+  transition: transform var(--duration-base) var(--ease-magicos-capsule);
+}
+.msg-mine {
+  flex-direction: row-reverse;
+}
+
+/* 头像容器：AI 标识触发 anim-ai-pulse（OriginOS 6 AI 光晕脉冲） */
+.msg-avatar-wrap {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-circle);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-card);
+  overflow: visible;
+  /* 动效来源：OriginOS 6 AI 光晕脉冲（Part 22.9），呼吸式光晕扩散 */
+}
+.msg-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-circle);
+  flex-shrink: 0;
+  background: var(--color-bg-card);
+  overflow: hidden;
+  display: block;
+}
+.msg-avatar-placeholder {
+  background: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.msg-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  max-width: 70%;
+  min-width: 0;
+}
+.msg-mine .msg-col {
+  align-items: flex-end;
+}
+.msg-time {
+  padding: 0 8rpx;
+  line-height: 1.2;
+}
+
+/* ============ 消息气泡（iOS 26 Liquid Glass 折射层） ============ */
+.msg-bubble {
+  position: relative;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  word-break: break-word;
+  white-space: pre-wrap;
+  max-width: 100%;
+  line-height: var(--line-height-normal);
+  /* 基础：柔光阴影 */
+  box-shadow: var(--shadow-sm);
+  /* 动效来源：MagicOS 10 灵动胶囊曲线（Part 22.13）形变过渡 */
+  transition: transform var(--duration-base) var(--ease-magicos-capsule),
+              box-shadow var(--duration-base) var(--ease-magicos-capsule);
+}
+/* iOS 26 Liquid Glass 折射层：顶部白色高光 + 中段白色光带 + 底部暗色描边 */
+.liquid-refract {
+  box-shadow: var(--liquid-refract-prism), var(--shadow-sm);
+}
+.msg-bubble-theirs {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border-top-left-radius: 8rpx;
+}
+.msg-bubble-mine {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-top-right-radius: 8rpx;
+  /* 自己的消息也具备折射层 */
+  box-shadow: var(--liquid-refract-prism), var(--shadow-primary-sm);
+}
+
+/* AI 消息气泡：使用渐变 + 增强光（OriginOS 6 增强光） */
+.msg-bubble-ai {
+  background: linear-gradient(135deg, var(--orange-300) 0%, var(--orange-500) 60%, var(--coral-500) 100%);
+  color: var(--color-text-on-primary);
+  border-top-left-radius: 8rpx;
+  /* 增强光：OriginOS 6 增强光（--light-enhanced-center） + 折射层 */
+  box-shadow: var(--light-enhanced-center), var(--liquid-refract-prism), var(--shadow-primary-md);
+  /* 动效来源：OriginOS 6 增强光（Part 22.9），光感呼吸反馈 */
+  transition: box-shadow var(--duration-base) var(--ease-magicos-capsule);
+}
+
+.msg-bubble-failed {
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+  box-shadow: var(--liquid-refract-prism), 0 4rpx 12rpx rgba(255, 77, 79, 0.32);
+}
+
+/* 消息气泡按下反馈：MD3 Expressive 弹性按压 + MagicOS 10 灵动胶囊 */
+.msg:active .msg-bubble,
+.msg-bubble:active {
+  transform: scale(0.98);
+}
+
+.msg-content {
+  display: inline;
+  line-height: var(--line-height-normal);
+}
+.msg-state {
+  display: block;
+  margin-top: 4rpx;
+  opacity: 0.85;
+  font-style: italic;
+}
+
+/* ============ 空态 ============ */
+.chat-empty {
+  text-align: center;
+  padding: 200rpx 0;
+}
+
+/* ============ 底部输入栏（液态玻璃） ============ */
+/* 动效来源：iOS 26 Liquid Glass 液态玻璃（Part 22.2），半透 + 折射 */
+.chat-input {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--space-2));
+  /* 玻璃外阴影：iOS 26 Liquid Glass 折射层（--liquid-refract-prism） */
+  box-shadow: var(--liquid-refract-prism), 0 -2rpx 12rpx rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+  z-index: 100;
+  /* 过渡使用 MagicOS 10 灵动胶囊曲线（Part 22.13） */
+  transition: box-shadow var(--duration-base) var(--ease-magicos-capsule);
+}
+.chat-input-field {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  padding: 0 var(--space-3);
+  background: var(--color-bg-page);
+  border: 2rpx solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  /* 动效来源：MagicOS 10 灵动胶囊曲线（Part 22.13） */
+  transition: border-color var(--duration-fast) var(--ease-magicos-capsule);
+}
+.chat-input-field:focus {
+  border-color: var(--color-primary);
+  background: var(--color-bg-card);
+}
+.chat-input-placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* 发送按钮：spring-coloros（ColorOS 16 干脆利落，damping=0.6, stiffness=800） */
+.chat-send-btn {
+  flex-shrink: 0;
+  height: 72rpx;
+  min-width: 112rpx;
+  line-height: 72rpx;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  /* spring-coloros 已在 WXML 中以 class 形式应用：
+     transition: all var(--duration-spring-quick) var(--ease-coloros-quick);
+     动效来源：ColorOS 16 干脆利落（Part 22.10） */
+}
+.chat-send-btn[disabled] {
+  background: var(--color-primary-disabled);
+  color: var(--color-text-inverse);
+  opacity: 0.7;
+}
+
+/* ============ 减弱动效偏好（prefers-reduced-motion） ============ */
+/* 动效来源：iOS / MD3 / OriginOS 共同遵循的可访问性规范。
+   当系统或用户启用「减弱动效」时，所有 Spring / Spatial / Liquid 动效
+   自动降级为 0.01ms 渐变，仅保留必要的状态过渡。 */
+@media (prefers-reduced-motion: reduce) {
+  .chat-page,
+  .chat-header,
+  .chat-messages,
+  .msg,
+  .msg-avatar-wrap,
+  .msg-bubble,
+  .chat-input,
+  .chat-input-field,
+  .chat-send-btn {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* AI 脉冲光晕也降级为静态光 */
+  .anim-ai-pulse {
+    animation: none !important;
+    box-shadow: var(--light-enhanced-center) !important;
+  }
+}

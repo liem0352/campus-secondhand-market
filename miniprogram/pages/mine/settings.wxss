@@ -1,0 +1,169 @@
+/* pages/mine/settings.wxss
+ * 设置页样式 —— 校园易物
+ * --------------------------------------------------------------------
+ * 设计要点：
+ *   1) 用户信息卡：圆角卡片 + 头像 + 昵称 + 副信息 + 箭头
+ *   2) 分组：标题 + 卡片包裹的 row 列表
+ *   3) row：左 label / 中 value（可选） / 右 switch 或箭头
+ *   4) 严格使用 var(--*) token */
+
+/* ============== 页面基础 ============== */
+.settings-page {
+  min-height: 100vh;
+  padding: var(--space-3) 0 var(--space-10);
+}
+
+/* ============== 用户信息卡 ============== */
+.settings-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 var(--space-3) var(--space-4);
+  padding: var(--space-4);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.settings-user--hover {
+  transform: scale(0.99);
+}
+
+.settings-user__avatar {
+  flex-shrink: 0;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: var(--radius-circle);
+  overflow: hidden;
+  background: var(--color-bg-section);
+  box-shadow: 0 0 0 4rpx var(--color-primary-softer);
+}
+
+.settings-user__avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.settings-user__meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.settings-user__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.settings-user__tag {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+}
+
+.settings-user__sub {
+  color: var(--color-text-tertiary);
+}
+
+.settings-user__arrow {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+/* ============== 分组容器 ============== */
+.settings-group {
+  margin: 0 var(--space-3) var(--space-4);
+}
+
+.settings-group__title {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  padding: var(--space-2) var(--space-2) var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+
+.settings-group__list {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 var(--space-3);
+}
+
+/* ============== 单行 row ============== */
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 100rpx;
+  padding: var(--space-3) 0;
+  border-top: var(--border-width) solid var(--border-color-light);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.settings-row:first-child {
+  border-top: none;
+}
+
+.settings-row--hover {
+  background: var(--color-bg-hover);
+}
+
+.settings-row__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.settings-row__label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.settings-row__sub {
+  color: var(--color-text-tertiary);
+  line-height: 1.3;
+}
+
+.settings-row__value {
+  flex-shrink: 0;
+  max-width: 50%;
+  text-align: right;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-row__arrow {
+  width: 28rpx;
+  height: 28rpx;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+/* ============== 退出登录 ============== */
+.settings-logout-wrap {
+  padding: var(--space-4) var(--space-3) 0;
+}
+
+.settings-logout-btn {
+  width: 100%;
+  height: 88rpx;
+  font-size: var(--font-size-base);
+}
+
+/* ============== 底部 ============== */
+.settings-footer {
+  text-align: center;
+  padding: var(--space-6) 0;
+}

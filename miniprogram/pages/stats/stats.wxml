@@ -1,0 +1,121 @@
+<view class="container">
+  <!-- 月份选择 + KPI 卡片 -->
+  <view class="card">
+    <picker mode="date" fields="month" value="{{month}}-01" bindchange="onMonth">
+      <view class="month-picker">
+        <text class="month-label">月份</text>
+        <text class="month-value">{{month}}</text>
+        <!-- 月份选择右侧箭头：SVG（utils/icon.js -> ICON.arrowRight），严禁特殊字符（用户规则 5） -->
+        <image class="month-arrow" src="{{iconArrowRight}}" mode="aspectFit" />
+      </view>
+    </picker>
+    <view class="kpi">
+      <view class="kpi-item kpi-expense">
+        <text class="kpi-title">支出</text>
+        <text class="kpi-value">¥{{monthly.total_expense || '0'}}</text>
+      </view>
+      <view class="kpi-item kpi-income">
+        <text class="kpi-title">收入</text>
+        <text class="kpi-value">¥{{monthly.total_income || '0'}}</text>
+      </view>
+      <view class="kpi-item kpi-balance">
+        <text class="kpi-title">结余</text>
+        <text class="kpi-value">¥{{monthly.balance || '0'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 饼图：分类占比（Canvas 2D 绘制） -->
+  <view class="card">
+    <view class="section-title">分类占比</view>
+    <view wx:if="{{!categoryBars || categoryBars.length === 0}}" class="empty">
+      暂无支出数据
+    </view>
+    <block wx:else>
+      <view class="pie-wrap">
+        <view class="pie-canvas-wrap">
+          <canvas
+            type="2d"
+            id="pieCanvas"
+            class="pie-canvas"
+            style="width:280rpx;height:280rpx;"
+          ></canvas>
+        </view>
+        <view class="pie-legend">
+          <view class="legend-item" wx:for="{{categoryBars}}" wx:key="name">
+            <view class="legend-dot" style="background:{{item.color}};"></view>
+            <view class="legend-info">
+              <view class="legend-name">{{item.name}}</view>
+              <view class="legend-meta">¥{{item.amount}} · {{item.percent}}%</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 折线图：近 7 天支出趋势 -->
+  <view class="card">
+    <view class="section-title">近 7 天趋势</view>
+    <view wx:if="{{!trendPoints || trendPoints.length === 0}}" class="empty">
+      暂无趋势数据
+    </view>
+    <block wx:else>
+      <canvas
+        type="2d"
+        id="lineCanvas"
+        class="line-canvas"
+        style="width:100%;height:360rpx;"
+      ></canvas>
+      <view class="line-summary">
+        <view class="line-stat">
+          <text class="line-stat-label">本周支出</text>
+          <text class="line-stat-value">¥{{weeklyTotal}}</text>
+        </view>
+        <view class="line-stat">
+          <text class="line-stat-label">日均</text>
+          <text class="line-stat-value">¥{{weeklyAvg}}</text>
+        </view>
+        <view class="line-stat">
+          <text class="line-stat-label">峰值</text>
+          <text class="line-stat-value">¥{{weeklyMax}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 柱状图：分类排行 Top 5 -->
+  <view class="card">
+    <view class="section-title">分类排行 Top {{categoryBars.length > 5 ? 5 : categoryBars.length}}</view>
+    <view wx:if="{{!topCategories || topCategories.length === 0}}" class="empty">
+      暂无排行数据
+    </view>
+    <block wx:else>
+      <canvas
+        type="2d"
+        id="barCanvas"
+        class="bar-canvas"
+        style="width:100%;height:360rpx;"
+      ></canvas>
+    </block>
+  </view>
+
+  <!-- 成员贡献：横向柱状图（纯 CSS 列表） -->
+  <view class="card">
+    <view class="section-title">成员贡献</view>
+    <view wx:if="{{!memberBars || memberBars.length === 0}}" class="empty">
+      暂无成员数据
+    </view>
+    <block wx:else>
+      <view class="bar-list">
+        <view class="bar-row" wx:for="{{memberBars}}" wx:key="user_id">
+          <view class="bar-name">{{item.nickname}}</view>
+          <view class="bar-track">
+            <view class="bar-fill" style="width:{{item.percent}}%; background:{{item.color}};"></view>
+          </view>
+          <view class="bar-amount">¥{{item.expense}}</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

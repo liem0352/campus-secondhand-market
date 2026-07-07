@@ -1,0 +1,125 @@
+/* pages/chat/chat.wxss
+   会话列表 —— 基于 design token */
+
+.chat-list-page {
+  padding-bottom: var(--space-4);
+}
+
+/* ============ 顶部标题 ============ */
+.chat-header {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  background: var(--color-bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.chat-title {
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+.chat-subtitle {
+  line-height: 1.2;
+}
+
+/* ============ 会话列表 ============ */
+.conv-list {
+  margin-top: var(--space-2);
+  background: var(--color-bg-card);
+}
+.conv-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  min-height: 112rpx;            /* 56pt 触控热区 */
+  border-bottom: 2rpx solid var(--color-bg-divider);
+  background: var(--color-bg-card);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+.conv-item:last-child {
+  border-bottom: none;
+}
+.conv-item-active,
+.conv-item:active {
+  background: var(--color-bg-hover);
+}
+.avatar-placeholder {
+  background: var(--color-primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+}
+
+.conv-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+.conv-top {
+  align-items: center;
+}
+.conv-name {
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+.conv-time {
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+}
+.conv-msg {
+  line-height: 1.4;
+}
+.conv-product {
+  color: var(--color-primary);
+}
+
+/* ============ 未读小红点 ============ */
+.conv-badge {
+  flex-shrink: 0;
+  min-width: 36rpx;
+  height: 36rpx;
+  padding: 0 10rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--space-2);
+}
+.conv-badge-text {
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ============ 空状态 ============ */
+.empty-state {
+  padding: 200rpx var(--space-4);
+  flex-direction: column;
+}
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: var(--radius-circle);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 80rpx;
+  line-height: 120rpx;
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+}
+.empty-title {
+  color: var(--color-text-primary);
+}
+.empty-sub {
+  text-align: center;
+}
+
+/* ============ 加载 ============ */
+.loading {
+  padding: 200rpx 0;
+}

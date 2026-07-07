@@ -1,0 +1,55 @@
+<!--
+  我的收藏 —— 校园易物
+  - 顶部小标题 + 收藏数
+  - 商品卡片列表（复用 product-card 组件）
+  - 支持下拉刷新 + 触底加载更多
+  - 空态/错误态/骨架屏兜底
+-->
+<view class="page-wrap favs-page">
+  <!-- 顶部信息条 -->
+  <view class="favs-header card card-flat">
+    <view class="favs-header__icon">
+      <image src="/assets/icons/favorite-on.png" mode="aspectFit"></image>
+    </view>
+    <view class="favs-header__text">
+      <view class="favs-header__title">我收藏的宝贝</view>
+      <view class="favs-header__sub">共 {{total}} 件 · 下架会自动隐藏</view>
+    </view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="favs-list">
+    <block wx:if="{{loading && !list.length}}">
+      <view class="skeleton-wrap">
+        <skeleton-card wx:for="{{[0,1,2,3]}}" wx:key="*this"></skeleton-card>
+      </view>
+    </block>
+    <block wx:elif="{{error}}">
+      <error-state
+        title="收藏加载失败"
+        description="{{errorMsg || '网络异常，请稍后重试'}}"
+        bind:retry="onRetry"
+      ></error-state>
+    </block>
+    <block wx:elif="{{!list.length}}">
+      <empty-state
+        title="还没有收藏"
+        description="去首页逛逛，看到心仪的商品可以点右下角收藏"
+        action-text="去逛逛"
+        bind:action="onGoHome"
+      ></empty-state>
+    </block>
+    <block wx:else>
+      <product-card
+        wx:for="{{list}}"
+        wx:key="id"
+        product="{{item.product || item}}"
+        bind:tap="onTapProduct"
+        bind:favorite="onFavorite"
+        bind:longpress="onLongPress"
+      ></product-card>
+      <view wx:if="{{loadingMore}}" class="loading-more">加载中…</view>
+      <view wx:elif="{{!hasMore && list.length}}" class="loading-more">— 已加载全部 —</view>
+    </block>
+  </view>
+</view>

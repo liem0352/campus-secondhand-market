@@ -1,0 +1,243 @@
+<!-- pages/publish/publish.wxml
+     发布页 v4 —— 校园易物（融合设计系统重构版，紧凑化）
+     ===========================================================
+     设计语言：Apple Liquid Glass + MD3 Expressive + OriginOS 6 空间光学
+     设计要点：
+       01  自定义顶栏：左侧"AI 一键发布"胶囊（液态玻璃 + 主色渐变），
+                       中间"发布商品"标题，右侧消息占位
+       02  AI 草稿文字（液态玻璃 input + 字符计数）
+       03  商品图片（9 宫格 + 玻璃感添加按钮 + 进度反馈 + 删除玻璃圆按钮）
+       04  表单卡片（标题 / 价格 / 分类 / 成色 4 宫格 / 描述）
+       05  校验提示（错误时 input 边框变红 + 抖动动画）
+       06  草稿状态条
+       07  底部主按钮（液态玻璃 + Spring 弹性）
+
+     全部颜色 / 字号 / 间距 / 圆角 / 阴影 / 动效走 app.wxss 的 design token
+     所有图标使用 SVG（无 emoji） -->
+<view class="page-wrap publish-page">
+
+  <!-- ============================== 0. 顶部安全区占位 ============================== -->
+  <view class="publish-safe-top" style="height: {{statusBarHeight}}px;"></view>
+
+  <!-- ============================== 0.5 自定义顶栏 ============================== -->
+  <view class="publish-navbar">
+    <!-- 左侧：AI 一键发布胶囊（液态玻璃 + 主色渐变） -->
+    <view
+      class="publish-navbar__ai"
+      hover-class="publish-navbar__ai--pressed"
+      bindtap="onAiAssist"
+      aria-role="button"
+      aria-label="AI 一键发布"
+    >
+      <image class="publish-navbar__ai-icon" src="{{aiIcon}}" mode="aspectFit"></image>
+      <text class="publish-navbar__ai-text">AI 一键发布</text>
+      <text wx:if="{{aiLoading}}" class="publish-navbar__ai-badge publish-navbar__ai-badge--loading">
+        <text class="publish-navbar__ai-dot"></text>识别中
+      </text>
+      <text wx:elif="{{aiPriceRangeText}}" class="publish-navbar__ai-badge publish-navbar__ai-badge--done">
+        <view class="publish-navbar__ai-check"></view>已识别
+      </text>
+      <text wx:elif="{{aiFallback}}" class="publish-navbar__ai-badge publish-navbar__ai-badge--fallback">AI 推荐</text>
+    </view>
+    <!-- 右侧：消息占位（与首页顶栏对齐，留白） -->
+    <view class="publish-navbar__spacer"></view>
+  </view>
+
+  <!-- ============================== 01. AI 草稿文字 ============================== -->
+  <view class="ai-draft-row glass-card anim-fade-up" style="--anim-delay: 60ms;">
+    <view class="ai-draft-row__icon">
+      <image class="ai-draft-row__icon-img" src="{{iconEdit}}" mode="aspectFit"></image>
+    </view>
+    <input
+      class="ai-draft-input"
+      placeholder="手动写一句商品描述，AI 识别更精准"
+      placeholder-class="placeholder-muted"
+      value="{{aiDraftText}}"
+      bindinput="onAiDraftInput"
+      maxlength="60"
+    />
+    <view class="ai-draft-row__count {{aiDraftText.length >= 50 ? 'ai-draft-row__count--warn' : ''}}">
+      {{aiDraftText.length}}/60
+    </view>
+  </view>
+
+  <!-- ============================== 03. 商品图片（9 宫格） ============================== -->
+  <view class="image-section anim-fade-up" style="--anim-delay: 120ms;">
+    <view class="section-header">
+      <view class="section-header__left">
+        <text class="section-header__num">02</text>
+        <text class="section-title">商品图片</text>
+      </view>
+      <text class="section-meta">最多 {{MAX_IMAGES}} 张 · 已上传 {{form.images.length}}/{{MAX_IMAGES}}</text>
+    </view>
+
+    <view class="image-grid" animation="{{formShakeAnims.images}}">
+      <block wx:for="{{form.images}}" wx:key="*this" wx:for-index="idx">
+        <view class="image-item anim-scale-in" style="--anim-delay: {{idx * 40}}ms;">
+          <image class="image-thumb" src="{{item}}" mode="aspectFill"></image>
+          <view
+            class="image-remove"
+            data-index="{{idx}}"
+            catchtap="onRemoveImage"
+            hover-class="image-remove--active"
+            hover-stay-time="80"
+            aria-role="button"
+            aria-label="删除图片"
+          >
+            <image class="remove-icon" src="{{closeIcon}}" mode="aspectFit"></image>
+          </view>
+        </view>
+      </block>
+
+      <view
+        wx:if="{{form.images.length < MAX_IMAGES}}"
+        class="image-add"
+        hover-class="image-add--active"
+        bindtap="onAddImage"
+        aria-role="button"
+        aria-label="添加图片"
+      >
+        <view class="image-add__plus">
+          <image class="add-icon" src="{{iconPlus}}" mode="aspectFit"></image>
+        </view>
+        <text class="add-text">添加图片</text>
+        <text class="add-hint">支持拍照 / 相册</text>
+      </view>
+    </view>
+
+    <view wx:if="{{uploading}}" class="upload-hint">
+      <view class="upload-spinner"></view>
+      <text>图片上传中…</text>
+    </view>
+  </view>
+
+  <!-- ============================== 04. 表单卡片（液态玻璃） ============================== -->
+  <view class="form-card glass-card anim-fade-up" style="--anim-delay: 180ms;">
+
+    <!-- 4.1 标题 -->
+    <view class="form-row">
+      <view class="form-label-wrap">
+        <text class="form-label required">标题</text>
+      </view>
+      <input
+        class="form-input {{formErrors.title ? 'form-input--error' : ''}}"
+        placeholder="一句话描述商品（建议 12 字以内）"
+        placeholder-class="placeholder-muted"
+        value="{{form.title}}"
+        bindinput="onTitleInput"
+        bindfocus="onFieldFocus"
+        data-field="title"
+        maxlength="40"
+        animation="{{formShakeAnims.title}}"
+      />
+    </view>
+
+    <!-- 4.2 价格 -->
+    <view class="form-row">
+      <view class="form-label-wrap">
+        <text class="form-label required">价格</text>
+      </view>
+      <view class="form-price-wrap">
+        <text class="form-price-prefix">¥</text>
+        <input
+          class="form-input form-input--price {{formErrors.price ? 'form-input--error' : ''}}"
+          type="digit"
+          placeholder="0.00"
+          placeholder-class="placeholder-muted"
+          value="{{form.price}}"
+          bindinput="onPriceInput"
+          bindfocus="onFieldFocus"
+          data-field="price"
+          animation="{{formShakeAnims.price}}"
+        />
+        <text class="form-price-suffix">元</text>
+      </view>
+    </view>
+
+    <!-- 4.3 分类 -->
+    <view class="form-row">
+      <view class="form-label-wrap">
+        <text class="form-label required">分类</text>
+      </view>
+      <picker
+        class="form-picker"
+        mode="selector"
+        range="{{categories}}"
+        range-key="name"
+        value="{{form.categoryIndex < 0 ? 0 : form.categoryIndex}}"
+        bindchange="onCategoryChange"
+      >
+        <view class="form-picker__inner {{formErrors.categoryIndex ? 'form-picker__inner--error' : ''}}" animation="{{formShakeAnims.categoryIndex}}">
+          <text wx:if="{{form.categoryIndex >= 0}}" class="form-picker__text">{{categories[form.categoryIndex].name}}</text>
+          <text wx:else class="placeholder-muted">请选择商品分类</text>
+          <view class="form-picker__arrow">
+            <image class="picker-arrow" src="{{iconArrowDown}}" mode="aspectFit"></image>
+          </view>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 4.4 成色（4 宫格 + 等级色 + 选中态玻璃感） -->
+    <view class="form-row form-row--column">
+      <view class="form-label-wrap">
+        <text class="form-label required">成色</text>
+      </view>
+      <view class="condition-options" animation="{{formShakeAnims.condition}}">
+        <block wx:for="{{conditions}}" wx:key="value">
+          <view
+            class="condition-chip {{form.condition === item.value ? 'condition-chip--active' : ''}} {{formErrors.condition ? 'condition-chip--error' : ''}}"
+            data-value="{{item.value}}"
+            hover-class="condition-chip--active"
+            bindtap="onConditionSelect"
+            aria-role="button"
+            aria-label="{{'选择成色 ' + item.label}}"
+          >
+            <view class="condition-chip__dot" style="background: {{item.color}};"></view>
+            <text>{{item.label}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 4.5 详细描述 -->
+    <view class="form-row form-row--column form-row--last">
+      <view class="form-label-wrap form-label-wrap--between">
+        <text class="form-label required">详细描述</text>
+        <text class="form-row__count text-tertiary-text text-xs">{{form.description.length}}/500</text>
+      </view>
+      <textarea
+        class="form-textarea {{formErrors.description ? 'form-textarea--error' : ''}}"
+        placeholder="描述商品使用情况、瑕疵、是否包邮等，越详细越容易卖出"
+        placeholder-class="placeholder-muted"
+        value="{{form.description}}"
+        bindinput="onDescInput"
+        bindfocus="onFieldFocus"
+        data-field="description"
+        maxlength="500"
+        auto-height
+        animation="{{formShakeAnims.description}}"
+      />
+    </view>
+  </view>
+
+  <!-- ============================== 05. 草稿状态条 + 立即发布 ============================== -->
+  <view class="bottom-actions anim-fade-up" style="--anim-delay: 240ms;">
+    <view class="draft-row">
+      <view class="draft-row__left">
+        <view wx:if="{{form.title || form.description}}" class="draft-row__dot"></view>
+        <text wx:if="{{form.title || form.description}}" class="draft-hint text-tertiary-text text-xs">已自动保存草稿，下次进入可恢复</text>
+        <text wx:else class="draft-hint text-tertiary-text text-xs">草稿会自动保存</text>
+      </view>
+      <view class="draft-clear text-secondary-text text-sm" hover-class="text-primary-color" bindtap="onClearDraft">清空</view>
+    </view>
+    <button
+      class="btn btn-primary btn-block submit-btn press-spring"
+      hover-class="btn-active"
+      loading="{{submitLoading}}"
+      disabled="{{submitLoading}}"
+      bindtap="onSubmit"
+    >
+      <text wx:if="{{!submitLoading}}" class="submit-btn__text">立即发布</text>
+    </button>
+  </view>
+</view>

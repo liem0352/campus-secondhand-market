@@ -1,0 +1,59 @@
+<!-- custom-tab-bar/index.wxml
+     校园易物 · 自定义底部导航栏（v8 · 玻璃胶囊悬浮版）
+     ===================================================================
+     设计风格（图2 参考）：
+       1) 深色玻璃质感（OriginOS 空间光学 + iOS 液态玻璃）
+       2) 胶囊形悬浮容器，底部留有安全边距
+       3) backdrop-filter: blur(20px) saturate(180%) 实现毛玻璃
+       4) 白色/半透明白色图标 + 文字
+       5) 中心发布：渐变圆形浮起按钮
+       6) 选中态：主色高亮（白光加粗 + 主色描边）
+       7) 严格遵守用户规则 5：禁止 emoji 充当图标
+-->
+<view class="tab-bar-root {{immersive ? 'tab-bar-root--immersive' : ''}}">
+  <!-- 底部安全区占位（防止内容被悬浮 TabBar 遮挡） -->
+  <view class="tab-bar-spacer" aria-hidden="true"></view>
+
+  <!-- 玻璃胶囊容器 -->
+  <view class="tab-bar" role="tablist" aria-label="主导航">
+    <view
+      wx:for="{{list}}"
+      wx:key="pagePath"
+      class="tab-item
+        {{item.isCenter ? 'tab-item-center ' : ''}}
+        {{selected === index ? 'tab-item-active' : ''}}"
+      data-index="{{index}}"
+      data-key="{{item.key}}"
+      bindtap="onTap"
+      role="tab"
+      aria-selected="{{selected === index}}"
+      aria-label="{{item.text}}"
+      hover-class="tab-item--hover"
+      hover-stay-time="80"
+    >
+      <!-- 普通 tab：图标 + 文字 + 徽标 -->
+      <view class="tab-icon-wrap">
+        <view
+          class="tab-icon {{selected === index ? 'tab-icon--active' : ''}}"
+        >
+          <image
+            class="tab-icon__img"
+            src="{{item.isCenter ? '/assets/tabbar/publish.png' : (selected === index ? item.iconActive : item.icon)}}"
+            mode="aspectFit"
+            aria-hidden="true"
+          />
+        </view>
+
+        <!-- 数字徽标：>9 显示 9+，=0 不显示 -->
+        <view
+          wx:if="{{item.badge && item.badge > 0}}"
+          class="tab-badge {{item.badge > 9 ? 'tab-badge--max' : ''}}"
+          aria-label="{{item.badge > 99 ? '99+' : (item.badge > 9 ? '9+' : item.badge + '条未读')}}"
+        >{{item.badge > 9 ? '9+' : item.badge}}</view>
+      </view>
+
+      <!-- 中心按钮只显示图标，不显示文字（参考图2 设计） -->
+      <text wx:if="{{!item.isCenter}}" class="tab-label {{selected === index ? 'tab-label--active' : ''}}">{{item.text}}</text>
+    </view>
+  </view>
+</view>

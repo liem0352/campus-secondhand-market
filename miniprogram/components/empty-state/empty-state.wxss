@@ -1,0 +1,603 @@
+/* components/empty-state/empty-state.wxss
+   --------------------------------------------------------------------
+   通用空状态样式（fusion-ui-design v2 融合重构版）
+
+   融合来源：
+     - 22.14 Nothing OS 3.5 点阵美学（dot matrix 装饰）
+     - 22.9  OriginOS 6 陀螺仪光影（gyro-light 容器）
+     - iOS 26 Liquid Glass 折射光斑（anim-liquid-shine）
+     - 22.10 One UI 9 流畅轻快（spring-oneui 弹性动效）
+
+   设计要点：
+     1. 插画底座 = 陀螺仪光影 + 折射光斑（视觉层次）
+     2. box 插图增加点阵装饰（Nothing OS 点阵美学）
+     3. 主按钮 = 液态玻璃折射层 + One UI 弹性过渡
+     4. 严格使用 design tokens
+     5. 减弱动效偏好（prefers-reduced-motion）降级
+   -------------------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 96rpx 48rpx;
+  text-align: center;
+  color: var(--color-text-secondary);
+  /* 入场动效：One UI 9 流畅轻快 */
+  animation: empty-fade-up var(--duration-spring-base) var(--ease-oneui-smooth) both;
+}
+
+.empty-state--compact {
+  padding: 56rpx 32rpx;
+}
+
+@keyframes empty-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16rpx) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== 插画底座：OriginOS 6 陀螺仪光影 + iOS 26 折射光斑 =====
+   gyro-light：白光辉光从左向右循环扫过（OriginOS 6 陀螺仪光影）
+   anim-liquid-shine：高光斜带扫过（iOS 26 Liquid Glass 折射） */
+.empty-illust-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32rpx;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 50%;
+  /* 小程序不支持 backdrop-filter；用伪元素 + 多层 inset 阴影模拟玻璃光感 */
+  /* iOS 26 Liquid Glass 折射层：通过 inset 高光 + 边缘微光模拟光学折射 */
+  box-shadow: var(--liquid-refract-top);
+  /* gyro-light 关键样式：白光辉光背景（OriginOS 6 陀螺仪光影） */
+  background-image: linear-gradient(115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: gyro-light-sweep 4s var(--ease-in-out) infinite;
+  overflow: hidden;
+}
+
+@keyframes gyro-light-sweep {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* anim-liquid-shine：iOS 26 Liquid Glass 折射光斑
+   通过 ::after 伪元素扫过一道斜高光带 */
+.anim-liquid-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: var(--liquid-specular);
+  animation: liquid-specular-sweep 3s var(--ease-m3-spatial-default) infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+
+@keyframes liquid-specular-sweep {
+  0%   { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+  20%  { opacity: 1; }
+  60%  { transform: translateX(200%) skewX(-15deg); opacity: 0.6; }
+  100% { transform: translateX(220%) skewX(-15deg); opacity: 0; }
+}
+
+/* 插画底座柔光圈（呼吸效果） */
+.empty-illust-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 280rpx;
+  height: 280rpx;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle at center,
+    var(--color-primary-glow) 0%,
+    rgba(255, 107, 53, 0.04) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  animation: empty-glow-pulse 4s var(--ease-in-out) infinite;
+  filter: blur(8rpx);
+  z-index: 0;
+}
+
+@keyframes empty-glow-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  50%      { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+}
+
+.empty-illust {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* 插画浮动动画（呼吸 + 上浮） */
+.illust-float {
+  animation: illust-float 4s var(--ease-in-out) infinite;
+}
+
+@keyframes illust-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8rpx); }
+}
+
+/* ===== 文案 ===== */
+.empty-title {
+  font-size: 32rpx;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 12rpx;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: var(--color-text-tertiary);
+  line-height: 1.6;
+  max-width: 560rpx;
+  margin-bottom: 40rpx;
+}
+
+/* ===== 操作按钮：液态玻璃折射 + One UI 弹性 ===== */
+.empty-actions {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.empty-action {
+  min-width: 240rpx;
+  height: 80rpx;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: var(--color-text-inverse);
+  font-size: 28rpx;
+  font-weight: var(--font-weight-medium);
+  border: none;
+  line-height: 80rpx;
+  text-align: center;
+  padding: 0 40rpx;
+  /* spring-oneui：One UI 9 流畅轻快弹性动效 */
+  transition: transform var(--duration-spring-default) var(--ease-oneui-smooth),
+              box-shadow var(--duration-spring-default) var(--ease-oneui-smooth);
+  /* 多层光感阴影 + Liquid Glass 折射层 */
+  box-shadow:
+    0 1rpx 2rpx rgba(255, 107, 53, 0.2),
+    0 4rpx 12rpx rgba(255, 107, 53, 0.24),
+    0 12rpx 32rpx rgba(255, 107, 53, 0.18),
+    var(--liquid-refract-prism);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 主按钮顶部高光条（液态玻璃反射） */
+.empty-action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.empty-action--hover {
+  transform: scale(0.96);
+  box-shadow:
+    0 1rpx 2rpx rgba(255, 107, 53, 0.15),
+    0 2rpx 6rpx rgba(255, 107, 53, 0.18),
+    var(--liquid-edge-glow);
+}
+
+.empty-action::after {
+  border: none;
+}
+
+.empty-action__text {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== 插画样式（CSS 绘制，避免 emoji / 图片） ===== */
+
+/* 1. 空盒子（Nothing OS 点阵装饰 + 陀螺仪光影容器） */
+.illust-box {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.illust-box__body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130rpx;
+  height: 90rpx;
+  background: linear-gradient(135deg, var(--color-primary-softer) 0%, var(--color-primary-soft) 100%);
+  border: 2rpx solid var(--color-primary-soft);
+  border-radius: 10rpx;
+  box-shadow:
+    inset 0 -2rpx 4rpx var(--color-primary-glow),
+    0 4rpx 8rpx rgba(255, 107, 53, 0.06);
+}
+
+.illust-box__top {
+  position: absolute;
+  top: 10rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 65rpx solid transparent;
+  border-right: 65rpx solid transparent;
+  border-bottom: 40rpx solid var(--color-primary-softer);
+  z-index: 1;
+  filter: drop-shadow(0 2rpx 4rpx rgba(255, 107, 53, 0.1));
+}
+
+.illust-box__top::before {
+  content: '';
+  position: absolute;
+  top: 40rpx;
+  left: -65rpx;
+  width: 130rpx;
+  height: 2rpx;
+  background: var(--color-primary-soft);
+}
+
+.illust-box__strip {
+  position: absolute;
+  top: 50rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6rpx;
+  height: 70rpx;
+  background: linear-gradient(180deg, var(--color-primary-soft) 0%, transparent 100%);
+  border-radius: 3rpx;
+}
+
+.illust-box__highlight {
+  position: absolute;
+  top: 12rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 8rpx;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+  border-radius: 4rpx;
+  z-index: 2;
+}
+
+/* Nothing OS 3.5 点阵装饰（box 插图）
+   通过 6 个微观点环绕盒身，强化"点阵美学" */
+.illust-box__dot {
+  position: absolute;
+  width: 6rpx;
+  height: 6rpx;
+  background: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 6rpx var(--color-primary-glow);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.illust-box__dot--1 { top: 0;     left: 8rpx;  animation-delay: 0s;    }
+.illust-box__dot--2 { top: 0;     right: 8rpx; animation-delay: 0.2s;  }
+.illust-box__dot--3 { top: 50%;   left: -4rpx; animation-delay: 0.4s;  }
+.illust-box__dot--4 { top: 50%;   right: -4rpx;animation-delay: 0.6s;  }
+.illust-box__dot--5 { bottom: 0;  left: 14rpx; animation-delay: 0.8s;  }
+.illust-box__dot--6 { bottom: 0;  right: 14rpx;animation-delay: 1.0s;  }
+
+/* 2. 搜索无果 */
+.illust-search {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.illust-search__lens {
+  position: absolute;
+  top: 10rpx;
+  left: 10rpx;
+  width: 110rpx;
+  height: 110rpx;
+  border: 8rpx solid var(--color-primary-soft);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-softer) 0%, var(--color-primary-soft) 100%);
+  box-shadow:
+    inset 0 4rpx 8rpx var(--color-primary-glow),
+    0 4rpx 12rpx rgba(255, 107, 53, 0.1);
+}
+
+.illust-search__handle {
+  position: absolute;
+  bottom: 6rpx;
+  right: 6rpx;
+  width: 60rpx;
+  height: 12rpx;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary) 100%);
+  border-radius: 6rpx;
+  transform: rotate(45deg);
+  transform-origin: left center;
+  box-shadow: 0 2rpx 4rpx rgba(255, 107, 53, 0.2);
+}
+
+.illust-search__highlight {
+  position: absolute;
+  top: 22rpx;
+  left: 28rpx;
+  width: 24rpx;
+  height: 8rpx;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+  border-radius: 4rpx;
+}
+
+/* 3. 聊天空 */
+.illust-chat {
+  position: relative;
+  width: 160rpx;
+  height: 130rpx;
+}
+
+.illust-chat__bubble {
+  position: absolute;
+  height: 48rpx;
+  border-radius: 24rpx;
+}
+
+.illust-chat__bubble--left {
+  top: 0;
+  left: 0;
+  width: 90rpx;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary-softer) 100%);
+  box-shadow: 0 2rpx 6rpx var(--color-primary-glow);
+}
+
+.illust-chat__bubble--right {
+  top: 64rpx;
+  right: 0;
+  width: 110rpx;
+  background: linear-gradient(135deg, #F0F0F2 0%, #E5E5E7 100%);
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 4. 订单空 */
+.illust-order {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.illust-order__paper {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120rpx;
+  height: 145rpx;
+  background: linear-gradient(135deg, var(--color-primary-softer) 0%, var(--color-primary-soft) 100%);
+  border: 2rpx solid var(--color-primary-soft);
+  border-radius: 10rpx;
+  box-shadow:
+    inset 0 -2rpx 4rpx rgba(255, 107, 53, 0.06),
+    0 4rpx 12rpx rgba(255, 107, 53, 0.08);
+}
+
+.illust-order__line {
+  position: absolute;
+  top: 38rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80rpx;
+  height: 6rpx;
+  background: linear-gradient(90deg, var(--color-primary-soft) 0%, var(--color-primary-softer) 100%);
+  border-radius: 3rpx;
+}
+
+.illust-order__line--short {
+  top: 64rpx;
+  width: 56rpx;
+  background: linear-gradient(90deg, var(--color-primary-soft) 0%, var(--color-primary-softer) 100%);
+  opacity: 0.7;
+}
+
+/* 5. 收藏空（爱心） */
+.illust-favorite {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.illust-favorite__heart {
+  width: 96rpx;
+  height: 96rpx;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary) 100%);
+  position: relative;
+  transform: rotate(-45deg);
+  border-radius: 8rpx 8rpx 0 0;
+  box-shadow: 0 6rpx 16rpx rgba(255, 107, 53, 0.2);
+}
+
+.illust-favorite__heart::before,
+.illust-favorite__heart::after {
+  content: '';
+  position: absolute;
+  width: 96rpx;
+  height: 96rpx;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary) 100%);
+  border-radius: 50%;
+}
+
+.illust-favorite__heart::before {
+  top: -48rpx;
+  left: 0;
+}
+
+.illust-favorite__heart::after {
+  top: 0;
+  left: 48rpx;
+}
+
+/* 6. 消息空（气泡 + 三点） */
+.illust-msg {
+  position: relative;
+  width: 160rpx;
+  height: 130rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.illust-msg__bubble {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140rpx;
+  height: 90rpx;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary-softer) 100%);
+  border-radius: 16rpx 16rpx 16rpx 4rpx;
+  box-shadow: 0 4rpx 12rpx var(--color-primary-glow);
+}
+
+.illust-msg__dot {
+  position: absolute;
+  bottom: 16rpx;
+  width: 12rpx;
+  height: 12rpx;
+  background: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8rpx var(--color-primary-glow);
+}
+
+.illust-msg__dot--1 { left: 56rpx; animation: dot-bounce 1.2s var(--ease-in-out) infinite; }
+.illust-msg__dot--2 { left: 74rpx; animation: dot-bounce 1.2s var(--ease-in-out) 0.15s infinite; }
+.illust-msg__dot--3 { left: 92rpx; animation: dot-bounce 1.2s var(--ease-in-out) 0.3s infinite; }
+
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6rpx); }
+}
+
+/* 7. 默认感叹号 */
+.illust-default {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.illust-default__circle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120rpx;
+  height: 120rpx;
+  border: 6rpx solid var(--color-primary-soft);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-softer) 0%, var(--color-primary-soft) 100%);
+  box-shadow:
+    inset 0 4rpx 8rpx var(--color-primary-glow),
+    0 4rpx 12rpx rgba(255, 107, 53, 0.1);
+}
+
+.illust-default__circle::before {
+  content: '';
+  position: absolute;
+  top: 38rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8rpx;
+  height: 38rpx;
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  border-radius: 4rpx;
+}
+
+.illust-default__circle::after {
+  content: '';
+  position: absolute;
+  bottom: 28rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8rpx;
+  height: 8rpx;
+  background: var(--color-primary);
+  border-radius: 50%;
+}
+
+.illust-default__highlight {
+  position: absolute;
+  top: 6rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50rpx;
+  height: 8rpx;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+  border-radius: 4rpx;
+}
+
+/* ===== 减弱动效偏好（One UI 9 / iOS 26 / 陀螺仪 / 点阵 全降级） ===== */
+@media (prefers-reduced-motion: reduce) {
+  /* 关闭所有循环动画 */
+  .empty-state,
+  .illust-float,
+  .empty-illust-glow,
+  .illust-msg__dot,
+  .anim-dot-flicker {
+    animation: none;
+  }
+  /* 关闭陀螺仪光影扫过与折射光斑扫过 */
+  .empty-illust-wrap {
+    animation: none;
+    background-position: 0 0;
+  }
+  .anim-liquid-shine::after {
+    animation: none;
+    opacity: 0;
+  }
+  /* 关闭陀螺仪视差位移（JS 端配合停止监听） */
+  /* 注意：组件 wxss 不允许属性选择器，改为通过 JS 端 setData 清空 transform */
+  .empty-illust-wrap {
+    transform: none !important;
+  }
+  /* 按下交互降级 */
+  .empty-action--hover {
+    transform: scale(0.98);
+  }
+}

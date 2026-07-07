@@ -1,0 +1,411 @@
+<!-- pages/index/index.wxml
+     校园易物 · 首页（v5 融合设计：Apple Liquid Glass + MD3 Expressive + OriginOS 6 光感）
+     --------------------------------------------------------------------
+     设计要点：
+       1. 顶部 Hero：渐变 + 多层光晕 + 玻璃感高光 + 呼吸光圈
+       2. 搜索框：胶囊 + 半透 + 顶部高光 + 浮动入场
+       3. 快捷入口：圆形玻璃按钮 + 错落微动效（奇偶数延迟错开）
+       4. 公告滚动条：玻璃感横条
+       5. 轮播图：渐变玻璃卡 + 装饰光圈
+       6. 分类横滑：玻璃感 chip
+       7. 限时特惠：横向滚动 + 玻璃卡 + shine 扫光
+       8. 近期成交：玻璃卡列表
+       9. 热门商品：横滑玻璃卡
+      10. 双列瀑布流：每列 stagger 错落入场（30-50ms 延迟）
+      11. 触底加载：spinner dots 动画
+      12. 全部使用 design token (var(--*))，无 emoji 图标
+-->
+<view class="page home-page">
+
+  <!-- ========== 顶部安全区占位 ========== -->
+  <view class="home-safe-top" style="height: {{statusBarHeight}}px;"></view>
+
+  <!-- ========== 自定义导航栏（透明 + 渐变） ========== -->
+  <!-- margin-top / padding-right 动态计算：
+       1) margin-top = 胶囊 top - 状态栏高度，让 navbar 顶部和胶囊顶部对齐
+       2) padding-right = 屏幕宽 - 胶囊 left + 10，让出右侧胶囊位置避免重叠 -->
+  <view class="home-navbar" style="margin-top: {{navBarMarginTop}}px; padding-right: {{navBarPaddingRight}}px;">
+    <view class="home-navbar__left" hover-class="home-navbar__btn--pressed" bindtap="onTapNavLeft" aria-label="扫一扫">
+      <image class="home-navbar__icon" src="/assets/icons/camera.svg" mode="aspectFit" />
+    </view>
+    <view class="home-navbar__title">校园易物</view>
+    <view class="home-navbar__right" hover-class="home-navbar__btn--pressed" bindtap="onTapNavRight" aria-label="消息">
+      <image class="home-navbar__icon" src="/assets/icons/message-circle.svg" mode="aspectFit" />
+      <view wx:if="{{unreadCount}}" class="home-navbar__dot"></view>
+    </view>
+  </view>
+
+  <!-- ========== Hero 渐变 Banner：液态玻璃 ========== -->
+  <view class="home-hero home-hero__anim">
+    <!-- 装饰光晕层 -->
+    <view class="home-hero__halo home-hero__halo--1"></view>
+    <view class="home-hero__halo home-hero__halo--2"></view>
+    <view class="home-hero__halo home-hero__halo--3"></view>
+
+    <!-- 装饰星星：闪烁 -->
+    <view class="home-hero__star home-hero__star--1"></view>
+    <view class="home-hero__star home-hero__star--2"></view>
+    <view class="home-hero__star home-hero__star--3"></view>
+
+    <view class="home-hero__head">
+      <view class="home-hero__brand">
+        <view class="home-hero__logo-wrap">
+          <image class="home-hero__logo" src="/assets/brand/logo-mark.svg" mode="aspectFit" />
+        </view>
+        <view class="home-hero__greet">
+          <text class="home-hero__hello">校园易物</text>
+          <text class="home-hero__sub">让闲置流动起来</text>
+        </view>
+      </view>
+      <view class="home-hero__stats" hover-class="home-hero__stats--pressed">
+        <view class="home-hero__stat">
+          <text class="home-hero__stat-num">{{heroStats.products}}</text>
+          <text class="home-hero__stat-label">件好物</text>
+        </view>
+        <view class="home-hero__stat-divider"></view>
+        <view class="home-hero__stat">
+          <text class="home-hero__stat-num">{{heroStats.users}}</text>
+          <text class="home-hero__stat-label">位同学</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 玻璃感搜索框 -->
+    <view
+      class="home-search__box home-search__anim"
+      hover-class="home-search__box--pressed"
+      bindtap="onTapSearch"
+      aria-label="搜索商品"
+    >
+      <image class="home-search__icon" src="/assets/icons/search.svg" mode="aspectFit" />
+      <text class="home-search__placeholder">{{searchPlaceholder}}</text>
+      <view wx:if="{{searchHotWord}}" class="home-search__hot-tag">热门</view>
+      <view class="home-search__divider"></view>
+      <view class="home-search__mic-btn" catchtap="onTapVoice" hover-class="home-search__mic-btn--pressed" aria-label="语音搜索">
+        <image class="home-search__mic" src="/assets/icons/mic.svg" mode="aspectFit" />
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 快捷入口：4 个玻璃圆形按钮 ========== -->
+  <view class="home-quick">
+    <view
+      wx:for="{{quickActions}}"
+      wx:key="key"
+      class="home-quick__item home-quick__anim"
+      data-key="{{item.key}}"
+      bindtap="onTapQuickAction"
+      hover-class="home-quick__item--pressed"
+      hover-stay-time="60"
+      style="--quick-stagger: {{index * 60}}ms"
+      aria-label="{{item.label}}"
+    >
+      <view class="home-quick__icon" style="background: {{item.color}}1a;">
+        <view class="home-quick__icon-inner" style="background: linear-gradient(135deg, {{item.color}} 0%, {{item.color}}cc 100%); box-shadow: 0 4rpx 12rpx {{item.color}}40;">
+          <image class="home-quick__img" src="{{item.icon}}" mode="aspectFit" />
+        </view>
+      </view>
+      <text class="home-quick__label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- ========== 公告滚动条（玻璃横条） ========== -->
+  <view wx:if="{{notices.length}}" class="home-notice" hover-class="home-notice--pressed">
+    <view class="home-notice__tag">
+      <image class="home-notice__tag-icon" src="/assets/icons/clock.svg" mode="aspectFit" />
+      <text>公告</text>
+    </view>
+    <swiper class="home-notice__swiper" vertical="{{true}}" autoplay="{{true}}" circular="{{true}}" interval="3500" duration="500">
+      <swiper-item wx:for="{{notices}}" wx:key="id" class="home-notice__item">
+        <text class="home-notice__title">{{item.title}}</text>
+      </swiper-item>
+    </swiper>
+    <view class="home-notice__arrow"></view>
+  </view>
+
+  <!-- ========== 轮播图（玻璃卡 + 自定义指示点） ========== -->
+  <view wx:if="{{banners.length}}" class="home-banner">
+    <swiper
+      class="home-banner__swiper"
+      indicator-dots="{{false}}"
+      autoplay="{{true}}"
+      interval="4000"
+      duration="500"
+      circular="{{true}}"
+      bindchange="onBannerChange"
+    >
+      <swiper-item
+        wx:for="{{banners}}"
+        wx:key="id"
+        class="home-banner__item"
+        data-item="{{item}}"
+        bindtap="onTapBannerItem"
+      >
+        <view class="home-banner__card" style="background: linear-gradient(135deg, {{item.color_from}} 0%, {{item.color_to}} 100%);">
+          <view class="home-banner__content">
+            <text class="home-banner__title">{{item.title}}</text>
+            <text class="home-banner__subtitle">{{item.subtitle}}</text>
+            <view class="home-banner__cta">立即查看</view>
+          </view>
+          <view class="home-banner__deco home-banner__deco--1"></view>
+          <view class="home-banner__deco home-banner__deco--2"></view>
+        </view>
+      </swiper-item>
+    </swiper>
+    <!-- 自定义指示点 -->
+    <view class="home-banner__dots">
+      <view
+        wx:for="{{banners}}"
+        wx:key="id"
+        class="home-banner__dot {{bannerIndex === index ? 'home-banner__dot--active' : ''}}"
+        data-idx="{{index}}"
+        bindtap="onBannerTap"
+      ></view>
+    </view>
+  </view>
+
+  <!-- ========== 分类横滑入口（玻璃 chip） ========== -->
+  <scroll-view
+    class="home-cats"
+    scroll-x="{{true}}"
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+    enable-flex="{{true}}"
+  >
+    <view class="home-cats__inner">
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="home-cats__item home-cats__anim"
+        data-item="{{item}}"
+        bindtap="onTapCategory"
+        hover-class="home-cats__item--pressed"
+        hover-stay-time="80"
+        style="--cat-stagger: {{index * 50}}ms"
+        aria-label="{{item.name}}"
+      >
+        <view class="home-cats__icon">
+          <view class="home-cats__icon-bg"></view>
+          <image class="home-cats__icon-img" src="{{item.icon}}" mode="aspectFit" />
+        </view>
+        <text class="home-cats__label">{{item.name}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- ========== 限时特惠 / 倒计时 ========== -->
+  <view wx:if="{{flashDeals.length}}" class="home-flash flash__anim">
+    <view class="home-section__head">
+      <view class="home-section__title">
+        <view class="home-section__bar home-section__bar--flash"></view>
+        <text class="home-section__flash-title">限时特惠</text>
+        <view class="home-countdown">
+          <text class="home-countdown__label">距结束</text>
+          <view class="home-countdown__box countdown-pulse">{{countdown.h}}</view>
+          <text class="home-countdown__sep">:</text>
+          <view class="home-countdown__box countdown-pulse">{{countdown.m}}</view>
+          <text class="home-countdown__sep">:</text>
+          <view class="home-countdown__box countdown-pulse">{{countdown.s}}</view>
+        </view>
+      </view>
+      <text class="home-section__more home-section__more--flash" bindtap="onTapFlashMore" hover-class="home-section__more--pressed">抢更多</text>
+    </view>
+    <scroll-view class="home-flash__scroll" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}" enable-flex="{{true}}">
+      <view class="home-flash__inner">
+        <view
+          wx:for="{{flashDeals}}"
+          wx:key="id"
+          class="home-flash__card flash-card__anim"
+          data-id="{{item.id}}"
+          bindtap="onTapFlashDeal"
+          hover-class="home-flash__card--pressed"
+          style="--flash-stagger: {{index * 60}}ms"
+          aria-label="{{item.title}} 闪购价 {{item.flash_price}} 元"
+        >
+          <view class="home-flash__cover">
+            <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill" binderror="onImageErrorFallback" data-type="flash" data-index="{{index}}" />
+            <view wx:else class="home-flash__cover-fallback">{{item.title}}</view>
+            <view class="home-flash__ribbon">-{{item.discount}}%</view>
+            <view class="home-flash__shine"></view>
+          </view>
+          <view class="home-flash__body">
+            <text class="home-flash__name">{{item.title}}</text>
+            <view class="home-flash__price-row">
+              <text class="home-flash__price">¥{{item.flash_price}}</text>
+              <text class="home-flash__origin">¥{{item.original_price}}</text>
+            </view>
+            <view class="home-flash__bar">
+              <view class="home-flash__bar-fill" style="width: {{item.sold_percent || 50}}%"></view>
+            </view>
+            <text class="home-flash__sold">已抢 {{item.sold_count || 0}} 件</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ========== 近期成交（玻璃卡列表） ========== -->
+  <view wx:if="{{recentDeals.length}}" class="home-deals deals__anim">
+    <view class="home-section__head">
+      <view class="home-section__title">
+        <view class="home-section__bar home-section__bar--deals"></view>
+        <text>近期成交</text>
+        <text class="home-section__sub">· 真实校园交易</text>
+      </view>
+      <text class="home-section__more" bindtap="onTapDealsMore" hover-class="home-section__more--pressed">看更多</text>
+    </view>
+    <view class="home-deals__list">
+      <view
+        wx:for="{{recentDeals}}"
+        wx:key="id"
+        class="home-deals__item deals-item__anim"
+        wx:if="{{index < 4}}"
+        style="--deals-stagger: {{index * 80}}ms"
+      >
+        <view class="home-deals__avatar">{{item.buyer_initial}}</view>
+        <view class="home-deals__info">
+          <text class="home-deals__text">{{item.buyer_name}} {{item.time_text}} 入手了</text>
+          <text class="home-deals__product">{{item.product_title}}</text>
+        </view>
+        <text class="home-deals__price">¥{{item.price}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 热门商品横滑 ========== -->
+  <view wx:if="{{hotProducts.length}}" class="home-hot">
+    <view class="home-section__head">
+      <view class="home-section__title">
+        <view class="home-section__bar"></view>
+        <text>本周热门</text>
+      </view>
+      <text class="home-section__more" bindtap="onTapHotMore" hover-class="home-section__more--pressed">看更多</text>
+    </view>
+    <scroll-view class="home-hot__scroll" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}" enable-flex="{{true}}">
+      <view class="home-hot__inner">
+        <view
+          wx:for="{{hotProducts}}"
+          wx:key="id"
+          class="home-hot__card"
+          data-id="{{item.id}}"
+          bindtap="onTapHotProduct"
+          hover-class="home-hot__card--pressed"
+          style="--hot-stagger: {{index * 50}}ms"
+        >
+          <view class="home-hot__cover">
+            <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill" binderror="onImageErrorFallback" data-type="hot" data-index="{{index}}" />
+            <view wx:else class="home-hot__cover-fallback">
+              <text>{{item.title}}</text>
+            </view>
+            <view class="home-hot__badge">{{item.favorite_count}} 收藏</view>
+          </view>
+          <view class="home-hot__body">
+            <text class="home-hot__name">{{item.title}}</text>
+            <text class="home-hot__price">¥{{item.price}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ========== 最新上架 双列瀑布流 ========== -->
+  <view class="home-section__head">
+    <view class="home-section__title">
+      <view class="home-section__bar"></view>
+      <text>最新上架</text>
+    </view>
+    <text class="home-section__more">共 {{products.length}} 件</text>
+  </view>
+  <view class="home-grid">
+
+    <!-- 加载占位（首屏未拉取到数据前展示骨架屏） -->
+    <block wx:if="{{!products.length && loading}}">
+      <view class="home-grid__col">
+        <view class="skeleton" wx:for="{{[1,2,3]}}" wx:key="*this"></view>
+      </view>
+      <view class="home-grid__col">
+        <view class="skeleton skeleton--alt" wx:for="{{[1,2,3]}}" wx:key="*this"></view>
+      </view>
+    </block>
+
+    <!-- 商品卡片（双列 stagger 错落） -->
+    <block wx:elif="{{products.length}}">
+      <view class="home-grid__col">
+        <view
+          wx:for="{{products}}"
+          wx:for-item="left"
+          wx:for-index="i"
+          wx:key="id"
+          class="home-grid__item pcard__anim"
+          wx:if="{{i % 2 === 0}}"
+          style="--pcard-stagger: {{(i/2) * 40}}ms"
+        >
+          <product-card
+            product="{{left}}"
+            layout="waterfall"
+            bind:tap="onTapProduct"
+            bind:favorite="onFavoriteProduct"
+            bind:longpress="onLongPressProduct"
+          />
+        </view>
+      </view>
+      <view class="home-grid__col">
+        <view
+          wx:for="{{products}}"
+          wx:for-item="right"
+          wx:for-index="i"
+          wx:key="id"
+          class="home-grid__item pcard__anim"
+          wx:if="{{i % 2 === 1}}"
+          style="--pcard-stagger: {{((i-1)/2) * 40 + 20}}ms"
+        >
+          <product-card
+            product="{{right}}"
+            layout="waterfall"
+            bind:tap="onTapProduct"
+            bind:favorite="onFavoriteProduct"
+            bind:longpress="onLongPressProduct"
+          />
+        </view>
+      </view>
+    </block>
+
+    <!-- 错误状态 -->
+    <view wx:elif="{{error}}" class="home-state home-state--error">
+      <error-state
+        title="加载失败"
+        error-message="{{errorMsg || '请检查网络后重试'}}"
+        show-retry="{{true}}"
+        retry-text="重新加载"
+        bind:retry="onRetry"
+      />
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:elif="{{isEmpty}}" class="home-state">
+      <empty-state
+        icon="box"
+        title="还没有商品"
+        description="下拉刷新试试，或者去发布第一件闲置吧"
+        action-text="去发布"
+        bind:action="onTapPublish"
+      />
+    </view>
+  </view>
+
+  <!-- ========== 底部加载状态 ========== -->
+  <view class="home-footer">
+    <view wx:if="{{loading && products.length}}" class="home-footer__loading">
+      <view class="home-footer__dot"></view>
+      <view class="home-footer__dot"></view>
+      <view class="home-footer__dot"></view>
+      <text class="ml-2 text-tertiary-text text-sm">加载中…</text>
+    </view>
+    <view wx:elif="{{!hasMore && products.length}}" class="home-footer__end">
+      <view class="home-footer__line"></view>
+      <text class="text-tertiary-text text-sm">— 没有更多了 —</text>
+      <view class="home-footer__line"></view>
+    </view>
+  </view>
+
+</view>

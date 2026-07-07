@@ -1,0 +1,189 @@
+<!-- components/product-card/product-card.wxml
+     商品卡片组件 —— 融合 fusion-ui-design v2（Part 22）重构版
+     --------------------------------------------------------------
+     设计语言融合（来自 fusion-ui-design v2）：
+       1. iOS 26 Liquid Glass  —— 主图区 anim-liquid-shine（折射光斑扫过）
+       2. MagicOS 10 一镜到底   —— 瀑布流整体 pcard__anim anim-seamless
+       3. OriginOS 6 陀螺仪光影 —— 主图 .gyro-light + JS 动态 transform
+       4. ColorOS 16 干脆利落   —— spring-coloros 替换原 press-spring
+       5. MD3 Expressive 空间弹性 —— 入场 stagger + 过冲回弹
+
+     设计原则：
+       - 严格遵循 design tokens（颜色/字号/间距/动效），全部使用 var(--*)
+       - 所有图标使用 SVG 路径（utils/icon.js），严禁 emoji
+       - 小程序不支持 backdrop-filter 备选：用半透 + 边缘高光 + 多层阴影模拟
+
+     关键约束：
+       - 保留原有所有功能不变（点击 / 长按 / 收藏 / 学校跳转 / 信用分 / 浏览数）
+       - 陀螺仪事件为可选（device 不支持时静默降级）
+       - 不修改 product-card.json
+-->
+<!-- 瀑布流（双列方形）布局 -->
+<view
+  wx:if="{{layout === 'waterfall'}}"
+  class="pcard pcard--waterfall pcard__anim anim-seamless spring-coloros press-scale"
+  data-id="{{product.id}}"
+  bindtap="onTap"
+  bindlongpress="onLongPress"
+  hover-class="pcard--pressed"
+  hover-stay-time="60"
+>
+  <!-- 顶部高光条（液态玻璃细节） -->
+  <view class="pcard__highlight"></view>
+
+  <!-- 底部高光条（iOS 26 Liquid Glass 双侧折射） -->
+  <view class="pcard__highlight pcard__highlight--bottom"></view>
+
+  <!-- 主图区：aspect-ratio 1:1 瀑布流方形
+       anim-liquid-shine：iOS 26 折射光斑扫过（::after 来自 app.wxss）
+       内联 transform：JS 端陀螺仪事件动态调整透视倾斜（OriginOS 6 陀螺仪光影） -->
+  <view
+    class="pcard__media anim-liquid-shine"
+    style="{{enableGyro ? 'transform: perspective(800rpx) rotateX(' + (gyroTiltX || 0) + 'deg) rotateY(' + (gyroTiltY || 0) + 'deg);' : ''}}"
+  >
+    <image
+      class="pcard__img"
+      src="{{coverUrl || '/assets/icons/empty.png'}}"
+      mode="aspectFill"
+      lazy-load="{{false}}"
+      binderror="onImageError"
+      bindload="onImageLoad"
+    />
+    <!-- 玻璃遮罩：底部渐变让 chip 文字更清晰 -->
+    <view class="pcard__media-shade"></view>
+
+    <!-- 右上角悬浮收藏按钮（液态玻璃圆） -->
+    <view
+      class="pcard__fav {{favoriteActive ? 'pcard__fav--active' : ''}} {{pulseClass}}"
+      catchtap="onFavorite"
+      hover-class="pcard__fav--pressed"
+    >
+      <image
+        class="pcard__fav-icon"
+        src="{{favoriteActive ? '/assets/icons/favorite-on.png' : '/assets/icons/favorite.png'}}"
+        mode="aspectFit"
+      />
+    </view>
+
+    <!-- 左下角成色 chip（液态玻璃 + 等级色） -->
+    <view wx:if="{{conditionLabel}}" class="pcard__chip {{conditionClass}}">
+      <view class="pcard__chip-dot"></view>
+      <text>{{conditionLabel}}</text>
+    </view>
+  </view>
+
+  <!-- 文本区 -->
+  <view class="pcard__body">
+    <!-- 标题：最多 2 行省略 -->
+    <view class="pcard__title text-ellipsis-2">{{product.title || '商品标题加载中…'}}</view>
+
+    <!-- 价格行：¥价格 + 学校徽标 -->
+    <view class="pcard__row">
+      <view class="pcard__price-wrap">
+        <text class="pcard__price-currency">¥</text>
+        <text class="pcard__price">{{product.price || '0'}}</text>
+      </view>
+      <view class="pcard__school" wx:if="{{product.school}}" hover-class="pcard__school--pressed" catchtap="onSchoolTap">
+        <image class="pcard__school-icon" src="/assets/icons/school.png" mode="aspectFit" />
+        <text class="text-ellipsis">{{product.school}}</text>
+      </view>
+    </view>
+
+    <!-- 底部 meta：信用分 + 收藏数 + 浏览数 -->
+    <view class="pcard__meta">
+      <view wx:if="{{product.seller && product.seller.credit_score != null}}"
+            class="credit-badge {{creditClass}}">
+        <text>信用 {{product.seller.credit_score}}</text>
+      </view>
+      <view class="pcard__meta-right">
+        <view class="pcard__meta-item">
+          <image class="pcard__meta-icon" src="/assets/icons/eye.png" mode="aspectFit" wx:if="{{hasViewIcon}}" />
+          <text class="text-tertiary-text">{{product.view_count || 0}}</text>
+        </view>
+        <view class="pcard__meta-item">
+          <image class="pcard__meta-icon" src="/assets/icons/favorite.png" mode="aspectFit" />
+          <text class="text-tertiary-text">{{product.favorite_count || 0}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 列表（单列横向）布局 -->
+<view
+  wx:else
+  class="pcard pcard--list pcard__anim--list spring-coloros press-scale"
+  data-id="{{product.id}}"
+  bindtap="onTap"
+  bindlongpress="onLongPress"
+  hover-class="pcard--pressed"
+  hover-stay-time="60"
+>
+  <view class="pcard__highlight pcard__highlight--list"></view>
+  <view class="pcard__highlight pcard__highlight--bottom pcard__highlight--list"></view>
+
+  <!-- 列表模式主图：同样支持 iOS 26 折射光斑 + OriginOS 陀螺仪光影 -->
+  <view
+    class="pcard__media pcard__media--list anim-liquid-shine"
+    style="{{enableGyro ? 'transform: perspective(800rpx) rotateX(' + (gyroTiltX || 0) + 'deg) rotateY(' + (gyroTiltY || 0) + 'deg);' : ''}}"
+  >
+    <image
+      class="pcard__img"
+      src="{{coverUrl || '/assets/icons/empty.png'}}"
+      mode="aspectFill"
+      lazy-load="{{false}}"
+      binderror="onImageError"
+      bindload="onImageLoad"
+    />
+    <view class="pcard__media-shade pcard__media-shade--list"></view>
+    <view wx:if="{{conditionLabel}}" class="pcard__chip {{conditionClass}} pcard__chip--list">
+      <view class="pcard__chip-dot"></view>
+      <text>{{conditionLabel}}</text>
+    </view>
+  </view>
+
+  <view class="pcard__body pcard__body--list">
+    <view class="pcard__title text-ellipsis-2">{{product.title || ''}}</view>
+
+    <view class="pcard__row pcard__row--list">
+      <view class="pcard__price-wrap">
+        <text class="pcard__price-currency">¥</text>
+        <text class="pcard__price pcard__price--list">{{product.price || '0'}}</text>
+      </view>
+      <view wx:if="{{product.original_price}}" class="pcard__price-original">
+        <text>¥{{product.original_price}}</text>
+      </view>
+    </view>
+
+    <view class="pcard__row pcard__row--list pcard__row--footer">
+      <view class="pcard__school" wx:if="{{product.school}}">
+        <image class="pcard__school-icon" src="/assets/icons/school.png" mode="aspectFit" />
+        <text class="text-ellipsis text-secondary-text text-sm">{{product.school}}</text>
+      </view>
+      <view wx:if="{{product.seller && product.seller.credit_score != null}}"
+            class="credit-badge {{creditClass}} credit-badge--sm">
+        <text>信用 {{product.seller.credit_score}}</text>
+      </view>
+    </view>
+
+    <view class="pcard__row pcard__row--list pcard__row--actions">
+      <view class="pcard__meta-item">
+        <image class="pcard__meta-icon" src="/assets/icons/eye.png" mode="aspectFit" wx:if="{{hasViewIcon}}" />
+        <text class="text-tertiary-text text-sm">{{product.view_count || 0}}</text>
+      </view>
+      <view class="pcard__meta-item">
+        <image class="pcard__meta-icon" src="/assets/icons/favorite.png" mode="aspectFit" />
+        <text class="text-tertiary-text text-sm">{{product.favorite_count || 0}}</text>
+      </view>
+      <view catchtap="onFavorite"
+            class="pcard__fav pcard__fav--inline {{favoriteActive ? 'pcard__fav--active' : ''}} {{pulseClass}}"
+            hover-class="pcard__fav--pressed">
+        <image
+          class="pcard__fav-icon"
+          src="{{favoriteActive ? '/assets/icons/favorite-on.png' : '/assets/icons/favorite.png'}}"
+          mode="aspectFit"
+        />
+      </view>
+    </view>
+  </view>
+</view>
