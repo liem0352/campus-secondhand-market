@@ -1,6 +1,7 @@
 # 一键初始化数据库
 # 流程：建库 -> 安装依赖 -> 生成迁移 -> 执行迁移 -> 初始化种子数据
 # 用法：在 PowerShell 中执行   .\deploy\setup_database.ps1
+# 环境变量：DB_PASSWORD, PYTHON_EXE, MYSQL_EXE
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
@@ -14,10 +15,11 @@ $BackendDir  = Join-Path $ProjectRoot 'backend'
 $SqlFile     = Join-Path $BackendDir 'scripts\create_mysql_db.sql'
 $InitScript  = Join-Path $BackendDir 'scripts\init_data_market.py'
 
-$PythonExe = 'C:\Users\liem\AppData\Local\Programs\Python\Python313\python.exe'
-$MySqlExe  = 'C:\Program Files\MySQL\MySQL Server 9.4\bin\mysql.exe'
-$DbUser    = 'root'
-$DbPass    = 'tyb1124'
+# 使用环境变量，避免硬编码路径和密码
+$PythonExe = if ($env:PYTHON_EXE) { $env:PYTHON_EXE } else { 'python' }
+$MySqlExe  = if ($env:MYSQL_EXE) { $env:MYSQL_EXE } else { 'mysql' }
+$DbUser    = if ($env:DB_USER) { $env:DB_USER } else { 'root' }
+$DbPass    = if ($env:DB_PASSWORD) { $env:DB_PASSWORD } else { Read-Host '请输入MySQL密码' }
 $DbName    = 'campus_market'
 
 Write-Host '========================================' -ForegroundColor Cyan
@@ -41,7 +43,7 @@ if (-not (Test-Path $MySqlExe)) {
 }
 & $MySqlExe -u $DbUser -p$DbPass -e "SELECT VERSION();"
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[错误] MySQL 连接失败，请检查账号密码 (当前: $DbUser / $DbPass)" -ForegroundColor Red
+    Write-Host "[错误] MySQL 连接失败，请检查账号密码" -ForegroundColor Red
     exit 1
 }
 
@@ -97,11 +99,7 @@ Write-Host '========================================' -ForegroundColor Green
 Write-Host ' 数据库初始化完成！' -ForegroundColor Green
 Write-Host '========================================' -ForegroundColor Green
 Write-Host "  数据库      : $DbName" -ForegroundColor Green
-Write-Host '  默认账号    :' -ForegroundColor Green
-Write-Host '    admin    / admin123   (平台管理后台)' -ForegroundColor Green
-Write-Host '    zhangsan / 123456     (卖家)' -ForegroundColor Green
-Write-Host '    lisi     / 123456     (卖家)' -ForegroundColor Green
-Write-Host '    wangwu   / 123456     (买家)' -ForegroundColor Green
+Write-Host '  默认账号请查看 init_data_market.py' -ForegroundColor Green
 Write-Host '========================================' -ForegroundColor Green
 Write-Host ''
 Write-Host '下一步： .\deploy\start_all.ps1' -ForegroundColor Cyan
