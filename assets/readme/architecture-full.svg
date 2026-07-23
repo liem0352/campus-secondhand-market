@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="100%" role="img" aria-labelledby="archTitle archDesc">
+  <title id="archTitle">校园二手交易平台 - 完整系统架构</title>
+  <desc id="archDesc">三前端(微信小程序买家端、Vue3 卖家工作台、Web 管理后台)统一对接 Django + DRF 后端 :8000,后端内含 views 与 services 分层,向下持久化到 MySQL。</desc>
+
+  <!-- 画布背景 -->
+  <rect x="0" y="0" width="1200" height="420" rx="20" fill="#0F1A14"/>
+
+  <!-- 章节标题 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="48" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="2.2" fill="#4A9B6E" font-weight="600">SYSTEM ARCHITECTURE</text>
+    <text x="48" y="84" font-size="30" fill="#E8E4D9" font-weight="700">系统架构</text>
+    <text x="48" y="108" font-size="14" fill="#6B7E72">三前端一后端,RESTful API 统一对接,MySQL 持久化</text>
+  </g>
+
+  <!-- 三前端层(y=140) -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <!-- 买家端 -->
+    <g>
+      <rect x="80" y="140" width="240" height="74" rx="10" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1.5"/>
+      <text x="200" y="166" text-anchor="middle" font-size="15" fill="#E8E4D9" font-weight="600">微信小程序</text>
+      <text x="200" y="186" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">买家 C 端</text>
+      <text x="200" y="204" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#4A9B6E">原生小程序 · wx.request</text>
+    </g>
+    <!-- 卖家工作台 -->
+    <g>
+      <rect x="480" y="140" width="240" height="74" rx="10" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1.5"/>
+      <text x="600" y="166" text-anchor="middle" font-size="15" fill="#E8E4D9" font-weight="600">Vue3 卖家工作台</text>
+      <text x="600" y="186" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">:3000</text>
+      <text x="600" y="204" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#4A9B6E">Vue3 · TS · Element Plus</text>
+    </g>
+    <!-- 管理后台 -->
+    <g>
+      <rect x="880" y="140" width="240" height="74" rx="10" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1.5"/>
+      <text x="1000" y="166" text-anchor="middle" font-size="15" fill="#E8E4D9" font-weight="600">Web 管理后台</text>
+      <text x="1000" y="186" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">平台运营</text>
+      <text x="1000" y="204" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#4A9B6E">信用监控 · 风控</text>
+    </g>
+  </g>
+
+  <!-- 前端 -> 后端 连线 -->
+  <g stroke="#4A9B6E" stroke-width="1" fill="none" opacity="0.6">
+    <line x1="200" y1="214" x2="540" y2="252"/>
+    <line x1="600" y1="214" x2="600" y2="252"/>
+    <line x1="1000" y1="214" x2="660" y2="252"/>
+  </g>
+  <!-- API 标注 -->
+  <text x="600" y="240" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72" text-rendering="geometricPrecision">RESTful · JWT</text>
+
+  <!-- 后端中心节点 -->
+  <g>
+    <rect x="380" y="252" width="440" height="100" rx="10" fill="#4A9B6E" stroke="#4A9B6E" stroke-width="1"/>
+    <text x="600" y="280" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#FFFFFF" font-weight="700">Django + DRF backend :8000</text>
+    <text x="600" y="304" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#E8E4D9">views: auth / product / order / message / ai / admin</text>
+    <text x="600" y="324" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#E8E4D9">serializers · services(ai_service / llm_client / asr_adapter)</text>
+    <text x="600" y="342" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#0F1A14" opacity="0.75">models: User · Product · Category · Order · Review</text>
+  </g>
+
+  <!-- 后端 -> MySQL 琥珀线 -->
+  <line x1="600" y1="352" x2="600" y2="380" stroke="#E8B547" stroke-width="1.5" opacity="0.9"/>
+
+  <!-- MySQL 节点 -->
+  <g>
+    <rect x="480" y="380" width="240" height="30" rx="8" fill="none" stroke="#E8B547" stroke-width="1"/>
+    <text x="600" y="400" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#E8B547" font-weight="600">MySQL · 持久化 · migrations</text>
+  </g>
+
+</svg>

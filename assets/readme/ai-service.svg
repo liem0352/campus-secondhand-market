@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 280" width="100%" role="img" aria-labelledby="aiTitle aiDesc">
+  <title id="aiTitle">校园二手交易平台 - AI 服务架构</title>
+  <desc id="aiDesc">ai_service 作为编排层,调用 llm_client 完成商品描述生成与客服问答,调用 asr_adapter 适配小程序语音输入。</desc>
+
+  <!-- 画布背景 -->
+  <rect x="0" y="0" width="1200" height="280" rx="20" fill="#0F1A14"/>
+
+  <!-- 章节标题 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="48" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="2.2" fill="#4A9B6E" font-weight="600">AI SERVICE TOPOLOGY</text>
+    <text x="48" y="84" font-size="30" fill="#E8E4D9" font-weight="700">AI 服务</text>
+    <text x="48" y="108" font-size="14" fill="#6B7E72">后端 services 层的一等公民,非外挂脚本</text>
+  </g>
+
+  <!-- 入口调用方 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="80" y="160" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#6B7E72" font-weight="600">CALLER</text>
+    <rect x="80" y="172" width="180" height="56" rx="8" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1"/>
+    <text x="170" y="194" text-anchor="middle" font-size="14" fill="#E8E4D9" font-weight="600">views/ai</text>
+    <text x="170" y="214" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">ViewSet</text>
+  </g>
+
+  <!-- 调用线:views/ai -> ai_service -->
+  <line x1="260" y1="200" x2="370" y2="200" stroke="#4A9B6E" stroke-width="1.5"/>
+  <polygon points="370,196 378,200 370,204" fill="#4A9B6E"/>
+  <text x="315" y="194" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">invoke</text>
+
+  <!-- ai_service 编排节点(中心) -->
+  <g>
+    <rect x="380" y="160" width="240" height="80" rx="10" fill="#4A9B6E" stroke="#4A9B6E"/>
+    <text x="500" y="186" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#FFFFFF" font-weight="700">ai_service</text>
+    <text x="500" y="208" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#E8E4D9">编排层 / 入口</text>
+    <text x="500" y="226" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#E8E4D9">路由到 llm / asr</text>
+  </g>
+
+  <!-- 分叉到两个适配器 -->
+  <!-- ai_service -> llm_client -->
+  <line x1="620" y1="180" x2="730" y2="155" stroke="#E8B547" stroke-width="1.5"/>
+  <polygon points="727,151 738,154 732,160" fill="#E8B547"/>
+  <text x="678" y="160" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#E8B547">文本路径</text>
+
+  <!-- ai_service -> asr_adapter -->
+  <line x1="620" y1="220" x2="730" y2="245" stroke="#E8B547" stroke-width="1.5"/>
+  <polygon points="732,240 738,246 727,249" fill="#E8B547"/>
+  <text x="678" y="246" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#E8B547">语音路径</text>
+
+  <!-- llm_client 节点 -->
+  <g>
+    <rect x="740" y="120" width="260" height="70" rx="10" fill="none" stroke="#E8B547" stroke-width="1"/>
+    <text x="870" y="148" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" fill="#E8B547" font-weight="700">llm_client</text>
+    <text x="870" y="170" text-anchor="middle" font-size="12" fill="#E8E4D9">商品描述生成 · 客服问答</text>
+    <text x="870" y="186" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">HTTP / SDK</text>
+  </g>
+
+  <!-- asr_adapter 节点 -->
+  <g>
+    <rect x="740" y="210" width="260" height="60" rx="10" fill="none" stroke="#E8B547" stroke-width="1"/>
+    <text x="870" y="234" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" fill="#E8B547" font-weight="700">asr_adapter</text>
+    <text x="870" y="256" text-anchor="middle" font-size="12" fill="#E8E4D9">小程序语音输入适配</text>
+  </g>
+
+  <!-- 右侧返回说明 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <line x1="1000" y1="155" x2="1090" y2="155" stroke="#6B7E72" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="1000" y1="240" x2="1090" y2="240" stroke="#6B7E72" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="1100" y="160" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">JSON</text>
+    <text x="1100" y="245" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">text</text>
+  </g>
+
+</svg>

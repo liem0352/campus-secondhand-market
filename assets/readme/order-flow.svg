@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="100%" role="img" aria-labelledby="flowTitle flowDesc">
+  <title id="flowTitle">校园二手交易平台 - 订单状态流转</title>
+  <desc id="flowDesc">订单从下单到已评价的六状态流转:下单、待付款、已付款、已发货、已收货、已评价。包含已取消分支。</desc>
+
+  <!-- 画布背景 -->
+  <rect x="0" y="0" width="1200" height="320" rx="20" fill="#0F1A14"/>
+
+  <!-- 章节标题 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="48" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="2.2" fill="#4A9B6E" font-weight="600">ORDER STATE MACHINE</text>
+    <text x="48" y="84" font-size="30" fill="#E8E4D9" font-weight="700">订单流程</text>
+    <text x="48" y="108" font-size="14" fill="#6B7E72">六状态流转,已收货后触发评价与信用分更新</text>
+  </g>
+
+  <!-- 主流程节点(水平排列,y=180) -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+
+    <!-- 节点宽度 150,间隔 30,起始 x=48,6 节点总宽 6*150+5*30 = 1050 -->
+    <!-- 节点 1: 下单 -->
+    <g>
+      <rect x="48" y="160" width="150" height="48" rx="8" fill="#4A9B6E" stroke="#4A9B6E"/>
+      <text x="123" y="184" text-anchor="middle" font-size="14" fill="#FFFFFF" font-weight="700">下单</text>
+      <text x="123" y="200" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8E4D9">create</text>
+    </g>
+    <!-- 箭头 1 -> 2 -->
+    <line x1="198" y1="184" x2="222" y2="184" stroke="#4A9B6E" stroke-width="1.5"/>
+    <polygon points="222,180 230,184 222,188" fill="#4A9B6E"/>
+
+    <!-- 节点 2: 待付款 -->
+    <g>
+      <rect x="228" y="160" width="150" height="48" rx="8" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="303" y="184" text-anchor="middle" font-size="14" fill="#E8E4D9" font-weight="700">待付款</text>
+      <text x="303" y="200" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6B7E72">pending_pay</text>
+    </g>
+    <line x1="378" y1="184" x2="402" y2="184" stroke="#4A9B6E" stroke-width="1.5"/>
+    <polygon points="402,180 410,184 402,188" fill="#4A9B6E"/>
+
+    <!-- 节点 3: 已付款 -->
+    <g>
+      <rect x="408" y="160" width="150" height="48" rx="8" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="483" y="184" text-anchor="middle" font-size="14" fill="#E8E4D9" font-weight="700">已付款</text>
+      <text x="483" y="200" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6B7E72">paid</text>
+    </g>
+    <line x1="558" y1="184" x2="582" y2="184" stroke="#4A9B6E" stroke-width="1.5"/>
+    <polygon points="582,180 590,184 582,188" fill="#4A9B6E"/>
+
+    <!-- 节点 4: 已发货 -->
+    <g>
+      <rect x="588" y="160" width="150" height="48" rx="8" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="663" y="184" text-anchor="middle" font-size="14" fill="#E8E4D9" font-weight="700">已发货</text>
+      <text x="663" y="200" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6B7E72">shipped</text>
+    </g>
+    <line x1="738" y1="184" x2="762" y2="184" stroke="#4A9B6E" stroke-width="1.5"/>
+    <polygon points="762,180 770,184 762,188" fill="#4A9B6E"/>
+
+    <!-- 节点 5: 已收货 -->
+    <g>
+      <rect x="768" y="160" width="150" height="48" rx="8" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="843" y="184" text-anchor="middle" font-size="14" fill="#E8E4D9" font-weight="700">已收货</text>
+      <text x="843" y="200" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6B7E72">received</text>
+    </g>
+    <line x1="918" y1="184" x2="942" y2="184" stroke="#E8B547" stroke-width="1.5"/>
+    <polygon points="942,180 950,184 942,188" fill="#E8B547"/>
+
+    <!-- 节点 6: 已评价(琥珀,终态) -->
+    <g>
+      <rect x="948" y="160" width="150" height="48" rx="8" fill="none" stroke="#E8B547" stroke-width="1.5"/>
+      <text x="1023" y="184" text-anchor="middle" font-size="14" fill="#E8B547" font-weight="700">已评价</text>
+      <text x="1023" y="200" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8B547">reviewed</text>
+    </g>
+
+  </g>
+
+  <!-- 已取消分支(从待付款/已付款分出) -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <!-- 从待付款下出 -->
+    <path d="M 303 208 L 303 250 L 540 250" stroke="#6B7E72" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+    <text x="380" y="244" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">取消 / 超时</text>
+
+    <!-- 已取消节点 -->
+    <rect x="540" y="232" width="140" height="36" rx="8" fill="#0F1A14" stroke="#6B7E72" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="610" y="255" text-anchor="middle" font-size="13" fill="#6B7E72" font-weight="600">已取消 cancelled</text>
+  </g>
+
+  <!-- 终态说明:评价影响信用分 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <line x1="1023" y1="208" x2="1023" y2="250" stroke="#E8B547" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="1023" y="270" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#E8B547">触发信用分更新</text>
+  </g>
+
+</svg>

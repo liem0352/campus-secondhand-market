@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" role="img" aria-labelledby="treeTitle treeDesc">
+  <title id="treeTitle">校园二手交易平台 - 项目目录树</title>
+  <desc id="treeDesc">backend 下含 config / market / migrations / finance_legacy[已下线] / scripts,frontend-web 为 Vue3 卖家工作台,小程序前端为原生微信小程序,管理后台为 Web 平台运营端。</desc>
+
+  <!-- 画布背景 -->
+  <rect x="0" y="0" width="1200" height="360" rx="20" fill="#0F1A14"/>
+
+  <!-- 章节标题 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="48" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="2.2" fill="#4A9B6E" font-weight="600">PROJECT TREE</text>
+    <text x="48" y="84" font-size="30" fill="#E8E4D9" font-weight="700">项目结构</text>
+    <text x="48" y="108" font-size="14" fill="#6B7E72">一仓库四目录,后端 + 三前端</text>
+  </g>
+
+  <!-- 目录树(等宽字体) -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-rendering="geometricPrecision" font-size="13">
+
+    <!-- 根 -->
+    <text x="48" y="142" fill="#E8E4D9" font-weight="700">campus-secondhand-market/</text>
+
+    <!-- backend 分支 -->
+    <text x="72" y="164" fill="#E8E4D9">├── backend/</text>
+    <text x="220" y="164" fill="#6B7E72"># Django + DRF :8000</text>
+
+    <text x="96" y="184" fill="#E8E4D9">├── config/</text>
+    <text x="220" y="184" fill="#6B7E72"># settings / urls / wsgi</text>
+
+    <text x="96" y="204" fill="#E8E4D9">├── market/</text>
+    <text x="220" y="204" fill="#6B7E72"># 业务域</text>
+
+    <text x="120" y="224" fill="#E8E4D9">│   ├── models.py</text>
+    <text x="320" y="224" fill="#4A9B6E">User · Product · Category · Order · Review</text>
+
+    <text x="120" y="244" fill="#E8E4D9">│   ├── views/</text>
+    <text x="320" y="244" fill="#4A9B6E">auth · product · order · message · ai · admin</text>
+
+    <text x="120" y="264" fill="#E8E4D9">│   ├── serializers/</text>
+    <text x="320" y="264" fill="#6B7E72">DRF 序列化器</text>
+
+    <text x="120" y="284" fill="#E8E4D9">│   └── services/</text>
+    <text x="320" y="284" fill="#E8B547">ai_service · llm_client · asr_adapter</text>
+
+    <text x="96" y="304" fill="#E8E4D9">├── migrations/</text>
+    <text x="220" y="304" fill="#6B7E72"># 数据库迁移</text>
+
+    <text x="96" y="324" fill="#E8B547">├── finance_legacy/</text>
+    <text x="220" y="324" fill="#E8B547">[已下线] 家庭记账旧代码,教学追溯</text>
+
+    <text x="96" y="344" fill="#E8E4D9">└── scripts/</text>
+    <text x="220" y="344" fill="#6B7E72"># 运维与种子脚本</text>
+
+  </g>
+
+  <!-- 右侧三前端目录 -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-rendering="geometricPrecision" font-size="13">
+    <line x1="640" y1="142" x2="640" y2="344" stroke="#4A9B6E" stroke-width="1" opacity="0.25"/>
+
+    <text x="660" y="164" fill="#E8E4D9">├── frontend-web/</text>
+    <text x="800" y="164" fill="#4A9B6E">Vue3 · TS · Element Plus :3000</text>
+
+    <text x="660" y="194" fill="#E8E4D9">├── 小程序前端/</text>
+    <text x="800" y="194" fill="#4A9B6E">原生微信小程序(买家 C 端)</text>
+
+    <text x="660" y="224" fill="#E8E4D9">└── 管理后台/</text>
+    <text x="800" y="224" fill="#4A9B6E">Web 平台运营端</text>
+
+    <!-- 关键文件提示 -->
+    <text x="660" y="264" fill="#6B7E72" font-size="11">关键文件:</text>
+    <text x="660" y="284" fill="#E8E4D9" font-size="12">backend/requirements.txt</text>
+    <text x="660" y="304" fill="#E8E4D9" font-size="12">backend/manage.py</text>
+    <text x="660" y="324" fill="#E8E4D9" font-size="12">frontend-web/package.json</text>
+    <text x="660" y="344" fill="#E8E4D9" font-size="12">小程序前端/project.config.json</text>
+  </g>
+
+</svg>

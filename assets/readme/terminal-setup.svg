@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 220" width="100%" role="img" aria-labelledby="termTitle termDesc">
+  <title id="termTitle">校园二手交易平台 - 快速启动命令</title>
+  <desc id="termDesc">后端虚拟环境与启动命令,前端 npm install 与 npm run dev 命令,分两张终端卡片呈现。</desc>
+
+  <!-- 画布背景 -->
+  <rect x="0" y="0" width="1200" height="220" rx="20" fill="#0F1A14"/>
+
+  <!-- 章节标题 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="48" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="2.2" fill="#4A9B6E" font-weight="600">QUICK START</text>
+    <text x="48" y="84" font-size="30" fill="#E8E4D9" font-weight="700">如何使用</text>
+    <text x="48" y="108" font-size="14" fill="#6B7E72">后端 venv + migrate + runserver,前端 npm install + dev</text>
+  </g>
+
+  <!-- 终端卡片:后端(左) -->
+  <g>
+    <rect x="48" y="128" width="540" height="76" rx="10" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1"/>
+    <!-- 终端顶栏 -->
+    <rect x="48" y="128" width="540" height="20" rx="10" fill="#4A9B6E"/>
+    <rect x="48" y="138" width="540" height="10" fill="#4A9B6E"/>
+    <text x="64" y="143" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#0F1A14" font-weight="700">backend · powershell</text>
+
+    <!-- 命令文本 -->
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" text-rendering="geometricPrecision">
+      <text x="64" y="166" fill="#6B7E72">PS&gt;</text>
+      <text x="92" y="166" fill="#E8E4D9">cd backend</text>
+      <text x="64" y="182" fill="#6B7E72">PS&gt;</text>
+      <text x="92" y="182" fill="#E8E4D9">python -m venv venv ; venv\Scripts\Activate.ps1</text>
+      <text x="64" y="198" fill="#6B7E72">PS&gt;</text>
+      <text x="92" y="198" fill="#E8E4D9">pip install -r requirements.txt</text>
+    </g>
+  </g>
+
+  <!-- 终端卡片:前端(右) -->
+  <g>
+    <rect x="612" y="128" width="540" height="76" rx="10" fill="#0F1A14" stroke="#E8B547" stroke-width="1"/>
+    <rect x="612" y="128" width="540" height="20" rx="10" fill="#E8B547"/>
+    <rect x="612" y="138" width="540" height="10" fill="#E8B547"/>
+    <text x="628" y="143" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#0F1A14" font-weight="700">frontend-web · npm</text>
+
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" text-rendering="geometricPrecision">
+      <text x="628" y="166" fill="#6B7E72">$</text>
+      <text x="644" y="166" fill="#E8E4D9">cd frontend-web</text>
+      <text x="628" y="182" fill="#6B7E72">$</text>
+      <text x="644" y="182" fill="#E8E4D9">npm install</text>
+      <text x="628" y="198" fill="#6B7E72">$</text>
+      <text x="644" y="198" fill="#E8E4D9">npm run dev   # http://localhost:3000</text>
+    </g>
+  </g>
+
+</svg>

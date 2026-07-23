@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" role="img" aria-labelledby="layerTitle layerDesc">
+  <title id="layerTitle">校园二手交易平台 - 后端分层</title>
+  <desc id="layerDesc">Django 后端按 config / models / views / serializers / services / migrations 六层组织,models 定义领域实体,views 暴露 RESTful 接口,services 承载 AI 与外部适配。</desc>
+
+  <!-- 画布背景 -->
+  <rect x="0" y="0" width="1200" height="360" rx="20" fill="#0F1A14"/>
+
+  <!-- 章节标题 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="48" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="2.2" fill="#4A9B6E" font-weight="600">BACKEND LAYERS</text>
+    <text x="48" y="84" font-size="30" fill="#E8E4D9" font-weight="700">后端分层</text>
+    <text x="48" y="108" font-size="14" fill="#6B7E72">Django + DRF,六层组织,职责分离</text>
+  </g>
+
+  <!-- 分层条 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+
+    <!-- Layer 1: config -->
+    <g>
+      <rect x="48" y="130" width="140" height="34" rx="6" fill="#4A9B6E" stroke="#4A9B6E"/>
+      <text x="118" y="152" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#FFFFFF" font-weight="700">config</text>
+      <text x="200" y="152" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#E8E4D9">settings · urls · wsgi</text>
+    </g>
+
+    <!-- Layer 2: models -->
+    <g>
+      <rect x="48" y="172" width="140" height="34" rx="6" fill="#4A9B6E" stroke="#4A9B6E"/>
+      <text x="118" y="194" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#FFFFFF" font-weight="700">models</text>
+      <text x="200" y="194" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#E8E4D9">User · Product · Category · Order · Review</text>
+    </g>
+
+    <!-- Layer 3: views -->
+    <g>
+      <rect x="48" y="214" width="140" height="34" rx="6" fill="#4A9B6E" stroke="#4A9B6E"/>
+      <text x="118" y="236" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#FFFFFF" font-weight="700">views</text>
+      <text x="200" y="236" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#E8E4D9">auth · product · order · message · ai · admin</text>
+    </g>
+
+    <!-- Layer 4: serializers -->
+    <g>
+      <rect x="48" y="256" width="140" height="34" rx="6" fill="#0F1A14" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="118" y="278" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#E8E4D9" font-weight="700">serializers</text>
+      <text x="200" y="278" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#6B7E72">DRF 序列化器 · 字段校验</text>
+    </g>
+
+    <!-- Layer 5: services(琥珀描边,特色层) -->
+    <g>
+      <rect x="48" y="298" width="140" height="34" rx="6" fill="none" stroke="#E8B547" stroke-width="1"/>
+      <text x="118" y="320" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#E8B547" font-weight="700">services</text>
+      <text x="200" y="320" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#E8B547">ai_service · llm_client · asr_adapter</text>
+    </g>
+
+  </g>
+
+  <!-- 右侧注释:层职责说明 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <line x1="700" y1="130" x2="700" y2="332" stroke="#4A9B6E" stroke-width="1" opacity="0.25"/>
+
+    <text x="720" y="148" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#4A9B6E" font-weight="600">请求入口</text>
+    <text x="720" y="166" font-size="13" fill="#E8E4D9">URL 路由分发,settings 配置注入</text>
+
+    <text x="720" y="194" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#4A9B6E" font-weight="600">领域实体</text>
+    <text x="720" y="212" font-size="13" fill="#E8E4D9">五类核心模型,迁移文件随版本演进</text>
+
+    <text x="720" y="240" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#4A9B6E" font-weight="600">接口暴露</text>
+    <text x="720" y="258" font-size="13" fill="#E8E4D9">六大 ViewSet 模块覆盖全部业务域</text>
+
+    <text x="720" y="286" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72" font-weight="600">序列化</text>
+    <text x="720" y="304" font-size="13" fill="#6B7E72">DRF 序列化器,字段级校验</text>
+
+    <text x="720" y="332" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#E8B547" font-weight="600">外部适配</text>
+  </g>
+
+</svg>
