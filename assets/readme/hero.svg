@@ -1,63 +1,69 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="340" viewBox="0 0 1200 340" role="img" aria-labelledby="t d">
-  <title id="t">campus-secondhand-market · 校园二手交易平台</title>
-  <desc id="d">Django + DRF + MySQL + Vue3 + 微信小程序 C2C 校园二手交易平台,一后端三前端联调。左侧标题与技术栈,右侧展示后端中心节点与三前端辐射架构。</desc>
-  <rect width="1200" height="340" rx="22" fill="#161a0e"/>
-  <rect x="0" y="0" width="6" height="340" rx="3" fill="#eab308"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" width="100%" role="img" aria-labelledby="heroTitle heroDesc">
+  <title id="heroTitle">校园二手交易平台 — 一后端三前端全栈架构</title>
+  <desc id="heroDesc">Django + DRF 后端为中心,汇聚微信小程序买家端、Vue3 卖家工作台、Web 管理后台三前端,下方对接 MySQL 持久化。</desc>
 
-  <g transform="translate(56,54)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif">
-    <text x="0" y="0" font-size="15" letter-spacing="4" fill="#eab308" font-weight="600">CAMPUS · C2C MARKET</text>
-    <text x="0" y="52" font-size="40" font-weight="700" fill="#eef0e3">校园二手交易平台</text>
-    <text x="0" y="96" font-size="17" fill="#90967a">Django + DRF + Vue3 + 微信小程序</text>
-    <text x="0" y="122" font-size="17" fill="#90967a">一后端 · 三前端 · 端到端联调</text>
+  <!-- 画布背景:深森林黑绿 -->
+  <rect x="0" y="0" width="1200" height="380" rx="26" fill="#0F1A14"/>
 
-    <g transform="translate(0,160)" font-size="13.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">
-      <g><rect width="80" height="30" rx="8" fill="none" stroke="#2a3018"/><text x="40" y="20" text-anchor="middle" fill="#c2c6ab">Django</text></g>
-      <g transform="translate(92,0)"><rect width="64" height="30" rx="8" fill="none" stroke="#2a3018"/><text x="32" y="20" text-anchor="middle" fill="#c2c6ab">DRF</text></g>
-      <g transform="translate(168,0)"><rect width="76" height="30" rx="8" fill="none" stroke="#2a3018"/><text x="38" y="20" text-anchor="middle" fill="#c2c6ab">MySQL</text></g>
-      <g transform="translate(256,0)"><rect width="72" height="30" rx="8" fill="none" stroke="#2a3018"/><text x="36" y="20" text-anchor="middle" fill="#c2c6ab">Vue3+TS</text></g>
-      <g transform="translate(340,0)"><rect width="96" height="30" rx="8" fill="none" stroke="#2a3018"/><text x="48" y="20" text-anchor="middle" fill="#c2c6ab">Element Plus</text></g>
-      <g transform="translate(448,0)"><rect width="92" height="30" rx="8" fill="none" stroke="#3a4a1e"/><text x="46" y="20" text-anchor="middle" fill="#65a30d">微信小程序</text></g>
-    </g>
-    <text x="0" y="236" font-size="13" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#5a5e48">用户/商品/订单/私聊/评价/信用分/AI · ui-ux-pro-max 升级</text>
+  <!-- 顶部标题区(居中) -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="600" y="54" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" letter-spacing="2.4" fill="#4A9B6E" font-weight="600">FULL-STACK · C2C MARKETPLACE</text>
+    <text x="600" y="104" text-anchor="middle" font-size="44" fill="#E8E4D9" font-weight="700">校园二手交易平台</text>
+    <text x="600" y="138" text-anchor="middle" font-size="18" fill="#6B7E72">Django + DRF + Vue3 + 微信小程序 · 一后端三前端</text>
   </g>
 
-  <g transform="translate(712,52)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif">
-    <text x="0" y="0" font-size="12" letter-spacing="3" fill="#5a5e48">ONE BACKEND · THREE FRONTENDS</text>
+  <!-- 架构拓扑图 group -->
+  <g transform="translate(56 155)" font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
 
-    <path d="M210,120 L210,60" stroke="#3a4a1e" stroke-width="1.6" stroke-dasharray="4 4"/>
-    <path d="M210,120 L96,180" stroke="#3a4a1e" stroke-width="1.6" stroke-dasharray="4 4"/>
-    <path d="M210,120 L324,180" stroke="#3a4a1e" stroke-width="1.6" stroke-dasharray="4 4"/>
-
-    <g transform="translate(120,18)">
-      <rect width="180" height="46" rx="9" fill="#1f2410" stroke="#3a4a1e"/>
-      <text x="90" y="22" text-anchor="middle" font-size="13" fill="#65a30d" font-weight="600">微信小程序</text>
-      <text x="90" y="38" text-anchor="middle" font-size="10" fill="#5a5e48" font-family="ui-monospace,monospace">买家端 · C 端</text>
+    <!-- 连线层(先画线,后画节点,避免线压节点) -->
+    <g stroke="#4A9B6E" stroke-width="1" fill="none" opacity="0.85">
+      <!-- 买家端 -> 后端 -->
+      <line x1="240" y1="28" x2="424" y2="62"/>
+      <!-- 卖家端 -> 后端 -->
+      <line x1="848" y1="28" x2="624" y2="62"/>
+      <!-- 管理端 -> 后端 -->
+      <line x1="524" y1="155" x2="524" y2="100"/>
+      <!-- 后端 -> MySQL(琥珀,表示持久化链路) -->
+      <line x1="624" y1="85" x2="728" y2="132" stroke="#E8B547" opacity="0.9"/>
     </g>
 
-    <g transform="translate(120,174)">
-      <rect width="180" height="46" rx="9" fill="#1f2410" stroke="#3a4a1e"/>
-      <text x="90" y="22" text-anchor="middle" font-size="13" fill="#eef0e3" font-weight="600">Web 卖家工作台</text>
-      <text x="90" y="38" text-anchor="middle" font-size="10" fill="#5a5e48" font-family="ui-monospace,monospace">Vue3 + TS · :3000</text>
+    <!-- 买家端节点:左上 -->
+    <g>
+      <rect x="60" y="0" width="180" height="55" rx="10" fill="#E8E4D9" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="150" y="25" text-anchor="middle" font-size="14" fill="#0F1A14" font-weight="600">微信小程序</text>
+      <text x="150" y="44" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">买家 C 端</text>
     </g>
 
-    <g transform="translate(6,174)">
-      <rect width="180" height="46" rx="9" fill="#1f2410" stroke="#3a4a1e"/>
-      <text x="90" y="22" text-anchor="middle" font-size="13" fill="#eef0e3" font-weight="600">Web 管理后台</text>
-      <text x="90" y="38" text-anchor="middle" font-size="10" fill="#5a5e48" font-family="ui-monospace,monospace">平台运营</text>
+    <!-- 卖家端节点:右上 -->
+    <g>
+      <rect x="848" y="0" width="180" height="55" rx="10" fill="#E8E4D9" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="938" y="25" text-anchor="middle" font-size="14" fill="#0F1A14" font-weight="600">Vue3 + TS</text>
+      <text x="938" y="44" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">卖家工作台 :3000</text>
     </g>
 
-    <g transform="translate(150,96)">
-      <rect width="120" height="50" rx="10" fill="#2a2410" stroke="#6b5a1a"/>
-      <text x="60" y="22" text-anchor="middle" font-size="13.5" fill="#eab308" font-weight="700">Django + DRF</text>
-      <text x="60" y="38" text-anchor="middle" font-size="10" fill="#9c8438" font-family="ui-monospace,monospace">backend :8000</text>
+    <!-- 中心后端节点:校园松绿填充 -->
+    <g>
+      <rect x="424" y="30" width="200" height="70" rx="10" fill="#4A9B6E" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="524" y="60" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#FFFFFF" font-weight="700">Django + DRF</text>
+      <text x="524" y="84" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#E8E4D9">backend :8000</text>
     </g>
 
-    <g transform="translate(0,244)">
-      <rect width="420" height="40" rx="8" fill="#11140a" stroke="#2a3018"/>
-      <text x="14" y="25" font-size="11.5" fill="#c2c6ab">业务域：用户 · 商品 · 订单 · 私聊 · 评价 · 信用分 · AI</text>
-      <text x="406" y="25" font-size="10" fill="#5a5e48" text-anchor="end" font-family="ui-monospace,monospace">market/</text>
+    <!-- MySQL 节点:琥珀描边,后端右下方 -->
+    <g>
+      <rect x="728" y="115" width="200" height="35" rx="10" fill="none" stroke="#E8B547" stroke-width="1"/>
+      <text x="828" y="138" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" fill="#E8B547" font-weight="600">MySQL · 持久化</text>
     </g>
+
+    <!-- 管理端节点:下方中间(构成倒三角形) -->
+    <g>
+      <rect x="434" y="155" width="180" height="55" rx="10" fill="#E8E4D9" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="524" y="180" text-anchor="middle" font-size="14" fill="#0F1A14" font-weight="600">Web 管理后台</text>
+      <text x="524" y="199" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#6B7E72">平台运营</text>
+    </g>
+
   </g>
 
-  <text x="56" y="312" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#5a5e48">author: liem · Day01-Day04 · finance_legacy 已下线</text>
+  <!-- 底部署名 -->
+  <text x="600" y="370" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#6B7E72" text-rendering="geometricPrecision">作者 liem · 4 实训整合 · MIT</text>
+
 </svg>

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 140" width="100%" role="img" aria-labelledby="bizTitle bizDesc">
+  <title id="bizTitle">校园二手交易平台 — 7 大业务域</title>
+  <desc id="bizDesc">用户、商品、订单、私聊、评价、信用分、AI 七大业务域覆盖 C2C 校园交易全链路。</desc>
+
+  <!-- 画布背景 -->
+  <rect x="0" y="0" width="1200" height="140" rx="16" fill="#0F1A14"/>
+
+  <!-- 左侧标题区 -->
+  <g font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+    <text x="48" y="42" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="2.2" fill="#4A9B6E" font-weight="600">BUSINESS MODULES</text>
+    <text x="48" y="74" font-size="26" fill="#E8E4D9" font-weight="700">业务模块</text>
+    <text x="48" y="100" font-size="13" fill="#6B7E72">7 大领域 · C2C 全链路</text>
+  </g>
+
+  <!-- 右侧业务域卡片条 -->
+  <g transform="translate(280 0)" font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif' text-rendering="geometricPrecision">
+
+    <!-- 核心域:松绿填充白字(用户/商品/订单) -->
+    <g>
+      <rect x="0" y="45" width="120" height="50" rx="8" fill="#4A9B6E" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="60" y="68" text-anchor="middle" font-size="14" fill="#FFFFFF" font-weight="600">用户</text>
+      <text x="60" y="86" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8E4D9">鉴权 / 信用</text>
+    </g>
+    <g>
+      <rect x="128" y="45" width="120" height="50" rx="8" fill="#4A9B6E" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="188" y="68" text-anchor="middle" font-size="14" fill="#FFFFFF" font-weight="600">商品</text>
+      <text x="188" y="86" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8E4D9">发布 / 搜索</text>
+    </g>
+    <g>
+      <rect x="256" y="45" width="120" height="50" rx="8" fill="#4A9B6E" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="316" y="68" text-anchor="middle" font-size="14" fill="#FFFFFF" font-weight="600">订单</text>
+      <text x="316" y="86" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8E4D9">状态流转</text>
+    </g>
+
+    <!-- 辅助域:白填充描边松绿(私聊/评价) -->
+    <g>
+      <rect x="384" y="45" width="120" height="50" rx="8" fill="#E8E4D9" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="444" y="68" text-anchor="middle" font-size="14" fill="#0F1A14" font-weight="600">私聊</text>
+      <text x="444" y="86" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6B7E72">买卖沟通</text>
+    </g>
+    <g>
+      <rect x="512" y="45" width="120" height="50" rx="8" fill="#E8E4D9" stroke="#4A9B6E" stroke-width="1"/>
+      <text x="572" y="68" text-anchor="middle" font-size="14" fill="#0F1A14" font-weight="600">评价</text>
+      <text x="572" y="86" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6B7E72">信誉体系</text>
+    </g>
+
+    <!-- 特色域:琥珀描边(信用分/AI) -->
+    <g>
+      <rect x="640" y="45" width="120" height="50" rx="8" fill="none" stroke="#E8B547" stroke-width="1"/>
+      <text x="700" y="68" text-anchor="middle" font-size="14" fill="#E8B547" font-weight="600">信用分</text>
+      <text x="700" y="86" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8B547">信任度量</text>
+    </g>
+    <g>
+      <rect x="768" y="45" width="120" height="50" rx="8" fill="none" stroke="#E8B547" stroke-width="1"/>
+      <text x="828" y="68" text-anchor="middle" font-size="14" fill="#E8B547" font-weight="600">AI</text>
+      <text x="828" y="86" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#E8B547">智能辅助</text>
+    </g>
+
+  </g>
+
+  <!-- 底部分隔线 -->
+  <line x1="48" y1="120" x2="1152" y2="120" stroke="#4A9B6E" stroke-width="1" opacity="0.25"/>
+
+</svg>
